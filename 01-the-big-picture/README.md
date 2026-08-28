@@ -21,6 +21,9 @@ Abstraction یعنی برای فهم یک سیستم پیچیده ، لازم ن
 
 تمام برنامه‌هایی که ما روزانه با آن‌ها کار می‌کنیم؛ مانند browser , Database , web server , Terminal  و صدها برنامه دیگر.
 
+
+<img width="100%" height="504" alt="Screenshot from 2026-08-28 18-04-53" src="https://github.com/user-attachments/assets/80dbc93a-8396-4da8-a6ef-511864513614" />
+
 ---
 
 ### ⚙️ **Kernal mode vs User mode**
@@ -45,6 +48,7 @@ Abstraction یعنی برای فهم یک سیستم پیچیده ، لازم ن
 دوتا از مهمترین System Call ها ، fork() و exec() هستند. fork() یک کپی تقریباً یکسان از یک process می سازد و exec() برنامه ی جدید را بارگذاری کرده و جایگرین آن می کند. مثلاً وقتی دستور ls را در تمرینال می زنید shell یک fork() انجام می دهد تا یک کپی از خودش بسازد، و آن کپی با exec(ls) برنامه ls را اجرا می کند. تقریباً تمام process های یک سیستم لینوکسی همین طور متولد می شوند.
 
 
+<img width="100%" height="127" alt="Screenshot from 2026-08-28 18-06-58" src="https://github.com/user-attachments/assets/eebeb657-bb50-4bbf-87a4-0ffb2064afb8" />
 
 
 ---
