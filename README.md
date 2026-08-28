@@ -7,6 +7,7 @@
 ---
 
 ### 📘 Chapters :
+
 - 01 [The Big Picture](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#how-linux-works---chapter-1--the-big-picture)
 - 02 [Basic Command And Directory Hierarchy]()
 - 03
