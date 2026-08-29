@@ -9,7 +9,7 @@
 
 
 - [Abstraction](#️-abstraction)
-- [Kernel Mode vs User Mode](#️-kernel-mode-vs-user-mode)
+- [Kernel Mode vs User Mode](#️-Kernal-mode-vs-User-mode)
 - [The Four Main Responsibilities of the Kernel](#️-the-four-main-responsibilities-of-the-kernel)
 - [System Call](#️-system-call)
 - [Context Switch](#️-context-switch)
