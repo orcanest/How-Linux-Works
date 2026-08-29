@@ -1,6 +1,21 @@
 ## How Linux Works - Chapter 1 | The Big Picture
 
-یکی از اشتباهات رایج هنگام یادگیری لینوکس این است که از همان ابتدا وارد جزئیات شویم؛ دستورها، فایل‌ها، کرنل، درایورها و چندین  مفهوم دیگر. اما فصل اول کتاب **How Linux Works** از زاویه متفاوتی به موضوع نگاه می‌کند :  **قبل از هر چیز باید تصویر کلی سیستم را درک کنیم.**
+یکی از اشتباهات رایج هنگام یادگیری لینوکس این است که از همان ابتدا وارد جزئیات شویم؛ دستورها، فایل‌ها، کرنل، درایورها و چندین  مفهوم دیگر. اما فصل اول کتاب **How Linux Works** از زاویه متفاوتی به موضوع نگاه می‌کند : 
+
+> **💡 قبل از هر چیز باید تصویر کلی سیستم را درک کنیم.**
+
+---
+#### 🧭 فهرست
+
+
+- [Abstraction](#️-abstraction)
+- [The four main responsibilities of the kernel](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-the-four-main-responsibilities-of-the-kernel)
+- [System Call](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-system-call)
+- [Context Switch](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-context-switch)
+- [Memory Management](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-memory-management)
+
+
+---
 
 ### ⚙️ **Abstraction**
 
