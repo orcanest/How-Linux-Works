@@ -9,11 +9,13 @@
 
 
 - [Abstraction](#️-abstraction)
-- [The four main responsibilities of the kernel](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-the-four-main-responsibilities-of-the-kernel)
-- [System Call](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-system-call)
-- [Context Switch](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-context-switch)
-- [Memory Management](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#%EF%B8%8F-memory-management)
-
+- [Kernel Mode vs User Mode](#️-kernel-mode-vs-user-mode)
+- [The Four Main Responsibilities of the Kernel](#️-the-four-main-responsibilities-of-the-kernel)
+- [System Call](#️-system-call)
+- [Context Switch](#️-context-switch)
+- [Memory Management](#️-memory-management)
+- [User & Root](#️-user--root)
+- [Tips](#-tips)
 
 ---
 
@@ -87,7 +89,7 @@ Abstraction یعنی برای فهم یک سیستم پیچیده ، لازم ن
 
 ---
 
-### ✨ مهم‌ترین نکته‌ای این فصل
+### ✨ **Tips**
 
 **قبل از حفظ کردن دستورات لینوکس، باید معماری آن را درک کنیم.**   وقتی بدانیم هر بخش چه مسئولیتی دارد و اجزای سیستم چگونه با هم تعامل می‌کنند، یادگیری مفاهیم پیشرفته‌تر مثل Processها، Memory، File System و Networking بسیار ساده‌تر و منطقی‌تر خواهد شد.
 
