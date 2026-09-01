@@ -1,5 +1,5 @@
 ## دستورات پایه‌ ی لینوکس چطور واقعاً کار می‌کنند؟ 
-### فصل دوم کتاب How Linux Works
+### 🐧 فصل دوم کتاب How Linux Works
 
 فصل اول کتاب معماری کلی یک سیستم لینوکس را معرفی کرد:  ``` Hardware → Kernel → User Space ```
 
@@ -12,7 +12,8 @@
 - [Pipe]( #️-pipe) 
 - [File Commands]()
 - [Navigating Directories]()
-- 
+- [Why should cd be built-in?]()
+- [mkdir and rmdir]()
 
 
 ---
@@ -111,8 +112,16 @@ less
 
 دستور ```ls``` اطلاعات مربوط به یک Directory را نمایش می‌دهد. مثلاً ```ls``` یا ```ls -l``` ، در حالت l- اطلاعات بیشتری مانند : 
 
+- File type
+- Permissions
+- Owner
+- Group
+- Size
+- Last modified time
+- File name
 
-<img width="100%" height="292" alt="Screenshot from 2026-09-01 13-41-45" src="https://github.com/user-attachments/assets/e9a89db8-a91d-4880-af23-851b4fdc41b9" />
+<img width="100%" height="71" alt="image" src="https://github.com/user-attachments/assets/c1082e53-8ca3-4c0c-82f1-46d390a6c74a" />
+
 
 دستور ```ls```  برای دریافت این اطلاعات از امکانات سیستم فایل و system call های مرتبط استفاده می‌ کند. 
 
@@ -203,8 +212,38 @@ notes.txt
 مثلاً ``` .. cd``` یک سطح به Directory والد برمی‌گردد.
 
 
-#### 🔹 '.' & '..'
+#### 🔹 pwd
+دستور```pwd``` ، مسیر دایرکتوری کاری فعلی Shell را نمایش می‌دهد. مثلاً:
+```
+$ pwd
+/home/user
+```
+اگرچه ممکن است مسیر را در Prompt نیز ببینیم، اما این موضوع به تنظیمات Shell بستگی دارد. همچنین Symbolic Link ها می‌ توانند باعث شوند مسیری که می‌بینیم با مسیر physical  متفاوت باشد. برای درخواست نمایش مسیر physical می‌ توان از```pwd -P``` استفاده کرد.
 
+
+<img width="100%" height="40" alt="image" src="https://github.com/user-attachments/assets/87fce485-57db-40ef-bb63-91ced0acc072" />
+
+---
+
+### ⚙️ Why should cd be built-in?
+
+یکی از نکات جالب این فصل، دلیل Built-in بودن ```cd``` است. در ظاهر ممکن است فکر کنیم ```cd``` هم مثل ```ls``` یک برنامه‌ی معمولی است. اما اگر ```cd``` یک Process مستقل بود، تغییر Directory فقط در همان Process اتفاق می‌افتاد. برای مثال :
+```
+Shell
+│
+├── fork()
+│
+└── cd process
+  │
+  └── change working directory
+```
+
+وقتی Child Process تمام می‌شد، Shell اصلی همچنان در Directory قبلی باقی می‌ماند. اما هدف ما این است که **خود Shell  Directory** کاری‌ اش را تغییر دهد. به همین دلیل ```cd``` باید بتواند وضعیت داخلی Shell را تغییر دهد و در Shell هایی مثل Bash به‌ صورت Built-in پیاده‌ سازی شده است.
+---
+
+### ⚙️ mkdir and rmdir
+
+برای ایجاد Directory از دستور ```mkdir mydir``` و برای حذف یک Directory خالی از دستور ```rmdir mydir``` استفاده می‌کنیم. 
 
 
 
