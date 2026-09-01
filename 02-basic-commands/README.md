@@ -8,10 +8,13 @@
 ---
 📚 Table of Contents
 - [What is Shell and how does it execute commands?](#️-What-is-Shell-and-how-does-it-execute-commands?)
-- [stderr, stdin & stdout]( #️-stdin-and-stdout-and-stderr)
-- [pipe]( #️-pipe) 
--
--
+- [Stderr, stdin & stdout]( #️-stdin-and-stdout-and-stderr)
+- [Pipe]( #️-pipe) 
+- [File Commands]()
+- [Navigating Directories]()
+- 
+
+
 ---
 
 ### ⚙️ **What is Shell and how does it execute commands?**
@@ -51,7 +54,7 @@ Shell
 - 1 → stdout
 - 2 → stderr
 
-### 🔹 stdin
+#### 🔹 stdin
 
 ورودی stdin یا Standard Input ، ورودی استاندارد Process است. در یک Shell معمولی، این ورودی معمولاً به Terminal متصل است. برای مثال اگر بنویسیم : ```cat``` و هیچ فایلی به آن ندهیم، cat منتظر دریافت ورودی می‌ماند. هر چیزی که تایپ کنیم، cat همان را روی خروجی چاپ می‌کند. 
 
@@ -59,14 +62,14 @@ Shell
 
 هر چیزی که تایپ کنیم ، cat همان را روی خروجی چاپ می‌کند. برای پایان دادن به ورودی می‌توانیم ```Ctrl+D``` را بزنیم. ```Ctrl+D``` در اینجا در واقع یک کاراکتر معمولی نیست. در Terminal باعث می‌شود وضعیت EOF به Process منتقل شود، یعنی داده‌ ی بیشتری برای خواندن وجود ندارد.
 
-### 🔹 stdout
+#### 🔹 stdout
 
 خروجی stdout یا Standard Output ، خروجی معمولی Process است. مثلاً ```echo hello``` خروجی hello را روی stdout می‌نویسد.
 
 <img width="100%" height="60" alt="image" src="https://github.com/user-attachments/assets/5c986079-4a8b-4d60-9477-1103a40f45b5" />
 
 
-### 🔹 stderr
+#### 🔹 stderr
 
 جریان stderr یا Standard Error d یک جریان جداگانه‌ ای برای پیام‌ های خطا است. برای مثال ```ls /does-not-exist``` پیام خطا از stderr ارسال می‌شود. این جداسازی بسیار مهم است، زیرا می‌توانیم خروجی عادی و خطاها را به مقصدهای متفاوتی بفرستیم.
 
@@ -76,3 +79,135 @@ Shell
 ---
 
 ### ⚙️ Pipe
+
+یکی از قدرتمندترین ویژگی‌های Unix این است که stdin و stdout فقط به Keyboard و Terminal محدود نیستند. می‌توانیم خروجی یک Process را مستقیماً به ورودی Process دیگری وصل کنیم.این کار با Pipe انجام می‌شود:
+```grep "error" logfile.txt | less```
+در اینجا:
+
+```
+Logfile.txt
+│ 
+▼ 
+Grep
+│
+Stdout
+│
+▼
+Pipe
+│
+Stdin
+│ 
+▼ 
+less
+```
+لازم نیست grep بداند less وجود دارد. less هم لازم نیست بداند خروجی از grep آمده است. Shell این اتصال را برای ما ایجاد می‌کند. این همان فلسفه‌ی معروف Unix است: **ابزارهای کوچک و مستقل را می‌توان برای انجام کارهای پیچیده‌ تر با یکدیگر ترکیب کرد.**
+
+---
+
+### ⚙️ File Commands
+
+دستورهای ساده‌ ای مثل ```ls, cp, mv, touch, rm``` شاید در نگاه اول فقط ابزارهای روزمره باشند، اما هرکدام نمونه‌ ای از نحوه‌ ی تعامل User Space با Kernel و Filesystem هستند.
+#### 🔹 ls
+
+دستور ```ls``` اطلاعات مربوط به یک Directory را نمایش می‌دهد. مثلاً ```ls``` یا ```ls -l``` ، در حالت l- اطلاعات بیشتری مانند : 
+
+
+<img width="100%" height="292" alt="Screenshot from 2026-09-01 13-41-45" src="https://github.com/user-attachments/assets/e9a89db8-a91d-4880-af23-851b4fdc41b9" />
+
+دستور ```ls```  برای دریافت این اطلاعات از امکانات سیستم فایل و system call های مرتبط استفاده می‌ کند. 
+
+#### 🔹 cp
+
+دستور cp برای کپی کردن فایل‌ ها استفاده می‌شود. در سطح مفهومی، کپی کردن یک فایل یعنی : 
+```
+Read source
+     ↓
+Write destination
+```
+
+یعنی داده از فایل مبدأ خوانده شده و در فایل مقصد نوشته می‌شود. البته پیاده‌سازی واقعی cp می‌تواند بسته به نوع فایل،   Filesystem ، بهینه‌ سازی‌ ها و گزینه‌ های استفاده‌ شده پیچیده‌ تر باشد. 
+
+``` $ cp file1 file2 ```
+``` $ cp file dir ```
+
+#### 🔹 mv
+
+دستور mv برای move یا rename  نام فایل‌ ها استفاده می‌ شود. 
+
+> 💡 یک نکته‌ی مهم : اگر مبدأ و مقصد روی یک Filesystem باشند، mv معمولاً نیازی ندارد کل داده‌ ی فایل را دوباره کپی کند. در چنین حالتی عملیات می‌تواند عمدتاً با تغییر Entry های directory انجام شود. به همین دلیل جا به‌ جا کردن یک فایل بزرگ در یک Filesystem معمولاً بسیار سریع است. اما اگر مبدأ و مقصد روی Filesystem های متفاوت باشند، دیگر چنین جا به‌ جایی ساده‌ای ممکن نیست و mv باید عملاً داده را به مقصد منتقل کند.
+
+``` $ mv file1 file2 ```
+
+#### 🔹 touch
+
+دستور:
+
+``` $ touch file.txt ```
+
+اگر فایل وجود نداشته باشد، معمولاً آن را ایجاد می‌کند. اگر فایل از قبل وجود داشته باشد، محتوای آن را تغییر نمی‌ دهد و زمان‌های مربوط به فایل را به‌ روز رسانی می‌کند. این ویژگی باعث شده touch در Shell Script ها و Automation نیز کاربرد داشته باشد.
+
+#### 🔹 rm
+
+دستور:
+
+``` $ rm file.txt ```
+
+برای حذف یک فایل استفاده می‌شود. در Unix، حذف فایل معمولاً به معنای حذف نام یا Directory Entry مربوط به آن فایل است به همین دلیل مفهوم unlink اهمیت دارد. اگر دیگر هیچ Hard Link  به data وجود نداشته باشد و Process دیگری نیز فایل را باز نگه نداشته باشد ، فضای مربوط به فایل در نهایت قابل استفاده‌ ی مجدد خواهد بود. بنابراین نباید تصور کنیم که rm یعنی **فوراً bit های data از روی دیسک پاک می شوند** ، اما از دید کاربر، فایل دیگر از مسیر معمول قابل دسترسی نیست و مهم‌تر از همه در Shell معمولی، rm سطل زباله ندارد بنابراین : 
+
+``` $ rm -r directory ```
+
+را باید با دقت بسیار زیادی استفاده کرد. 
+
+#### 🔹 echo
+
+دستور:
+
+``` $ echo hello ```
+
+آرگومان‌های خود را روی stdout چاپ می‌کند. echo به‌خصوص برای مشاهده‌ ی مقدار متغیرهای Shell و آزمایش رفتار Shell بسیار کاربردی است :
+
+``` echo $PATH ```
+
+<img width="100%" height="40" alt="image" src="https://github.com/user-attachments/assets/3ee39428-cc80-4a75-bbf4-63838f446f86" />
+
+---
+
+### ⚙️ Navigating Directories
+
+تمام ساختار File system لینوکس از یک نقطه شروع می‌شود ```/``` ،  این همان Root Directory است. نباید آن را با کاربر root اشتباه گرفت.
+
+#### 🔹 Absolute Path
+
+مسیری که از ```/``` شروع شود، یک Absolute Path است:
+
+```
+/etc/passwd
+/var/log/syslog
+/home/user
+```
+
+#### 🔹 Relative Path
+مسیری که از ```/``` شروع نشود، معمولاً یک Relative Path است:
+```
+notes.txt
+./notes.txt
+../notes.txt
+```
+این مسیر نسبت به Directory فعلی تفسیر می‌شود. 
+
+#### 🔹 '.' & '..'
+
+دو نماد بسیار مهم:
+.   → Current Directory
+..  → Patent Directory
+مثلاً ``` .. cd``` یک سطح به Directory والد برمی‌گردد.
+
+
+#### 🔹 '.' & '..'
+
+
+
+
+
+
+
