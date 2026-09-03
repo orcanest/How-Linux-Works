@@ -9,8 +9,8 @@
 📚 Table of Contents
 
 - [Shell](#shell)
-- [Stderr, stdin & stdout](#-stdin-and-stdout-and-stderr)
-- [Pipe](#️-Pipe) 
+- [Stderr, stdin & stdout](#stdin-and-stdout-and-stderr)
+- [Pipe](#️pipe) 
 - [File Commands]()
 - [Navigating Directories]()
 - [Why should cd be built-in?]()
