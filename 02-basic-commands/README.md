@@ -7,9 +7,10 @@
 
 ---
 📚 Table of Contents
-- [What is Shell and how does it execute commands?](#️-What-is-Shell-and-how-does-it-execute-commands?)
-- [Stderr, stdin & stdout]( #️-stdin-and-stdout-and-stderr)
-- [Pipe]( #️-pipe) 
+
+- [Shell](#shell)
+- [Stderr, stdin & stdout](#-stdin-and-stdout-and-stderr)
+- [Pipe](#️-Pipe) 
 - [File Commands]()
 - [Navigating Directories]()
 - [Why should cd be built-in?]()
@@ -36,22 +37,22 @@
 - [Error Message]()
 - [List and manage processes]()
 - [Signals]()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-
-
+- [Job Control in Shell]()
+- [introduction to permissions]()
+- [Symbolic Link]()
+- [Compressing and archiving with gzip and tar]()
+- [Linux Directory Overview]()
+- [kernel and boot]()
+- [Running commands with Superuser access]()
+- [Big picture]()
+- [From Commands to Understanding Linux]()
+- [Key points of the second season]()
+- [Tips]()
+  
 ---
 
-### ⚙️ **What is Shell and how does it execute commands?**
+### Shell
+
 شل (Shell) مثل bash ، فقط یک برنامه برای دریافت دستورات نیست. Shell در واقع یک محیط تعاملی و در عین حال یک محیط برنامه‌نویسی کوچک است که به ما اجازه می‌ دهد برنامه‌ های مختلف را با یکدیگر ترکیب کنیم. این موضوع یکی از ایده‌ های اصلی Unix است:
 
 > 💡 هر ابزار یک کار مشخص را به‌خوبی انجام دهد و بتوان ابزارها را در کنار یکدیگر قرار داد.
@@ -643,6 +644,454 @@ First Error → Find Root Cause → Fix it → Check remaining errors
 
 ### ⚙️ Signals
 
+برای کنترل Process ها از Signal استفاده می‌ شود.Signal را می‌ توان به‌ صورت یک پیام یا Notification از Kernel به Process تصور کرد. برای ارسال Signal از```kill``` استفاده می‌کنیم. مثلاً: 
+```kill PID```
+به‌صورت پیش‌ فرض Signal مربوط به Termination را ارسال می‌ کند.
+
+#### 🔹 SIGTERM
+سیگنال ```SIGTERM``` به Process می‌گوید که خاتمه پیدا کند.Process فرصت دارد Signal را دریافت کند و در صورت امکان:
+- منابع خود را آزاد کند.
+- فایل‌ ها را ببندد.
+- وضعیت خود را ذخیره کند.
+- به شکل کنترل‌ شده خارج شود.
+
+#### 🔹 SIGSTOP
+
+سیگنال ```SIGSTOP```  کار Process را متوقف می‌ کند. Process از بین نمیرود فقط اجرای آن متوقف می‌ شود.
+
+#### 🔹 SIGCONT
+
+سیگنال ```SIGCONT``` برای ادامه دادن Process متوقف‌ شده استفاده می‌شود.
+
+#### 🔹 SIGINT
+
+وقتی در Terminal میزنیم Ctrl+C معمولاً سیگنال ```SIGINT``` ارسال می‌شود. این Signal به Process می‌گوید که کار فعلی را متوقف کند.
+
+#### 🔹 SIGKILL ☠️
+
+سیگنال ```SIGKILL``` متفاوت است.Process نمی‌تواند آن را Catch یا Ignore کند و Kernel مستقیماً Process را متوقف می‌کند. به همین دلیل:
+```kill -9 PID```
+
+باید معمولاً آخرین راه‌ حل باشد. قبل از آن بهتر است ابتدا از Signal هایی مانند SIGTERM استفاده کنیم تا Process فرصت Shutdown صحیح داشته باشد.  برای دیدن لیست سیگنال ها از دستور ```kill -l``` استفاده می کنیم .
+
+<img width="100%" height="227" alt="image" src="https://github.com/user-attachments/assets/2a39cd39-a333-4acb-ac1f-bd0124dc4d77" />
+
+---
+
+### ⚙️ Job Control in Shell
+
+شل (Shell) قابلیت دیگری به نام **Job Control** دارد. با  Ctrl+Z می‌توان یک Job را موقتاً متوقف کرد. سپس ```fg``` آن را به Foreground برمی‌گرداند و ```bg``` باعث می‌شود Job در Background ادامه پیدا کند. همچنین می‌ توان یک Command را از ابتدا در Background اجرا کرد ``` & command```. این قابلیت برای کارهایی که زمان زیادی طول می‌کشند بسیار کاربردی است.
+
+---
+
+### ⚙️ introduction to permissions
+
+بخش Permission یکی از مهم‌ ترین بخش‌های امنیت Linux است. با ```ls -l``` ممکن است چیزی شبیه این ببینیم ```-rw-r--r–``` این رشته اطلاعات مربوط به Type و Permission فایل را نشان می‌ دهد.
+<img width="100%" height="52" alt="image" src="https://github.com/user-attachments/assets/347c8e94-a146-4e3c-ba04-e707096ccccb" />
+
+#### 🔹 Permissions structure
+
+اولین Character نوع فایل را مشخص می‌ کند :  
+- ' - ' → Regular file
+- d → Directory
+- l → Symbolic link
+
+ بعد سه گروه Permission داریم:
+- Owner
+- Group Owner
+- Other
+
+هر گروه نیز سه Permission دارد:
+- r → read
+- w → write
+- x → execute
+بنابراین -rw-r--r-- را می‌توان چنین تقسیم کرد:
+```
+- rw- r-- r--
+│ │   │   │
+│ │   │   └── Other
+│ │   └────── Group
+│ └────────── Owner
+└──────────── File type
+```
+
+#### 🔹 Setuid  
+
+گاهی در Permission های فایل اجرایی به‌ جای x حرف s دیده می‌شود. این می‌ تواند نشان‌ دهنده‌ی setuid باشد. در این حالت برنامه هنگام اجرا می‌ تواند با Effective User ID مربوط به مالک فایل اجرا شود. یکی از مثال‌ های شناخته‌ شده ، passwd است که در سیستم‌ های سنتی برای تغییر اطلاعات مربوط به Password به دسترسی‌ های خاص نیاز دارد. البته جزئیات دقیق Permission و نحوه‌ ی پیاده‌ سازی این ابزارها به سیستم و Distribution بستگی دارد.
+
+#### 🔹 Changing Permissions with chmod
+
+برای تغییر Permission از ```chmod``` استفاده می‌شود. مثلاً:
+```chmod g+r file```
+یعنی Permission خواندن را برای Group اضافه کن یا:
+```chmod go+r file```
+یعنی Permission خواندن را برای Group و Other اضافه کن.
+
+#### 🔹 Absolute / Octal Permissions
+
+روش دیگری برای تنظیم Permission استفاده از اعداد Octal است.مثلاً:
+```chmod 644 file```
+برخی حالت‌ های بسیار رایج : 
+
+- 644 فایل معمولی قابل‌خواندن برای دیگران
+- 600 فایل خصوصی
+- 755 معمولاً برای Executable ها و Directory های public
+- 700 دایرکتوری یا فایل خصوصی برای owner
+
+مفهوم عدد ها از ترکیب Permission ها می‌آید:
+- r = 4
+- w = 2
+- x = 1
+بنابراین:
+- 7 = 4 + 2 + 1 = rwx
+- 6 = 4 + 2     = rw-
+- 5 = 4+ 1      = r-x
+- 4 = 4         = r--
+مثلاً ```644``` : 
+
+- 6 → rw-
+- 4 → r--
+- 4 → r--
+
+#### 🔹 Directory Permissions
+
+دسترسی Permission روی Directory کمی متفاوت از فایل است. به‌ صورت ساده:
+
+- مجوز r امکان مشاهده‌ ی Entry های Directory
+- مجوز w امکان ایجاد/حذف/تغییر Entry ها، مشروط به سایر محدودیت‌ها
+- مجوز x امکان Traverse کردن Directory
+
+نکته‌ ی مهم این است که برای دسترسی به یک فایل داخل Directory معمولاً داشتن x روی Directory ضروری است. بنابراین ممکن است کاربری Permission خواندن محتویات یک Directory را نداشته باشد، اما بسته به Permission های دیگر بتواند به یک فایل مشخص در آن مسیر دسترسی پیدا کند.
+
+#### 🔹 umask
+
+برای تعیین Permission های پیش‌ فرض فایل‌ ها و Directory های جدید از ```umask``` استفاده می‌شود. مثلاً: ```umask 022``` یا ```umask 077``` . در واقع umask مشخص می‌کند چه Permission هایی نباید به‌ صورت پیش‌ فرض در زمان ایجاد فایل یا Directory اختصاص داده شوند.
+
+---
+
+### ⚙️ Symbolic Link
+
+یک Symbolic Link فایل کوچکی است که به مسیر فایل یا Directory دیگری اشاره می‌کند. مثلاً:
+
+```ln -s target linkname```
+
+در خروجی ```ls -l``` ممکن است چیزی شبیه این ببینیم:
+
+```linkname -> target```
+
+و Type آن با ```l``` نمایش داده می‌شود. Symbolic Link شبیه Shortcut در Windows است، اما مدل پیاده‌سازی آن دقیقاً یکسان نیست.
 
 
 
+
+
+<img width="100%" height="181" alt="image" src="https://github.com/user-attachments/assets/e67d179f-40c0-4fba-bc7e-bae9cae9fbaa" />
+
+#### 🔹 Broken Symbolic Link
+
+اگر مقصد Symbolic Link وجود نداشته باشد، Link همچنان ممکن است وجود داشته باشد. اما برنامه‌ ای که بخواهد از طریق آن به مقصد دسترسی پیدا کند، معمولاً با خطا مواجه می‌شود. این وضعیت را می‌ توان Broken Symlink نامید.
+
+#### 🔹 Hard Link
+
+اگر هنگام اجرای ```ln``` گزینه‌ ی ```s-``` را استفاده نکنیم ```ln target linkname``` یک **Hard Link** ایجاد می‌ شود. Hard Link صرفاً یک اشاره‌ گر به نام دیگر نیست بلکه یک Directory Entry دیگر برای همان فایل و همان inode است. به همین دلیل مفهوم Hard Link با Symbolic Link کاملاً متفاوت است. به‌ صورت ساده: 
+
+``` Symbolic Link : link → path → target ```
+
+```
+Hard Link :
+name1 ─┐
+       ├── same inode / same file data
+name2 ─┘
+```
+این تفاوت یکی از مفاهیم مهم Filesystem در Unix/Linux است. 
+
+---
+
+### ⚙️ Compressing and archiving with gzip and tar
+
+یکی از تفاوت‌ های مهمی که باید بدانیم این است که Compression و Archiving یک چیز نیستند.
+#### 🔹 gzip
+
+ابزار gzip یک Compression است.مثلاً:
+
+``` gzip file.txt```
+فایل را به شکل فشرده تبدیل می‌کند. برای باز کردن آن : 
+
+```gunzip file.txt.gz```
+
+#### 🔹 tar
+
+ ابزار tar برای ایجاد Archive استفاده می‌شود. مثلاً:
+
+```tar cvf archive.tar file1 file2```
+
+options :
+
+- c → create
+- v → verbose
+- f → archive file
+در این حالت چند فایل در یک Archive قرار می‌گیرند، اما Archive به‌ تنهایی الزاماً فشرده نیست.
+
+#### 🔹 Extract Archive
+
+برای extract یک فایل archive :
+
+```tar xvf archive.tar```
+
+- Option : x → extract
+
+قبل از extract Archive بهتر است محتویات آن را بررسی کنیم:
+
+```tar tvf archive.tar```
+
+این کار می‌ تواند از ایجاد فایل‌ ها در مسیر نا مناسب جلو گیری کند. 
+
+<img width="100%" height="131" alt="image" src="https://github.com/user-attachments/assets/e636d7a6-2be5-4240-8994-4d32fc9db738" />
+
+#### 🔹 tar.gz
+
+یک فایل ```archive.tar.gz``` در واقع دو مرحله دارد:
+```
+tar archive
+     ↓
+gzip compression
+```
+در گذشته می‌ توانستیم ابتدا gzip را باز کنیم و سپس Archive را استخراج کنیم. اما tar گزینه‌ی z را دارد:
+
+```tar xzvf archive.tar.gz```
+
+که باعث می‌شود gzip نیز در فرایند کار لحاظ شود.
+
+#### 🔹 other tools
+
+دو ابزار رایج دیگر```bzip2``` و ```xz``` هستند. هر کدام ویژگی‌ های متفاوتی دارند :
+
+- سرعت
+- میزان Compression
+- مصرف منابع
+
+---
+
+### ⚙️ Linux Directory Overview
+
+فایل سیستم لینوکس از ```/``` شروع می‌شود. برخی از مهم‌ ترین Directory ها :
+
+<img width="100%" height="54" alt="image" src="https://github.com/user-attachments/assets/fe597ea1-af1b-46fe-b79a-55cd19003b70" />
+
+
+#### 🔹 /bin
+
+محل قرارگیری برنامه‌ های اجرایی ضروری سیستم که در Distribution های جدید ممکن است bin/ به usr/bin/ متصل شده باشد.
+
+#### 🔹 /dev
+
+ محل قرارگیری File Interface برای Device ها مثلاً : 
+- /dev/sda 
+- /dev/null
+- /dev/tty
+
+#### 🔹 /etc
+
+محل قرارگیری فایل‌ های Configuration سیستم هستش مثلاً:
+- /etc/passwd
+- /etc/fstab
+- /etc/hosts
+
+#### 🔹 /home
+
+محل قرارگیری Home Directory کاربران معمولی مثلاً:
+- /home/user
+
+#### 🔹 /lib
+
+محل قرارگیری Library های مورد نیاز برنامه‌ ها و بخش‌ های مختلف سیستم. در سیستم‌ های جدید ممکن است این مسیر نیز با ساختار usr/lib/ یکپارچه شده باشد.
+
+#### 🔹 /proc
+
+یک Filesystem مجازی برای ارائه‌ ی اطلاعات مربوط به Process ها و Kernel و وضعیت سیستم است. مثلاً:
+- /proc/1
+- /proc/cpuinfo
+- /proc/meminfo
+
+#### 🔹 /run
+
+محل قرارگیری اطلاعات Runtime سیستم است برای مثال اطلاعاتی که فقط در زمان اجرای سیستم مورد نیاز هستند.
+
+#### 🔹 /sys
+
+یک Interface فایل‌ محور برای اطلاعات مربوط به Kernel و Device ها و Hardware. مثلاً:
+- /sys/block
+
+#### 🔹 /sbin
+
+محل قرارگیری برنامه‌ های مرتبط با System Administration است و در بسیاری از Distribution های جدید، sbin/ نیز ممکن است با ساختار usr/ یکپارچه شده باشد.
+
+#### 🔹 /tmp
+
+محل قرارگیری برای فایل‌های موقت است و نباید فرض کنیم هر چیزی که داخل tmp/ قرار می‌دهیم برای همیشه باقی می‌ماند.
+
+#### 🔹 /usr
+
+یکی از بزرگ‌ ترین بخش‌ های User Space که شامل بخش زیادی از مانند : برنامه‌ ها و Library ها و  Documentation و داده‌ های مربوط به نرم‌افزارها است.
+
+#### 🔹 /var
+
+محل قرارگیری داده‌ هایی که در طول اجرای سیستم تغییر می‌کنند مثلاً:
+- /var/log
+- /var/cache
+
+#### 🔹 /boot
+
+محل قرارگیری فایل‌ های مرتبط با Boot، از جمله Kernel و فایل‌ های مورد نیاز Bootloader.
+
+
+#### 🔹 /media
+
+در بسیاری از سیستم‌ها برای Mount کردن Removable Media مانند USB استفاده می‌شود.
+
+#### 🔹 /opt
+
+محلی برای برخی نرم‌ افزارهای اضافی یا Third-party است. استفاده از این Directory به Distribution و روش نصب نرم‌افزار بستگی دارد.
+
+---
+
+### ⚙️ kernel and boot
+
+معمولاً Kernel لینوکس به شکل یک فایل قابل‌ بارگذاری روی سیستم وجود دارد. در بسیاری از سیستم‌ ها فایل‌ هایی با نام‌ هایی مانند ```vmlinuz/``` یا ```boot/vmlinuz/``` دیده می‌شوند. Bootloader در فرایند Boot Kernel را در حافظه قرار می‌ دهد و اجرای سیستم را به آن منتقل می‌کند.
+
+#### 🔹 Kernel Modules
+
+ لینوکس از Loadable Kernel Modules نیز پشتیبانی می‌کند.این Module ها می‌توانند در صورت نیاز Load شوند و قابلیت‌هایی مانند Driver ها را در اختیار Kernel قرار دهند. در بسیاری از سیستم‌ ها Module های Kernel در مسیری مانند ```lib/modules/``` قرار دارند.
+
+---
+
+### ⚙️ Running commands with Superuser access
+
+در Linux لازم نیست برای هر کار مدیریتی یک Shell کامل با دسترسی root باز کنیم. استفاده از یک Root Shell می‌تواند ریسک بیشتری داشته باشد، زیرا ممکن است یک Command اشتباه مستقیماً با بالاترین سطح دسترسی اجرا شود. به همین دلیل در بسیاری از سیستم‌ها از```sudo``` استفاده می‌شود مثلاً:
+
+```sudo cat /etc/shadow```
+در این حالت کاربر می‌تواند یک Command مشخص را با Permission های مورد نیاز اجرا کند.
+
+#### 🔹 /etc/sudoers
+
+تنظیمات مربوط به دسترسی sudo در فایل‌هایی مانند ```etc/sudoers/``` و فایل‌های Include شده از آن قرار می‌گیرند. می‌توان مشخص کرد: چه کاربری ، چه گروهی ، روی چه سیستم‌ هایی و چه Command هایی با چه شرایطی بتوانند با ```sudo``` اجرا شوند.
+
+#### 🔹 Why visudo ?
+
+برای ویرایش sudoers بهتر است از ```visudo``` استفاده شود. دلیل آن این است که visudo Syntax فایل را بررسی می‌کند. یک اشتباه کوچک در Configuration مربوط به sudo می‌تواند دسترسی مدیریتی را مختل کند. بنابراین روش امن‌تری برای تغییر Configuration است : 
+
+``` Sudoers → visudo → syntax check → save ```
+
+#### 🔹 Logging in to use sudo
+
+استفاده از sudo معمولاً در سیستم Log می‌شود. محل دقیق Log به Distribution و Configuration سیستم بستگی دارد. در برخی سیستم‌ ها می‌توان اطلاعات مربوط به sudo را در Journal مشاهده کرد مثلاً:
+
+``` journalctl SYSLOG_IDENTIFIER=sudo ```
+
+در برخی سیستم‌ های دیگر ممکن است اطلاعات Authentication در فایل‌ هایی مانند ```/var/log/auth.log ``` ثبت شود.
+
+---
+
+### 🧠 Big picture
+
+قدرت خط فرمان فقط به تعداد Command هایی که بلدیم محدود نمی‌شود. قدرت واقعی زمانی ظاهر می‌شود که بفهمیم این ابزارهای کوچک چگونه با یکدیگر ارتباط برقرار می‌کنند. برای مثال:
+
+```grep "error" /var/log/*.log | sort | less```
+
+در ظاهر فقط چند Command ساده است اما پشت آن مفاهیم زیادی وجود دارد:
+
+```
+Globbing → File arguments → grep → stdout → Pipe → sort → stdout → Pipe → less
+```
+
+همین ترکیب ابزارهای کوچک است که Shell را به یکی از قدرتمندترین محیط‌های کاری Unix/Linux تبدیل می‌کند.
+
+---
+
+### 🚀 From Commands to Understanding Linux
+
+بعد از این فصل، دیگر فقط چند Command جدید یاد نگرفته‌ایم. با مفاهیمی آشنا شده‌ ایم که در فصل‌ های بعدی بارها به آن‌ ها برمی‌گردیم :
+
+- Shell
+- Process
+- PID
+- Signal
+- File Descriptor
+- stdin
+- stdout
+- stderr
+- Pipe
+- Redirection
+- Globbing
+- Environment Variable
+- PATH
+- Filesystem
+- Permission
+- Symbolic Link
+- Hard Link
+- Kernel Interface
+- sudo
+- /proc
+- /sys
+
+این مفاهیم پایه‌ ای هستند که بعد ها هنگام بررسی Process ها، Network، Storage، Boot، Shell Programming و System Administration دوباره با آن‌ها رو به‌ رو خواهیم شد.
+در واقع ، بسیاری از چیزهایی که در Linux «فقط کار می‌کنند»، نتیجه‌ی مستقیم تصمیماتی هستند که Kernel و Shell در پشت صحنه می‌گیرند و این دقیقاً همان چیزی است که How Linux Works تلاش می‌کند آموزش دهد : **به‌ جای اینکه فقط بدانیم «چه دستوری بزنیم» ، بفهمیم «چرا این دستور این‌ طور کار می‌کند»**
+
+---
+
+### 💡 Tips
+
+نکته‌ی اصلی فصل دوم این است که Command های پایه‌ ی Unix/Linux را نباید به‌ عنوان مجموعه‌ ای از دستورات جداگانه و برای حفظ کردن ببینیم.پشت این دستورات، مجموعه‌ ای از مفاهیم به یکدیگر متصل هستند:
+
+```
+Shell
+│
+├── Process
+│
+├── System Calls
+│
+├── File Descriptors
+│ ├── stdin
+│ ├── stdout
+│ └── stderr
+│
+├── Pipes
+│
+├── Redirection
+│
+├── Globbing
+│
+├── Environment Variables
+│ └── PATH
+       │
+       ▼
+   Programs
+       │
+       ▼
+    Kernel
+       │
+       ▼
+Filesystem / Hardware
+
+```
+
+وقتی این ارتباط‌ ها را بفهمیم، رفتار بسیاری از Command ها دیگر عجیب نیست : 
+
+- چرا cat بدون Argument منتظر می‌ماند؟ چون stdin دارد.
+- چرا خروجی grep را می‌ توان به less داد؟ چون stdout یک جریان است و Shell می‌تواند آن را به stdin Process دیگری متصل کند.
+- چرا cd باید Built-in باشد؟ چون باید Working Directory خود Shell را تغییر دهد.
+- چرا mv در یک Filesystem می‌تواند تقریباً آنی باشد؟ چون در بسیاری از موارد لازم نیست داده‌ی فایل دوباره کپی شود.
+- چرا log.* را grep یا ls مستقیماً تفسیر نمی‌کنند؟ چون Shell قبل از اجرای برنامه Globbing را انجام می‌دهد.
+- چرا PATH اهمیت دارد؟ چون Shell از آن برای پیدا کردن Executable ها استفاده می‌کند.
+- چرا stderr با stdout فرق دارد؟ چون Process ها چند File Descriptor استاندارد جداگانه دارند و می‌توان هرکدام را مستقل Redirect کرد.
+- چرا rm مثل Delete در یک محیط گرافیکی نیست؟ چون در Unix/Linux مفهوم حذف فایل با حذف Directory Entry و مفهوم unlink ارتباط دارد.
+
+فصل دوم یک پل مهم بین مفاهیم معماری فصل اول و کار واقعی با Linux است. در فصل اول یاد گرفتیم :
+``` 
+Hardware
+   ↓
+Kernel
+   ↓
+User Space
+```
+در فصل دوم دیدیم که Command هایی که هر روز در User Space اجرا می‌کنیم ، در نهایت با همین معماری ارتباط دارند. از ls و cat گرفته تا grep، ps، chmod و sudo، همه بخشی از یک سیستم بزرگ‌ تر هستند. هر چه این ارتباط‌ ها را بهتر بفهمیم، Linux برایمان کمتر شبیه مجموعه‌ ای از Command های حفظی و بیشتر شبیه یک سیستم منطقی و قابل پیش‌بینی خواهد شد و این پایه‌ ای است که فصل‌ های بعدی کتاب روی آن ساخته می‌شوند.
