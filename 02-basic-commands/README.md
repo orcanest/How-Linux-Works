@@ -10,7 +10,7 @@
 
 - [Shell](#shell)
 - [Stderr and stdin and stdout](#stdin-and-stdout-and-stderr)
-- [File Commands](#file-commands)
+- [File commands](#file-commands)
 - [Navigating Directories]()
 - [Why should cd be built-in?]()
 - [mkdir and rmdir]()
