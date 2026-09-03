@@ -81,7 +81,7 @@ Shell
 
 ---
 
-### ⚙️ stdin and stdout and stderr 
+### stdin and stdout and stderr 
 
 یکی از مهم‌ ترین ایده‌ هایی که در این فصل با آن آشنا می‌شویم Standard I/O است. هر Process به‌ طور معمول سه File Descriptor استاندارد دارد: 
 - 0 → stdin
