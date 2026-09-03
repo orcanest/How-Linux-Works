@@ -1067,7 +1067,7 @@ Shell
 ├── Globbing
 │
 ├── Environment Variables
-│ └── PATH
+  └── PATH
        │
        ▼
    Programs
