@@ -11,7 +11,7 @@
 - [Shell](#shell)
 - [Stdin and stdout and stderr](#stdin-and-stdout-and-stderr)
 - [File commands](#file-commands)
-- [Navigating Directories]()
+- [Navigating Directories](#navigating-directories)
 - [Why should cd be built-in?]()
 - [mkdir and rmdir]()
 - [Globbing or Wildcards]()
@@ -112,7 +112,7 @@ Shell
 
 ---
 
-### ⚙️ File commands
+### File commands
 
 دستورهای ساده‌ ای مثل ```ls, cp, mv, touch, rm``` شاید در نگاه اول فقط ابزارهای روزمره باشند، اما هرکدام نمونه‌ ای از نحوه‌ ی تعامل User Space با Kernel و Filesystem هستند.
 #### 🔹 ls
@@ -188,7 +188,7 @@ Write destination
 
 ---
 
-### ⚙️ Navigating Directories
+### Navigating directories
 
 تمام ساختار File system لینوکس از یک نقطه شروع می‌شود ```/``` ،  این همان Root Directory است. نباید آن را با کاربر root اشتباه گرفت.
 
