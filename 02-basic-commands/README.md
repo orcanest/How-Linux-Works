@@ -9,7 +9,7 @@
 📚 Table of Contents
 
 - [Shell](#shell)
-- [stdin and stdout and stderr](#stdin-and-stdout-and-stderr)
+- [Stdin and stdout and stderr](#stdin-and-stdout-and-stderr)
 - [File commands](#file-commands)
 - [Navigating Directories]()
 - [Why should cd be built-in?]()
