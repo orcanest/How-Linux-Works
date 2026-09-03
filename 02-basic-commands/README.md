@@ -9,9 +9,8 @@
 📚 Table of Contents
 
 - [Shell](#shell)
-- [Stderr, stdin & stdout](#stdin-and-stdout-and-stderr)
-- [Pipe](#️pipe) 
-- [File Commands]()
+- [Stderr and stdin and stdout](#stdin-and-stdout-and-stderr)
+- [File Commands](#file-commands)
 - [Navigating Directories]()
 - [Why should cd be built-in?]()
 - [mkdir and rmdir]()
@@ -110,32 +109,6 @@ Shell
 
 
 <img width="100%" height="60" alt="image" src="https://github.com/user-attachments/assets/90b81fd9-2470-4574-8d0d-59fc78ad6e1d" />
-
----
-
-### ⚙️ Pipe
-
-یکی از قدرتمندترین ویژگی‌های Unix این است که stdin و stdout فقط به Keyboard و Terminal محدود نیستند. می‌توانیم خروجی یک Process را مستقیماً به ورودی Process دیگری وصل کنیم.این کار با Pipe انجام می‌شود:
-```grep "error" logfile.txt | less```
-در اینجا:
-
-```
-Logfile.txt
-│ 
-▼ 
-Grep
-│
-Stdout
-│
-▼
-Pipe
-│
-Stdin
-│ 
-▼ 
-less
-```
-لازم نیست grep بداند less وجود دارد. less هم لازم نیست بداند خروجی از grep آمده است. Shell این اتصال را برای ما ایجاد می‌کند. این همان فلسفه‌ی معروف Unix است: **ابزارهای کوچک و مستقل را می‌توان برای انجام کارهای پیچیده‌ تر با یکدیگر ترکیب کرد.**
 
 ---
 
@@ -548,6 +521,7 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 #### 🔹 > 
 برای فرستادن stdout به یک فایل از دستور : 
 ```command > output.txt```
+
 استفاده می‌کنیم. اگر فایل وجود نداشته باشد، ایجاد می‌شود و اگر وجود داشته باشد ، به‌ صورت معمول محتوای قبلی آن جایگزین می‌شود. به این رفتار **Clobbering** گفته می‌شود.
 
 #### 🔹 >>
@@ -559,11 +533,41 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 
 ### ⚙️ pipe
 
+
+یکی از قدرتمندترین ویژگی‌های Unix این است که stdin و stdout فقط به Keyboard و Terminal محدود نیستند. می‌توانیم خروجی یک Process را مستقیماً به ورودی Process دیگری وصل کنیم.این کار با Pipe انجام می‌شود:
+
+```grep "error" logfile.txt | less```
+
+در اینجا:
+
+```
+Logfile.txt
+│ 
+▼ 
+Grep
+│
+Stdout
+│
+▼
+Pipe
+│
+Stdin
+│ 
+▼ 
+less
+```
+
+لازم نیست grep بداند less وجود دارد. less هم لازم نیست بداند خروجی از grep آمده است. Shell این اتصال را برای ما ایجاد می‌کند. این همان فلسفه‌ی معروف Unix است: **ابزارهای کوچک و مستقل را می‌توان برای انجام کارهای پیچیده‌ تر با یکدیگر ترکیب کرد.**
+
 برای اتصال stdout یک برنامه به stdin برنامه‌ی دیگر از pipe استفاده می‌کنیم : 
+
 ```command1 | command2```
 
+
 می‌توانیم چندین Command را نیز به هم متصل کنیم : 
+
 ```command1 | command2 | command3 | command4```
+
 این یکی از پایه‌های اصلی فلسفه‌ی Unix است.
 
 ---
