@@ -12,41 +12,41 @@
 - [Stdin and stdout and stderr](#stdin-and-stdout-and-stderr)
 - [File commands](#file-commands)
 - [Navigating Directories](#navigating-directories)
-- [Why should cd be built-in?]()
-- [mkdir and rmdir]()
-- [Globbing or Wildcards]()
-- [grep and Regular Expression]()
-- [less]()
-- [diff]()
-- [file]()
-- [find]()
-- [locate]()
-- [head and tail and sort]()
-- [passwd]()
-- [chsh]()
-- [dot files]()
-- [Shell Variables and Environment Variables]()
-- [PATH Variable]()
-- [Special characters and command line shortcuts]()
-- [Text Editors]()
-- [man]()
-- [Redirection]()
-- [pipe]()
-- [stderr and Redirection]()
-- [Error Message]()
-- [List and manage processes]()
-- [Signals]()
-- [Job Control in Shell]()
-- [introduction to permissions]()
-- [Symbolic Link]()
-- [Compressing and archiving with gzip and tar]()
-- [Linux Directory Overview]()
-- [kernel and boot]()
-- [Running commands with Superuser access]()
-- [Big picture]()
-- [From Commands to Understanding Linux]()
-- [Key points of the second season]()
-- [Tips]()
+- [Why should cd be built-in ?](#why-should-cd-be-built-in)
+- [mkdir and rmdir](#mkdir-and-rmdir)
+- [Globbing or Wildcards](#globbing-or-wildcards)
+- [grep and Regular Expression](#grep-and-regular-expression)
+- [less](#less)
+- [diff](#diff)
+- [file](#file)
+- [find](#file)
+- [locate](#locate)
+- [head and tail and sort](#head-and-tail-and-sort)
+- [passwd](#passwd)
+- [chsh](#chsh)
+- [dot files](#dot-files)
+- [Shell Variables and Environment Variables](#shell-variables-and-environment-variables)
+- [PATH Variable](#path-variable)
+- [Special characters and command line shortcuts](#special-characters-and-command-line-shortcuts)
+- [Text Editors](#text-editors)
+- [man](#man)
+- [Redirection](#redirection)
+- [pipe](#pipe)
+- [stderr and Redirection](#stderr-and-redirection)
+- [Error Message](#error-message)
+- [List and manage processes](#list-and-manage-processes)
+- [Signals](#signals)
+- [Job Control in Shell](#job-control-in-shell)
+- [introduction to permissions](#introduction-to-permissions)
+- [Symbolic Link](#symbolic-link)
+- [Compressing and archiving with gzip and tar](#Compressing-and-archiving-with-gzip-and-tar)
+- [Linux Directory Overview](#linux-directory-overview)
+- [kernel and boot](#kernel-and-boot)
+- [Running commands with Superuser access](running-commands-with-superuser-access)
+- [Big picture](#big-picture)
+- [From Commands to Understanding Linux](#from-commands-to-understanding-linux)
+- [Key points of the second season](#key-points-of-the-second-season)
+- [Tips](#tips)
   
 ---
 
@@ -232,7 +232,7 @@ $ pwd
 
 ---
 
-### ⚙️ Why should cd be built-in?
+### Why should cd be built-in
 
 یکی از نکات جالب این فصل، دلیل Built-in بودن ```cd``` است. در ظاهر ممکن است فکر کنیم ```cd``` هم مثل ```ls``` یک برنامه‌ی معمولی است. اما اگر ```cd``` یک Process مستقل بود، تغییر Directory فقط در همان Process اتفاق می‌افتاد. برای مثال :
 ```
@@ -248,7 +248,7 @@ Shell
 وقتی Child Process تمام می‌شد، Shell اصلی همچنان در Directory قبلی باقی می‌ماند. اما هدف ما این است که **خود Shell  Directory** کاری‌ اش را تغییر دهد. به همین دلیل ```cd``` باید بتواند وضعیت داخلی Shell را تغییر دهد و در Shell هایی مثل Bash به‌ صورت Built-in پیاده‌ سازی شده است.
 ---
 
-### ⚙️ mkdir and rmdir
+### mkdir and rmdir
 
 برای ایجاد Directory از دستور ```mkdir mydir``` و برای حذف یک Directory خالی از دستور ```rmdir mydir``` استفاده می‌کنیم. 
 
@@ -262,7 +262,7 @@ Shell
 > ⚠️ هنگام کار با root باید با این دستور بسیار محتاط بود.
 ---
 
-### ⚙️ Globbing or Wildcards
+### globbing or wildcards
 
 شل (Shell) می‌تواند الگوهایی را روی نام فایل‌ها اعمال کند ، دو مورد مهم :
 
@@ -280,7 +280,7 @@ Shell
 
 ---
 
-### ⚙️ grep and Regular Expression
+### grep and regular expression
 
 #### 🔹 grep
 
@@ -298,7 +298,7 @@ Shell
 
 ---
 
-### ⚙️ less
+### less
 
 اگر فایل بزرگی داشته باشیم، اجرای ```cat large.log`` ممکن است حجم زیادی از اطلاعات را به سرعت روی Terminal چاپ کند. برای مرور فایل‌ های بزرگ بهتر است از دستور ```less``` استفاده کنیم : 
 ``` less large.log ```
@@ -317,7 +317,7 @@ Shell
 
 ---
 
-### ⚙️ diff
+### diff
 
 دستور```diff``` برای مقایسه‌ی دو فایل استفاده می‌شود.
 ``` diff file1 file2 ```
@@ -328,7 +328,7 @@ Shell
 
 ---
 
-### ⚙️ file
+### file
 
 دستور ```file``` نوع فایل را بر اساس اطلاعات موجود در خود فایل تشخیص می‌دهد . این نکته مهم است، زیرا Linux الزاماً نوع فایل را از پسوند آن تعیین نمی‌کند. بنابراین حتی اگر نام یک فایل گمراه‌ کننده باشد، ```file``` می‌تواند با بررسی محتوای آن اطلاعات مفیدی ارائه کند.
 
@@ -336,7 +336,7 @@ Shell
 
 ---
 
-### ⚙️ find
+### find
 
 برای جستجوی بازگشتی در Directory ها از find استفاده می‌کنیم. مثلاً:
 ``` find . -name '*.log' ```
@@ -352,13 +352,13 @@ Shell
 
 ---
 
-### ⚙️ locate
+### locate
 
 دستور ```locate``` نیز برای پیدا کردن فایل‌ها استفاده می‌شود، اما روش کار آن با ```find``` متفاوت است. ```find``` معمولاً Filesystem را هنگام اجرای دستور جستجو می‌کند. اما ```locate``` معمولاً یک Database یا Index از نام فایل‌ها را جستجو می‌کند. به همین دلیل ```locate``` معمولاً سریع‌ تر و ```find``` جستجوی مستقیم‌ تر و انعطاف‌ پذیرتراست. اما Index مربوط به ```locate``` ممکن است به‌ روز نباشد بنابراین ممکن است فایلی که اخیراً ایجاد شده هنوز در نتایج ```locate``` وجود نداشته باشد.
 
 ---
 
-### ⚙️ head and tail and sort
+### head and tail and sort
 
 #### 🔹head & tail
 برای مشاهده‌ ی ابتدای یک فایل از دستور : ``` head file.txt ``` استفاده می کنیم و برای مشاهده‌ ی انتهای آن از دستور ``` tail file.txt ``` استفاده می‌کنیم. به‌صورت معمول هرکدام ۱۰ خط را نمایش می‌دهند. برای مشخص کردن تعداد خطوط:
@@ -383,13 +383,13 @@ tail -n 20 file.txt
 
 ---
 
-### ⚙️ passwd
+### passwd
 
 دستور```passwd``` برای تغییر Password کاربر استفاده می‌شود. کتاب همچنین درباره‌ ی انتخاب Password مناسب صحبت می‌کند و بر اهمیت استفاده از رمزهای عبور مناسب و قابل‌ حفظ تأکید دارد.
 
 ---
 
-### ⚙️ chsh
+### chsh
 
 برای تغییر Shell پیش‌ فرض کاربر می‌ توان از```chsh``` استفاده کرد. برای مثال Shell هایی مانند:
 - bash
@@ -400,7 +400,7 @@ tail -n 20 file.txt
 
 ---
 
-### ⚙️ dot files
+### dot files
 
 فایل‌ها و Directory هایی که نامشان با ```.``` شروع می‌شود، معمولاً Dot Files نامیده می‌شوند.
 مثلاً:
@@ -416,7 +416,7 @@ tail -n 20 file.txt
 
 ---
 
-### ⚙️ Shell Variables and Environment Variables
+### Shell Variables and Environment Variables
 
 شل (Shell) می‌تواند متغیرهایی برای نگهداری اطلاعات داشته باشد مثلاً:```STUFF=value``` که برای برای دریافت مقدار از دستور ```echo $STUFF``` استفاده می‌کنیم. اما بین Shell Variable و Environment Variable تفاوت وجود دارد.
 
@@ -430,7 +430,7 @@ tail -n 20 file.txt
 
 ---
 
-### ⚙️ PATH Variable
+### PATH Variable
 
 یکی از مهم‌ ترین Environment Variable ها ، PATH هستش و برای مشاهده‌ی آن از دستور ```echo $PATH``` استفاده میکنیم. ممکن است چیزی شبیه این ببینیم:
 ```/usr/local/bin:/usr/bin:/bin```
@@ -446,7 +446,7 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 
 ---
 
-### ⚙️ Special characters and command line shortcuts
+### Special characters and command line shortcuts
 
 در کار با Shell با Character های خاص زیادی مواجه می‌شویم.
 - *    → Star / Asterisk
@@ -465,7 +465,7 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 یاد گرفتن این shortcuts ها شاید در ابتدا جزئی به نظر برسد، اما هنگام کار طولانی با Terminal سرعت کار را به شکل محسوسی افزایش می‌ دهد.
 ---
 
-### ⚙️ Text Editors
+###  Text Editors
 
 برای کار جدی با Unix/Linux باید بتوانیم فایل‌ های متنی را ویرایش کنیم. بخش بزرگی از Configuration سیستم، به‌خصوص در etc/ به شکل Text File ذخیره می‌شود. کتاب در این بخش به دو ویرایشگر کلاسیک می‌پردازد:
 - vi
@@ -481,7 +481,7 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 
 ---
 
-### ⚙️ man
+###  man
 
 هیچ System Administrator ای تمام دستورات Linux را حفظ نیست. به همین دلیل یکی از مهارت‌ های مهم این است که بدانیم چطور اطلاعات مورد نیازمان را پیدا کنیم.
 
@@ -515,7 +515,7 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 
 ---
 
-### ⚙️ Redirection
+###  Redirection
 
 حالا که مفهوم stdin، stdout و stderr را می‌دانیم، می‌توانیم جریان‌ های ورودی و خروجی را کنترل کنیم.
 #### 🔹 > 
@@ -531,7 +531,7 @@ Directoryها با ```:``` از یکدیگر جدا می‌شوند و وقتی 
 
 ---
 
-### ⚙️ pipe
+###  pipe
 
 
 یکی از قدرتمندترین ویژگی‌های Unix این است که stdin و stdout فقط به Keyboard و Terminal محدود نیستند. می‌توانیم خروجی یک Process را مستقیماً به ورودی Process دیگری وصل کنیم.این کار با Pipe انجام می‌شود:
@@ -572,7 +572,7 @@ less
 
 ---
 
-### ⚙️ stderr and Redirection
+###  stderr and Redirection
 
 جریان های stdout و stderr دو جریان متفاوت هستند مثلاً:
 
@@ -603,7 +603,7 @@ less
 
 ---
 
-### ⚙️ Error Message
+###  Error Message
 
 یکی از مهارت‌های مهم System Administration ، خواندن **Error Message** است. پیام‌ های خطای Unix/Linux معمولاً اطلاعات مفیدی ارائه می‌کنند. برای مثال ```No such file or directory``` ، در سطح System Call معمولاً با این Error Code مرتبط است ```ENOENT```.
 #### 🔹 Common errors
@@ -622,7 +622,7 @@ First Error → Find Root Cause → Fix it → Check remaining errors
 
 ---
 
-### ⚙️ List and manage processes
+###  List and manage processes
 
 همان‌ طور که در فصل اول دیدیم ، Process یعنی یک برنامه‌ ی در حال اجرا و هر Process یک شناسه‌ ی عددی دارد که به آن PID یا **Process ID** گفته می‌شود.
 
@@ -646,7 +646,7 @@ First Error → Find Root Cause → Fix it → Check remaining errors
 
 ---
 
-### ⚙️ Signals
+###  Signals
 
 برای کنترل Process ها از Signal استفاده می‌ شود.Signal را می‌ توان به‌ صورت یک پیام یا Notification از Kernel به Process تصور کرد. برای ارسال Signal از```kill``` استفاده می‌کنیم. مثلاً: 
 ```kill PID```
@@ -682,13 +682,13 @@ First Error → Find Root Cause → Fix it → Check remaining errors
 
 ---
 
-### ⚙️ Job Control in Shell
+###  Job Control in Shell
 
 شل (Shell) قابلیت دیگری به نام **Job Control** دارد. با  Ctrl+Z می‌توان یک Job را موقتاً متوقف کرد. سپس ```fg``` آن را به Foreground برمی‌گرداند و ```bg``` باعث می‌شود Job در Background ادامه پیدا کند. همچنین می‌ توان یک Command را از ابتدا در Background اجرا کرد ``` & command```. این قابلیت برای کارهایی که زمان زیادی طول می‌کشند بسیار کاربردی است.
 
 ---
 
-### ⚙️ introduction to permissions
+###  introduction to permissions
 
 بخش Permission یکی از مهم‌ ترین بخش‌های امنیت Linux است. با ```ls -l``` ممکن است چیزی شبیه این ببینیم ```-rw-r--r–``` این رشته اطلاعات مربوط به Type و Permission فایل را نشان می‌ دهد.
 <img width="100%" height="52" alt="image" src="https://github.com/user-attachments/assets/347c8e94-a146-4e3c-ba04-e707096ccccb" />
@@ -773,7 +773,7 @@ First Error → Find Root Cause → Fix it → Check remaining errors
 
 ---
 
-### ⚙️ Symbolic Link
+###  Symbolic Link
 
 یک Symbolic Link فایل کوچکی است که به مسیر فایل یا Directory دیگری اشاره می‌کند. مثلاً:
 
@@ -811,7 +811,7 @@ name2 ─┘
 
 ---
 
-### ⚙️ Compressing and archiving with gzip and tar
+###  Compressing and archiving with gzip and tar
 
 یکی از تفاوت‌ های مهمی که باید بدانیم این است که Compression و Archiving یک چیز نیستند.
 #### 🔹 gzip
@@ -876,7 +876,7 @@ gzip compression
 
 ---
 
-### ⚙️ Linux Directory Overview
+###  Linux Directory Overview
 
 فایل سیستم لینوکس از ```/``` شروع می‌شود. برخی از مهم‌ ترین Directory ها :
 
@@ -959,7 +959,7 @@ gzip compression
 
 ---
 
-### ⚙️ kernel and boot
+###  kernel and boot
 
 معمولاً Kernel لینوکس به شکل یک فایل قابل‌ بارگذاری روی سیستم وجود دارد. در بسیاری از سیستم‌ ها فایل‌ هایی با نام‌ هایی مانند ```vmlinuz/``` یا ```boot/vmlinuz/``` دیده می‌شوند. Bootloader در فرایند Boot Kernel را در حافظه قرار می‌ دهد و اجرای سیستم را به آن منتقل می‌کند.
 
@@ -969,7 +969,7 @@ gzip compression
 
 ---
 
-### ⚙️ Running commands with Superuser access
+###  Running commands with Superuser access
 
 در Linux لازم نیست برای هر کار مدیریتی یک Shell کامل با دسترسی root باز کنیم. استفاده از یک Root Shell می‌تواند ریسک بیشتری داشته باشد، زیرا ممکن است یک Command اشتباه مستقیماً با بالاترین سطح دسترسی اجرا شود. به همین دلیل در بسیاری از سیستم‌ها از```sudo``` استفاده می‌شود مثلاً:
 
