@@ -1066,16 +1066,16 @@ Shell
 │
 ├── Globbing
 │
-├── Environment Variables
-  └── PATH
-       │
-       ▼
-   Programs
-       │
-       ▼
-    Kernel
-       │
-       ▼
+└── Environment Variables
+    └── PATH
+         │
+         ▼
+     Programs
+         │
+         ▼
+      Kernel
+         │
+         ▼
 Filesystem / Hardware
 
 ```
