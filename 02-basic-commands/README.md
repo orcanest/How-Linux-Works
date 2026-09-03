@@ -112,7 +112,7 @@ Shell
 
 ---
 
-### ⚙️ File Commands
+### ⚙️ File commands
 
 دستورهای ساده‌ ای مثل ```ls, cp, mv, touch, rm``` شاید در نگاه اول فقط ابزارهای روزمره باشند، اما هرکدام نمونه‌ ای از نحوه‌ ی تعامل User Space با Kernel و Filesystem هستند.
 #### 🔹 ls
