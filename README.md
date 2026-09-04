@@ -13,7 +13,7 @@
 - 01 [The Big Picture](https://github.com/orcanest/How-Linux-Works/tree/main/01-the-big-picture#how-linux-works---chapter-1--the-big-picture)
 - 02 [Basic Command And Directory Hierarchy](https://github.com/orcanest/How-Linux-Works/blob/main/02-basic-commands/README.md)
 - 03 [Devices](https://github.com/orcanest/How-Linux-Works/tree/main/03-devices)
-- 04
+- 04 [Disks and Filesystems]()
 - 05
 - 06
 - 07
