@@ -21,6 +21,23 @@
 - [Creating a Partition Table](#creating-a-partition-table)
 - [Disk and Cylinder Geometry](#disk-and-cylinder-geometry)
 - [Reading from SSD disks](#reading-from-ssd-disks)
+- [File systems](#file-systems)
+- [VFS](#vfs)
+- [Types of filesystems](#types-of-filesystems)
+- [Creating a file system](#creating-a-filesystem)
+- [Mounting filesystem](#Mounting-filesystem)
+- [UUID](#uuid)
+- [Disk buffering and caching](#disk-buffering-and-caching)
+- [Mount options](#mount-options)
+- [Remounting a file system](#remounting-a-file-system)
+- [Filesystem table](#filesystem-table)
+- []()
+- []()
+- []()
+- []()
+- []()
+- []()
+- []()
 - []()
 - []()
 - []()
@@ -247,7 +264,204 @@ Partitions :
 
 ### Reading from SSD disks
 
+دیسک‌ های بدون قطعه‌ ی متحرک مثل SSD از نظر فیزیکی کاملاً با hard disk های قدیمی متفاوت هستن. در SSD دیگه platter ، spindle و head متحرک نداریم اما این به معنی بی‌ اهمیت شدن تمام مفاهیم مربوط به layout نیست. SSD داده رو در ساختارهای داخلی خودش ، از جمله **page ها** و **block ها** مدیریت می‌ کنه. کنترلر SSD بین logical block هایی که سیستم‌ عامل می‌ بینه و ساختار فیزیکی NAND flash قرار می‌گیره بنابراین سیستم‌ عامل مستقیماً با page های فیزیکی NAND کار نمی‌ کنه. یکی از موضوعات مهم در اینجا **partition alignment** هستش. اگر شروع partition با مرزهای مناسب storage هم‌ تراز نباشه ممکنه بعضی عملیات‌ های read و مخصوصاً write باعث کار اضافه در لایه‌ های پایین‌ تر storage بشن.
 
+این موضوع مخصوصاً در نسل‌ های قدیمی‌ تر SSD و storage های مختلف اهمیت بیشتری داشت. ابزارهای مدرن partitioning معمولاً partition ها رو با alignment مناسب ایجاد می‌کنن و alignment یک مگابایت یک convention رایج برای شروع partition های مدرن محسوب میشه. بنابراین معمولاً نیازی نیست کاربر به‌صورت دستی این محاسبات رو انجام بده ، ولی در سیستم‌ های خاص یا storage های خاص، alignment همچنان موضوع مهمی برای بررسیه.
 
+<img width="100%" height="500" alt="Difference-Between-HSS-and-SSD" src="https://github.com/user-attachments/assets/70c20d29-4b8e-40b9-abcb-9e4aa3d475fe" />
 
+---
+
+### File systems
+
+آخرین حلقه‌ ی اتصال بین kernel و user space برای کار معمول با storage و **filesystem** هستش. وقتی دستور هایی مثل ```ls``` و ```cd``` و ```cp``` و ```mv``` و ```rm``` اجرا می‌ کنید ، معمولاً با یک filesystem سروکار دارید ، نه مستقیماً با block های خام دیسک. Filesystem ساختاریه که روی یک block device یا منبع ذخیره‌ سازی قرار می‌ گیره و داده‌ ها و metadata مربوط به فایل‌ ها و دایرکتوری‌ ها رو مدیریت می‌ کنه. از دید مفهومی می‌تونیم filesystem رو شبیه یک database در نظر بگیریم که می‌دونه:
+
+- چه فایل‌هایی وجود دارند.
+- چه directory هایی وجود دارند.
+- سطح دسترسی permission هر object چیه.
+- هر فایل چه metadata ای دارد.
+- داده‌ ی فایل کجا قرار گرفته.
+- کدام block ها آزاد هستن.
+- کدام block ها استفاده شدن.
+
+ساختار درختی filesystem اونقدر انعطاف‌ پذیره که الزاماً مجبور نیست به storage فیزیکی متصل باشه. برای مثال ```proc/``` و ```sys/``` از filesystem های ویژه‌ ای استفاده می‌ کنن که داده‌ های kernel و system information رو به شکل فایل و directory در اختیار user space قرار میدن. Filesystem ها معمولاً در kernel پیاده‌ سازی میشن ، اما راه‌ هایی هم برای پیاده‌سازی filesystem در user space وجود دارد. یکی از معروف‌ ترین این روش‌ها **(FUSE (Filesystem in Userspace** است.
+
+---
+
+### VFS
+
+یک لایه‌ ی بسیار مهم در kernel لینوکس **(VFS (Virtual File System** هستش. VFS نقش یک abstraction layer رو ایفا می‌ کنه. یعنی برنامه‌ ی user space نباید برای هر filesystem مختلف یک API جداگانه یاد بگیره. مثلاً برنامه می‌تونه از system call هایی استفاده می کنه مثل :
+
+- open()
+- read()
+- write()
+- close()
+- stat()
+
+لایه‌ ی VFS درخواست رو دریافت می‌کنه و اون رو به implementation مناسب filesystem منتقل می‌کنه. به همین دلیل یک برنامه می‌ تونه با filesystem های بسیار متفاوت کار کنه بدون اینکه لازم باشه منطق مخصوص هر filesystem رو داخل خودش پیاده‌ سازی کنه. این موضوع شبیه نقشی هست که SCSI subsystem برای  device های مختلف ایفا می‌کنه :
+
+```
+User Space
+↓ 
+VFS 
+↓ 
+Filesystem Implementation 
+↓ 
+Block Layer 
+↓ 
+Device
+```
+در نتیجه VFS یکی از مهم‌ترین abstraction های linux هستش.
+
+---
+
+### Types of filesystems
+
+چند filesystem مهم که در لینوکس با اون‌ ها رو به‌ رو می‌ شید:
+
+**فایل سیستم ext4 :** یکی از filesystem های بسیار رایج لینوکس هستش قبل از اون هم فایل سیستم های ```ext2``` و ```ext3``` وجود داشتن و ext3 به‌ عنوان توسعه‌ ای از ext2 با اضافه شدن journal شناخته می‌شد. ext4 قابلیت‌ ها و محدودیت‌ های متفاوتی نسبت به نسل‌های قبلی دارد و در بسیاری از توزیع‌ های لینوکس filesystem شناخته‌ شده‌ای محسوب میشه.
+
+**فایل سیستم btrfs :** یک filesystem مدرن‌ تر لینوکس هستش که با هدف‌ هایی مثل مقیاس‌پذیری ، مدیریت پیشرفته‌ تر storage و قابلیت‌ های filesystem مدرن طراحی شده.
+
+**فایل سیستم FAT Family :** خانواده‌ی FAT شامل filesystem هایی مثل ```msdos``` و ```vfat``` و ```exfat``` هستند. این filesystem ها ریشه در اکوسیستم DOS/Windows دارن و به دلیل compatibility بالا روی media های قابل‌ جا به‌ جایی زیاد دیده میشن مثل: 
+
+- USB flash drive
+- memory card
+- external storage
+
+**فایل سیستم XFS :** یک filesystem قدرتمند و پرکاربرد در محیط‌ های لینوکسی هستش و مخصوصاً در بعضی توزیع‌ های enterprise مثل RHEL کاربرد زیادی داشته.
+
+**فایل سیستم HFS+ :** مربوط به نسل‌ های قدیمی‌ تر سیستم‌ عامل‌ های Apple محسوب میشه.
+
+**فایل سیستم ISO 9660 :** استاندارد filesystem مربوط به CD-ROM هاست. این filesystem با هدف سازگاری بین سیستم‌ های مختلف طراحی شده و محدودیت‌ها و ویژگی‌ های خاص media های نوری رو دارد.
+
+---
+
+### Creating a filesystem
+
+بعد از partitioning ، مرحله‌ ی بعدی ساخت filesystem هستش ، این کار در user space انجام میشه. یکی از دستورهای رایج : 
+
+```mkfs -t filesystem device```
+
+برای مثال:
+
+```mkfs -t ext4 /dev/sda1```
+
+در سیستم‌ های مدرن معمولاً می‌تونید مستقیماً از ابزار اختصاصی filesystem هم استفاده کنید :
+
+```mkfs.ext4 /dev/sda1```
+
+دستور mkfs در واقع یک frontend برای ابزارهای مختلف filesystem محسوب میشه مثلاً ```mkfs.ext4``` به ابزارهای خانواده‌ ی e2fsprogs مربوط میشه و در سیستم‌های رایج ، mkfs.ext4 به mke2fs متصل یا ارجاع داده میشه.
+
+<img width="100%" height="393" alt="image" src="https://github.com/user-attachments/assets/0bdb5c95-4e9a-4937-bc06-a9b1876793bb" />
+
+#### 🔹 Superblock
+
+در filesystem هایی مثل ext4 یک ساختار بسیار مهم به اسم superblock وجود دارد. Superblock اطلاعات سطح بالایی درباره‌ ی filesystem رو نگه می‌دارد برای مثال اطلاعاتی درباره‌ ی :
+
+- اندازه‌ ی filesystem
+- اندازه‌ ی block
+- وضعیت filesystem
+- تعداد block ها
+- تعداد inode ها
+- و metadata های مهم دیگر
+
+در این ساختار یا ساختارهای مرتبط ذخیره میشن. به دلیل اهمیت  superblock، در filesystem هایی مثل ext2/ext3/ext4 برای replica های backup از superblock هم وجود دارند.
+
+#### 🔹 Important mkfs warning ⚠️
+
+اگر روی یک partition که قبلاً داده داشته ```mkfs.ext4 /dev/sda1``` اجرا کنید ، دارید filesystem جدیدی روی اون device ایجاد می‌کنید. این کار metadata قبلی filesystem رو از بین میبره و می‌ تونه دسترسی عادی به داده‌ های قبلی رو نابود کنه. بنابراین قبل از mkfs همیشه باید مطمئن بشید device موردنظر واقعاً همون device هست که می‌خواید format کنید.
+
+---
+
+### Mounting filesystem
+
+فرآیند وصل کردن یک filesystem به namespace فایل سیستم در حال اجرای لینوکس رو **mounting** گفته میشه برای mount کردن معمولاً به دو چیز نیاز دارید ، filesystem یا device منبع و mount point مثلاً:
+
+```mkdir /mnt/data```
+```mount /dev/sdb1 /mnt/data```
+
+در اینجا ```dev/sdb1/``` منبع filesystem هستش و ```mnt/data/``` هم mount point محسوب میشه. بعد از mount باید ```mnt/data/``` به ریشه‌ ی filesystem جدید تبدیل میشه و فایل‌ ها و  directory های داخل اون از این مسیر قابل مشاهده هستن. اگر لازم باشه می‌تونید نوع filesystem رو هم مشخص کنید:
+
+```mount -t ext4 /dev/sdb1 /mnt/data```
+
+اما در بسیاری از موارد mount می‌تونه نوع filesystem رو از روی metadata تشخیص بده و نیازی به t- نیست. برای دیدن filesystem های mount شده هم دستور ```mount``` رو بدون آرگومان اجرا کنید.
+برای جدا کردن filesystem :
+```umount /mnt/data```
+یا در بعضی موارد:
+```umount /dev/sdb1```
+
+---
+
+### UUID
+
+برای mount کردن بر اساس اسم device یک مشکل مهم دارد. نام‌ هایی مثل ```dev/sda/``` و ```dev/sdb/``` لزوما شناسه‌ ی دائمی یک سخت‌افزار مشخص نیستن. ترتیب شناسایی device ها ممکنه تغییر کنه و در نتیجه device که امروز ```dev/sdb1/``` هست، ممکنه بعد از تغییر configuration یا ترتیب discovery نام دیگری داشته باشه. برای همین filesystem ها معمولاً یک **UUID** دارند. UUID یک شناسه‌ی نسبتاً پایدار برای filesystem هستش که هنگام ساخت filesystem تولید میشه برای مشاهده‌ ی UUID ها می‌تونید از ```blkid``` استفاده کنید.
+
+<img width="100%" height="90" alt="image" src="https://github.com/user-attachments/assets/70c89f5d-11b5-4019-bd3f-fa00ef8b69ef" />
+
+می‌تونید به‌ جای وابستگی به نام device از UUID استفاده کنید.
+
+```mount UUID=... /mnt```
+
+به همین دلیل در تنظیمات دائمی mount، مخصوصاً ```etc/fstab/``` استفاده از UUID بسیار رایج هستش.
+
+---
+
+### Disk buffering and caching
+
+لینوکس مثل سیستم‌ های یونیکسی ، برای بهبود performance عملیات I/O از buffering و caching استفاده می‌ کنه. وقتی یک process تغییری در فایل ایجاد می‌ کنه ، این به این معنی نیست که در همان لحظه تمام داده‌ ی مربوط به تغییر حتماً روی storage فیزیکی نوشته شده. Kernel می‌تونه داده‌ ها و metadata های تغییر کرده رو برای مدتی در RAM نگه داره و بعداً اون‌ ها رو به storage منتقل کنه. 
+
+این کار باعث میشه تعداد و نحوه‌ ی عملیات I/O بهتر مدیریت بشه و performance افزایش پیدا کنه. از طرف دیگه Kernel از RAM برای cache کردن داده‌های خوانده‌ شده هم استفاده می‌کنه. اگر یک داده قبلاً در page cache موجود باشه ، ممکنه درخواست بعدی بدون مراجعه‌ی مستقیم به storage پاسخ داده بشه.
+
+#### 🔹 sync
+
+برای درخواست flush کردن داده‌ های buffered به storage می‌تونید از دستور ```sync``` استفاده کنید. همچنین وقتی یک filesystem به شکل صحیح unmount میشه ، kernel قبل از جدا کردن filesystem باید عملیات لازم برای نوشتن داده‌های pending رو انجام بده. به همین دلیل خاموش کردن ناگهانی سیستم می‌ تونه خطرناک باشه چون ممکنه بخشی از metadata یا داده هنوز در RAM بوده باشه و روی storage نوشته نشده باشه. البته sync به‌ تنهایی جایگزین shutdown صحیح سیستم نیست.
+
+---
+
+### Mount options
+
+دستور mount هم option های بسیار زیادی دارد. این option ها رو میشه به دو گروه کلی تقسیم کرد:
+
+-  گروه اول General Options  : به‌ صورت public در mount کردن کاربرد دارن.
+- گروه دوم Filesystem-Specific Options : مربوط به یک filesystem خاص هستن.
+
+برای مشخص کردن mount option ها معمولاً از ```o-``` استفاده کنید که filesystem رو به‌ صورت read-only mount می‌کنه برای مثال :
+
+```mount -o ro /dev/sdb1 /mnt```
+
+#### 🔹 ro and rw
+
+- ro → read-only
+- rw → read-write
+
+#### 🔹 exec and noexec
+
+با ```exec``` اجازه ی اجرای برنامه‌ ها از filesystem رو میدهد در مقابل ```noexec``` اجرای مستقیم  executable ها از اون mount point رو محدود می‌ کند.
+
+#### 🔹 suid and nosuid
+
+ با ```suid``` اجازه‌ ی اعمال semantics مربوط به set-user-ID و set-group-ID روی executable ها رو حفظ می‌کنه. در مقابل ```nosuid``` اجرای setuid/setgid از اون filesystem رو محدود می‌ کند.
+
+#### 🔹 -r
+
+برای mount کردن به شکل read-only استفاده میشه معادل مفهومی اون ```ro``` هست.
+
+#### 🔹 -n
+
+از update کردن ```etc/mtab/``` جلوگیری می‌ کنه. این option در شرایط خاصی مثل مراحل اولیه‌ ی boot یا محیط‌ های recovery می‌تونه کاربرد داشته باشه. در سیستم‌ های مدرن ```etc/mtab/``` ممکنه symbolic link به فایل یا interface دیگری مثل ```proc/mounts/``` باشه ، بنابراین رفتار دقیق mtab در همه‌ ی سیستم‌ ها یکسان نیست.
+
+---
+
+### Remounting a file system
+
+گاهی filesystem از قبل mount شده ، ولی می‌خواید mount option های اون رو تغییر بدید. در این حالت می‌تونید از ```remount``` استفاده کنید. یکی از کاربرد های مهمش زمانی هست که filesystem root در محیط recovery به شکل read-only در دسترسه و می‌خواید اون رو read-write کنید. مثلاً:
+
+```mount -o remount,rw /```
+
+در این حالت filesystem جدیدی mount نمی‌کنید بلکه option های mount موجود رو تغییر می‌دید.
+
+---
+
+### Filesystem table
 
