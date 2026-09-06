@@ -31,6 +31,24 @@
 - [Mount options](#mount-options)
 - [Remounting a file system](#remounting-a-file-system)
 - [Filesystem table](#filesystem-table)
+- [fstab alternatives](#fstab-alternatives)
+- [Filesystem capacity](#Filesystem-capacity)
+- [Check and repair the file system](#check-and-repair-the-file-system)
+- [Special purpose filesystems](#special-purpose-filesystems)
+- [swap space](#swap-space)
+- [Using a Partition as Swap](#using-a-Partition-as-Swap)
+- [Using a file as Swap](#using-a-file-as-swap)
+- [How much swap do we need?](#how-much-swap-do-we-need)
+- [Introduction to Logical Volume Manager](#introduction-to-logical-volume-manager)
+- [Working with LVM](#working-with-lvm)
+- [Creating Physical Volume and Volume Group](#creating-physical-volume-and-volume-group)
+- [Creating Logical Volumes](#creating-logical-volumes)
+- [Working with Logical Volumes](#working-with-logical-volumes)
+- [Delete Logical Volume](#delete-logical-volume)
+- []()
+- []()
+- []()
+- []()
 - []()
 - []()
 - []()
@@ -465,3 +483,335 @@ Device
 
 ### Filesystem table
 
+برای اینکه filesystem ها موقع boot به‌صورت خودکار mount بشن، لینوکس معمولاً از فایل ```etc/fstab/``` استفاده می‌ کنه. هر entry در این فایل معمولاً شش فیلد داره :
+
+```device   mountpoint   filesystem   options   dump   fsck-order```
+
+برای مثال:
+```UUID=...   /   ext4   defaults   0   1```
+
+<img width="100%" height="214" alt="image" src="https://github.com/user-attachments/assets/2c3871c1-d1bc-4245-9d92-8a0a71a217fd" />
+
+- فیلد اول Device : می‌ تونه اسم device به صورت dev/sda1/ یا UUID یا روش‌ های دیگر شناسایی مثل LABEL باشه در سیستم‌ های مدرن استفاده از UUID یا identifier های پایدار معمولاً ترجیح داده میشه.
+- فیلد دوم Mount Point : مشخص می‌ کنه filesystem کجا mount بشه. مثلاً ```/``` یا ```home/``` یا ```mnt/data/``` .
+- فیلد سوم Filesystem Type : نوع filesystem رو مشخص می‌ کنه مثلاً : ext4 یا xfs یا vfat یا btrfs یا اگر entry مربوط به swap باشه.
+- فیلد چهارم Options : این فیلد mount option ها رو مشخص می‌ کنه. مثلاً  defaults یا ترکیبی مثل defaults,noatime .
+- فیلد پنجم dump : این فیلد برای ابزار قدیمی dump استفاده می‌ شده ، در بسیاری از سیستم‌ های امروزی مقدار اون 0 قرار داده میشه.
+- فیلد ششم fsck order : این فیلد مشخص می‌کنه filesystem ها در چه ترتیبی توسط fsck بررسی بشن. به‌ صورت سنتی 1 برای root filesystem استفاده میشه . filesystem های دیگر معمولاً 2 می‌ گیرن و filesystem هایی که نباید توسط fsck بررسی بشن 0 می‌ گیرن . برای swap و filesystem های pseudo مثل proc/ معمولاً مقدار 0 استفاده میشه.
+
+#### 🔹 Mount with fstab
+
+اگر یک filesystem در etc/fstab/ تعریف شده باشه ، می‌ تونید mount point رو به‌ صورت ساده به mount بدید. مثلاً اگر entry مربوط به cdrom/ در fstab وجود داشته باشه ```mount /cdrom``` کافیه. برای mount کردن همه‌ی entry های مناسب در fstab می‌تونید از ```mount -a``` استفاده کنید. البته entry هایی که گزینه‌ ی ```noauto``` دارن توسط mount -a mount نمیشن.
+
+#### 🔹 fstab Options
+
+- اول defaults : مجموعه‌ ای از mount option های پیش‌ فرض رو فعال می‌ کنه.
+- دوم noauto : باعث میشه entry هنگام ```mount -a``` به‌ صورت خودکار mount نشه. برای media های قابل‌ جا به‌ جایی می‌ تونه مفید باشه. 
+- سوم user : اجازه میده کاربر معمولی mount مربوط به اون entry رو انجام بده، البته با محدودیت‌ های خودش. 
+-چهارم errors : برای filesystem هایی مثل ext2/ext3/ext4 قابل استفاده‌ ست و رفتار filesystem در شرایط خطا رو مشخص می‌کنه. برای مثال ```errors=remount-ro``` یعنی در شرایط خاص خطای  filesystem ، سیستم تلاش کنه filesystem رو read-only کنه.
+
+---
+
+### fstab alternatives
+
+تنها راه مدیریت mount ها  /etc/fstab نیست. در بعضی سیستم‌ ها ممکنه تنظیمات مرتبط در ```/etc/fstab.d/``` وجود داشته باشه یا سیستم از روش‌های دیگری برای مدیریت filesystem ها استفاده کنه. در سیستم‌ هایی که systemd دارن ، mount ها می‌ تونن به شکل systemd mount units هم مدیریت بشن. systemd در بسیاری از سیستم‌ ها می‌ تونه entry های /etc/fstab رو به unit های مورد نیاز تبدیل و مدیریت کنه. بنابراین در یک سیستم modern ممکنه چیزی که در fstab نوشته شده ، در نهایت به بخشی از dependency graph مربوط به systemd تبدیل بشه.
+
+---
+
+### Filesystem capacity
+
+#### 🔹 df
+
+برای دیدن ظرفیت و میزان استفاده‌ ی filesystem های mount شده از ابزار ```df``` استفاده میشه. مثلاً ```df -h``` خواندن خروجی رو با واحدهای قابل‌ فهم‌ تر مثل GB و MB راحت‌ تر می‌ کنه. در filesystem هایی مثل ext4 ممکنه بخشی از فضای filesystem به‌عنوان **reserved blocks** کنار گذاشته بشه. این فضای رزرو شده کمک می‌کنه وقتی filesystem تقریباً کاملاً پر شده، system service ها و administrator همچنان مقداری فضا در اختیار داشته باشن. بنابراین ممکنه ```Used + Available``` دقیقاً برابر با کل فضای نمایش‌ داده‌ شده نباشه. این موضوع مخصوصاً برای  filesystem های سیستمی اهمیت داره ، چون پر شدن کامل یک filesystem می‌تونه باعث مشکلات جدی برای سرویس‌ ها بشه.
+
+
+<img width="100%" height="133" alt="image" src="https://github.com/user-attachments/assets/edaec75b-de8c-4ffc-bea1-72860e21ee17" />
+
+
+#### 🔹 du
+
+برای اینکه بفهمیم کدام فایل‌ها و directory ها بیشترین فضا رو مصرف می‌کنن ، از ```du``` استفاده می‌ کنیم. مثلاً ```*/du -s /var``` . گزینه‌ ی ```s-``` برای نمایش summary استفاده میشه. در نتیجه به‌ جای نمایش جزئیات تمام subdirectory ها ، جمع فضای مصرفی مسیر مورد نظر رو می‌ بینید.
+
+
+<img width="100%" height="245" alt="Screenshot from 2026-09-06 12-00-24" src="https://github.com/user-attachments/assets/5b681e34-21b2-4b80-9767-4e43cd2b3b42" />
+
+---
+
+### Check and repair the file system
+
+فایل سیستم های یونیکسی فقط مجموعه‌ای از block های ساده نیستن بلکه اونها metadata و ساختارهای پیچیده‌ ای دارن که باید با هم سازگار باشن. برای مثال filesystem باید بدونه : 
+
+- کدام inode ها استفاده شدن.
+- کدام block ها آزاد هستن.
+- کدام directory entry به کدام inode اشاره می‌ کنه.
+- در link count ها چه مقداری دارن.
+- آیا metadata های filesystem با هم سازگار هستن. 
+
+اگر سیستم ناگهانی خاموش بشه، ممکنه بخشی از تغییرات در RAM باقی مونده باشه و تمام تغییرات مورد نیاز روی storage ثبت نشده باشه. برای بررسی و در صورت امکان تعمیر filesystem از ```fsck``` استفاده میشه.  fsck در واقع یک frontend برای filesystem-specific checker هاست. مثلاً برای filesystem های خانواده‌ی ext از ```e2fsck``` ابزار اصلی بررسیه استفاده میشه.
+
+**⚠️ هرگز fsck را روی filesystem در حال استفاده اجرا نکنید!** : این یکی از مهم‌ ترین هشدارهای این بخشه. اگر filesystem در حال mount و استفاده باشه و هم‌ زمان fsck ساختارهای اون رو تغییر بده ، ممکنه kernel و fsck هر دو در حال تغییر یا مشاهده‌ ی یک metadata مشترک باشن. این وضعیت می‌تونه باعث corruption بیشتر بشه. بنابراین filesystem معمولاً باید unmount شده باشه. برای root filesystem ، شرایط پیچیده‌ تره چون سیستم در حال اجرا خودش از / استفاده می‌کنه. در محیط‌ های recovery یا single-user میشه root filesystem رو در شرایط مناسب به شکل read-only در اختیار داشت و سپس عملیات بررسی انجام داد.
+
+**مراحل بررسی و fsck** : در حالت تعاملی، filesystem checker می‌ تونه مرحله‌ به‌ مرحله ساختارهای مختلف filesystem رو بررسی کنه. اگر inconsistency پیدا بشه ، ممکنه از شما بپرسه که آیا می‌خواید مشکل اصلاح بشه یا نه. یکی از حالت‌ های معروف زمانی اتفاق میفته که filesystem یک inode پیدا می‌ کنه که در هیچ directory entry قابل دسترسی نیست. به چنین چیزی می‌تونیم **orphaned inode** یا inode بی‌ نام بگیم. در filesystem های ext ، در صورت امکان recovery فایل می‌ تونه در ``` lost+found``` قرار بگیره و اسم فایل معمولاً بر اساس inode number ساخته میشه.
+
+**فایل سیستم های Journaled** : فایل سیستم هایی مثل ext3 و  ext4 از journaling استفاده می‌ کنن. Journal کمک می‌کنه filesystem بعد از crash یا shutdown ناگهانی راحت‌ تر به یک وضعیت سازگار برگرده. اما یک نکته‌ ی مهم : **journal به معنی تضمین مطلق سلامت همه‌ی داده‌های application نیست.** Journal در درجه‌ی اول برای حفظ consistency ساختارهای filesystem طراحی شده و رفتار دقیق مربوط به data و metadata به filesystem و mount mode وابسته‌ ست. در نتیجه نباید این جمله رو بگیم که «چون ext4 journal داره، پس هیچ‌ وقت fsck لازم نیست».
+
+**دستور e2fsck -fy** : در مثال‌های مربوط به بررسی ext filesystem ممکنه دستور ```e2fsck -fy``` رو ببینید. گزینه‌ی ```f-``` برای force کردن check استفاده میشه و ```y-``` باعث میشه پاسخ yes به پرسش‌های repair به‌ صورت خودکار داده بشه. بنابراین این دستور بسیار قدرتمنده و باید با احتیاط استفاده بشه. این دستور صرفاً به معنی «flush کردن journal» نیست بلکه e2fsck یک filesystem checker/repair tool محسوب میشه.
+
+**روش‌های نجات data** : در بدترین شرایط ، قبل از اینکه روی filesystem خراب عملیات repair انجام بدید ، ممکنه بخواید یک image کامل از device بگیرید. یکی از ابزارهایی که برای این کار استفاده میشه ```dd``` است. برای مثال:
+
+```dd if=/dev/sdb of=disk.img```
+
+البته در عمل برای storage های خراب ، dd ساده همیشه بهترین ابزار recovery نیست و ابزارهایی مثل ddrescue ممکنه برای media های دارای read error مناسب‌ تر باشن. همچنین ممکنه filesystem رو به‌ صورت read-only mount کنید تا داده‌ها رو تا حد ممکن بدون تغییر نجات بدید. برای بررسی سطح پایین filesystem های ext هم ابزار ```debugfs``` وجود داره. این ابزار می‌ تونه برای inspection و در شرایط خاص برای استخراج اطلاعات filesystem استفاده بشه.
+
+---
+
+### Special purpose filesystems
+
+**فایل سیستم proc :** مربوط به ```proc/``` که اطلاعات process ها و بسیاری از اطلاعات kernel رو در اختیار user space قرار میده. برای مثال:
+
+```cat /proc/cpuinfo```
+
+اطلاعات CPU رو نمایش میده. همچنین directory هایی مثل ```<proc/<pid/``` اطلاعات مربوط به process های مختلف رو در اختیار میذارن. با این حال، طراحی kernel به‌ مرور به این سمت رفته که اطلاعاتی که ذاتاً درباره‌ی process نیستن، در موارد مناسب از طریق sysfs در ```sys/``` ارائه بشن.
+
+**فایل سیستم sysfs :** مسیر اصلی اون در ```sys/``` هست و اطلاعات ساختار یافته‌ ای درباره‌ ی :
+
+- devices
+- drivers
+- bus
+- kernel objects
+- Software topology 
+
+در اختیار user space قرار میده.
+
+**فایل سیستم tmpfs :** یک filesystem موقته که فضای اون عمدتاً از memory و در صورت نیاز از swap پشتیبانی میشه. یکی از محل‌ های رایج استفاده از آن ```run/``` هست. به همین دلیل داده‌ های داخل tmpfs معمولاً با reboot باقی نمی‌ مونن.
+
+**فایل سیستم squashfs :** یک filesystem فشرده و معمولاً read-only هست. برای package یک filesystem کامل در قالبی فشرده کاربرد داره. یکی از نمونه‌ های شناخته‌ شده‌ ی استفاده از squashfs ، بعضی package ها و image های نرم‌ افزاری مثل snap هستن.
+
+**فایل سیستم overlay :** فایل سیستم یا filesystem layer هایی مثل OverlayFS امکان ترکیب چند directory tree رو فراهم می‌کنن. در محیط‌های container ، این قابلیت بسیار مهمه چون می‌تونه یک لایه‌ ی read-only image رو با یک writable layer ترکیب کنه.
+
+---
+
+### swap space
+
+همه‌ ی partition ها لزوماً filesystem ندارن. یک partition می‌تونه به عنوان **swap space** استفاده بشه. Swap بخشی از storage هستش که سیستم مدیریت حافظه‌ ی مجازی لینوکس می‌ تونه برای جا به‌ جایی بعضی page های حافظه از RAM به storage از اون استفاده کنه. به این عملیات **swapping** گفته میشه. وقتی یک page از memory به swap منتقل میشه ، فضای RAM آزاد میشه تا برای کاربرد های دیگر استفاده بشه. برای مشاهده‌ ی وضعیت حافظه و swap می‌تونید از ```free``` استفاده کنید. مثلاً ```free -h``` اطلاعات رو با واحد های قابل‌ فهم‌ تر نمایش میده.
+
+<img width="100%" height="69" alt="image" src="https://github.com/user-attachments/assets/42618581-8713-4f62-9ca4-6f44aefff53c" />
+
+---
+
+### Using a Partition as Swap
+
+برای استفاده از یک partition به‌عنوان swap ، چند مرحله داریم. اول باید مطمئن بشید partition واقعاً خالیه و داده‌ ی مهمی روی اون نیست بعد ```mkswap /dev/sdb1``` یک swap signature روی device ایجاد می‌ کنه بعد ```swapon /dev/sdb1``` اون swap area رو به pool فعال swap اضافه می‌ کنه. برای بررسی ```swapon --show``` یا ```free -h``` مفیده.
+برای فعال شدن خودکار swap هنگام boot ، می‌تونید یک entry در ```etc/fstab/``` قرار بدید. مثلاً :
+
+```/dev/sda5 none swap sw 0 0```
+
+البته امروزه میشه از UUID مربوط به swap هم استفاده کرد. Swap signature خودش UUID داره و استفاده از identifier پایدار می‌تونه از وابستگی به device name جلوگیری کنه :
+
+```UUID=... none swap sw 0 0```
+
+---
+
+### Using a file as Swap
+
+اگر repartition کردن دیسک عملی نباشه ، می‌تونید به‌ جای partition یک **regular file** به‌ عنوان swap استفاده کنید. ایده اینه :
+
+```
+Regular File
+     ↓
+mkswap
+     ↓
+swapon
+     ↓
+Swap Space
+```
+برای ایجاد فایل میشه از dd استفاده کرد:
+
+```dd if=/dev/zero of=swap_file bs=1024k count=num_mb```
+
+بعد ```mkswap swap_file``` و ```swapon swap_file``` . فعال کردن swap file در سیستم‌ های مدرن نیازمند رعایت بعضی محدودیت‌ های filesystem و permission هم هست، بنابراین بهتره روش توصیه‌ شده‌ ی همان توزیع رو هم در نظر بگیرید. برای خارج کردن یک swap از pool فعال ```swapoff swap_file ``` یا برای partition از ```swapoff /dev/sdb1``` استفاده میشه. هنگام swapoff سیستم باید بتواند page های فعال موجود در آن swap area را در RAM یا swap های دیگر جا بدهد.
+
+---
+
+### How much swap do we need
+
+یک قانون قدیمی در دنیای Unix می‌ گفت **swap باید حداقل دو برابر RAM باشه**. اما این قانون مربوط به دوره‌ ایه که مقدار RAM سیستم‌ ها بسیار کمتر از امروز بود. امروز نمیشه یک عدد ثابت برای تمام سیستم‌ها تعیین کرد. مثلاً سیستمی با  4GB RAM و سیستمی با 128GB RAM نیازهای یکسانی ندارن. حتی کاربرد سیستم هم مهمه ، روی یک سیستم desktop ممکنه swap برای مدیریت بهتر memory pressure و بعضی workload ها مفید باشه. روی یک سرور high-performance ممکنه administrator بخواد سیستم تا حد ممکن از disk I/O ناشی از swapping دور بمونه. 
+
+یک نکته‌ ی مهم اینه که **استفاده‌ی زیاد و مداوم از swap معمولاً نشونه‌ی کمبود RAM یا memory pressure بالاست** و می‌تونه performance سیستم رو شدیداً کاهش بده. Swap جایگزین واقعی RAM نیست و اگر سیستم مرتباً مجبور باشه page های فعال رو بین RAM و storage جابه‌جا کنه ، latency به‌ شدت افزایش پیدا می‌کنه. کتاب هم توضیح میده که قانون «دو برابر RAM» مربوط به دوره‌ ای بوده که چندین کاربر روی یک ماشین کار می‌کردن و سیستم می‌ تونست memory مربوط به user های inactive رو به swap منتقل کنه.
+
+**⚠️ سیستم بدون Swap** : بعضی administrator ها عمداً روی بعضی سیستم‌ ها swap رو فعال نمی‌کنن. برای مثال ممکنه روی یک server خاص که latency و performance اهمیت بسیار زیادی داره administrator بخواد از swap جلوگیری کنه. اما برای یک سیستم عمومی ، حذف کامل swap می‌تونه خطرناک باشه. اگر RAM و swap هر دو تمام بشن ، kernel ممکنه **OOM killer** رو فعال کنه تا با terminate کردن یک یا چند process مقداری memory آزاد کنه. این رفتار می‌ تونه باعث بسته شدن application ها یا service های مهم بشه. پس اینکه «سیستم swap نداره» لزوماً نشونه‌ ی performance بهتر نیست بلکه این یک تصمیم معماریه که باید با workload سیستم هماهنگ باشه.
+
+---
+
+### Introduction to Logical Volume Manager
+
+تا اینجا با مدیریت مستقیم دیسک از طریق partition آشنا شدیم. در مدل های قدیمی مشکل اینجاست که partition ها layout نسبتاً ثابتی دارن  :
+```
+Disk
+ ↓
+Partition
+ ↓
+File
+```
+
+فرض کنید بعد از نصب سیستم متوجه بشید home/ فضای کافی نداره. اگر filesystem مستقیماً روی partition باشه ، تغییر layout ممکنه نیازمند عملیات پیچیده‌ای باشه مثل :
+
+- backup
+- Change partition
+- Change filesystem
+- Data migration
+- reboot
+- reinstall
+
+همین موضوع وقتی بخواید یک disk جدید اضافه کنید هم خودش رو نشون میده. مثلاً اگر یک disk جدید به سیستم اضافه کنید ، بدون abstraction مناسب باید filesystem جدیدی روی اون بسازید و بعد یک mount point جدید برای اون انتخاب کنید. **LVM** برای حل بخش بزرگی از همین مشکلات طراحی شده. LVM یک لایه‌ ی اضافه بین physical block device ها و filesystem قرار میده. ساختار کلی :
+
+```
+Physical Volume
+        ↓
+Volume Group
+        ↓
+Logical Volume
+        ↓
+Filesystem
+```
+
+چند **(Physical Volume (PV** می‌ تونن در یک **(Volume Group (VG** قرار بگیرن. Volume Group مثل یک pool بزرگ از فضای storage عمل می‌ کنه. بعد از داخل اون pool می‌تونیم **LogicalVolume (LV)** ایجاد کنیم. 
+
+<img width="100%" height="269" alt="image" src="https://github.com/user-attachments/assets/3872802f-4210-4fbb-a31e-70638d9d4033" />
+
+کتاب هم دقیقاً LVM رو به‌ عنوان لایه‌ ای بین physical block device ها و filesystem معرفی می‌ کنه و توضیح میده که PV ها معمولاً block device هایی مثل partition هستن و VG یک data pool عمومی ایجاد می‌ کنه.
+
+**رابطه‌ ی PV ، VG و LV** مثلاً:
+```
+/dev/sdb1 ─┐
+           ├── Volume Group
+/dev/sdc1 ─┘
+                 │
+          ┌──────┴──────┐
+          ↓             ↓
+        LV1           LV2
+          ↓             ↓
+       ext4           swap
+```
+
+خود Logical Volume یک block device محسوب میشه. یعنی می‌ تونید روی اون filesystem بسازید:
+
+```mkfs.ext4 /dev/myvg/mylv```
+
+یا اون رو به‌عنوان swap استفاده کنید. تفاوت مهم با partition اینه که شما معمولاً مجبور نیستید خودتون layout دقیق LV ها روی PV ها رو تعیین کنید. LVM این mapping رو مدیریت می‌ کنه.
+
+**مزیت‌ های LVM** :
+
+- اجازه میدهد PV جدید به VG اضافه کنید.
+- ظرفیت VG رو افزایش بدید.
+- اجازه میدهد PV رو از VG خارج کنید، اگر فضای کافی برای جابه‌جایی داده‌ها وجود داشته باشه.
+- اجازه میدهد LV ها رو resize کنید.
+- در بسیاری از موارد این تغییرات رو بدون reboot انجام بدید.
+- در بسیاری از filesystem ها، عملیات resize رو بدون unmount انجام بدید.
+
+کتاب هم روی همین flexibility تأکید می‌کنه و اضافه می‌کنه که در محیط‌های cloud حتی ممکنه اضافه کردن block storage جدید بدون خاموش کردن ماشین انجام بشه.
+
+---
+
+### Working with LVM
+
+این LVM مجموعه‌ ای از ابزارهای user-space دارد و بسیاری از command های آشنای LVM در واقع frontend هایی برای مجموعه‌ ی ابزار LVM2 هستن. برای دیدن Volume Group ها از دستور ```vgs``` یا اطلاعات کامل‌ تر از دستور ```vgdisplay``` استفاده میشود.
+
+**اطلاعات Volume Group** : اطلاعات مهم VG شامل مواردی میشه مثل :
+
+- تعداد PV ها
+- تعداد LV ها
+- اندازه‌ ی کل
+- فضای آزاد
+
+یک مفهوم مهم در LVM هم **(Physical Extent (PE** هستش. Physical Extent یک واحد تخصیص در PV محسوب میشه. به‌جای اینکه LVM برای هر byte به‌ صورت جداگانه metadata داشته باشه ، فضای PV رو به extent های بزرگ‌ تری تقسیم می‌ کنه. مثلاً اندازه‌ ی رایج یک extent می‌ تونه حدود 4MiB باشه.
+
+#### 🔹 Logical Volume (LV)
+
+برای دیدن **Logical Volume** یا LV ها از ```lvs``` یا اطلاعات کامل‌ تر از ```lvdisplay``` استفاده میشه. Logical Volume ها در نهایت به device های Device Mapper متصل میشن. ممکنه device واقعی مربوط به یک LV چیزی مثل ```dev/dm-0/``` باشه. اما برای استفاده‌ ی راحت‌ تر، symbolic link هایی در مسیرهایی مثل ```dev/mapper/``` ایجاد میشن مثلاً :
+
+```/dev/mapper/myvg-mylv```
+
+ممکنه به device mapper مربوطه اشاره کنه. همچنین معمولاً مسیرهایی مثل ```dev/myvg/mylv/``` برای دسترسی به LV وجود دارن. این نام‌ ها نسبت به ```dev/dm-0/``` خوانا تر و برای استفاده‌ ی administrator مناسب‌ ترن.
+
+#### 🔹 Physical Volume (PV)
+
+برای دیدن **Physical Volume** یا PV ها از ```pvs``` و ```pvdisplay``` استفاده میشه. خود PV معمولاً بر اساس block device ای که روش قرار گرفته شناخته میشه، مثلاً ```dev/sdb1/``` اما PV یک UUID هم داره. LVM از metadata ذخیره‌ شده روی PV برای شناختن ساختار volume group استفاده می‌کنه.
+
+---
+
+### Creating Physical Volume and Volume Group
+
+لازم نیست حتماً یک disk کامل رو partition کنید تا بتونید از اون به‌ عنوان PV استفاده کنید. در بعضی setup ها یک block device کامل مثل ```dev/sdb/``` هم می‌ تونه مستقیماً به‌ عنوان PV استفاده بشه. اما استفاده از partition می‌تونه مزایایی داشته باشه، مخصوصاً اگر بخواید partition table و boot layout مشخصی داشته باشید.
+
+#### 🔹 Creating VG
+
+فرض کنید ```dev/sdb1/``` قرار است عضو VG جدیدی بشه. می‌تونید از:
+
+```vgcreate myvg /dev/sdb1```
+
+استفاده کنید. در بعضی شرایط لازم نیست قبل از vgcreate حتماً pvcreate رو جداگانه اجرا کنید. اگر device شرایط مناسب داشته باشه ، LVM می‌ تونه PV metadata مورد نیاز رو در جریان ایجاد VG آماده کنه. اما در workflow های مدیریتی ممکنه اول صریحاً از:
+
+```pvcreate /dev/sdb1```
+
+استفاده کنید و بعد : 
+
+```vgcreate myvg /dev/sdb1```
+
+انجام بدید. برای اضافه کردن PV جدید به VG از دستور زیر استفاده میشه :
+
+```vgextend myvg /dev/sdc1```
+
+در نتیجه VG حالا ظرفیت بیشتری داره :
+
+```
+/dev/sdb1
+      ↓
+    PV
+      ↓
+   myvg
+      ↑
+    PV
+      ↑
+/dev/sdc1
+```
+
+---
+
+### Creating Logical Volumes
+
+مرحله‌ ی بعد ساخت LV هستش با ```lvcreate``` می‌تونید LV جدید ایجاد کنید مثلاً:
+
+```lvcreate --size 10G --name mylv myvg```
+
+یا می‌تونید اندازه رو بر اساس تعداد extent ها مشخص کنید برای مثال:
+
+```lvcreate --extents 100 --name mylv myvg```
+
+پیش‌ فرض mapping در مثال‌ های ساده معمولاً **linear** هست. یعنی LV از مجموعه‌ ای از extent های VG ساخته میشه بدون اینکه ویژگی‌ هایی مثل mirroring یا RAID به‌ صورت خودکار ایجاد شده باشه.بعد از ساخت LV می‌ تونید وضعیت VG رو بررسی کنید ```vgdisplay``` اگر تمام extent های VG رو به LV ها اختصاص نداده باشید مقداری ```Free PE``` باقی میمونه. این فضای آزاد بعداً می‌ تونه برای رشد LV ها استفاده بشه.
+
+---
+
+### Working with Logical Volumes
+
+حالا که LV آماده‌ ست از دید filesystem تقریباً مثل یک block device معمولی رفتار می‌ کنه. می‌ تونید روی اون filesystem بسازید :
+
+```mkfs.ext4 /dev/myvg/mylv```
+
+بعد mount کنید:
+
+```mkdir /mnt/data```
+
+```mount /dev/myvg/mylv /mnt/data```
+
+در اینجا مسیر```dev/myvg/mylv/``` یک LV هستش اما filesystem بالای اون دیگه لازم نیست بدونه که زیر خودش چند PV و چند physical disk وجود دارد. از دید filesystem مسیر ```dev/myvg/mylv/``` یک block device هستش.
+
+---
+
+### Delete Logical Volume
+
+برای حذف LV از ```lvremove``` استفاده میشه. مثلاً ```lvremove myvg/mylv2``` دقت کنید syntax اینجا مهمه ، ```VG/LV``` یعنی ```myvg/mylv2``` نه ```myvg mylv2``` اگر syntax رو اشتباه وارد کنید، ممکنه command-line parser برداشت متفاوتی از argument ها داشته باشه. از طرف دیگه lvremove یک عملیات destructive هستش بنابراین نباید صرفاً چون prompt پرسید : ```Do you really want to remove``` به‌ صورت کورکورانه y بزنید. قبل از حذف همیشه ```lvs``` و ```lsblk``` بزنید و در صورت نیاز ```mount``` رو بررسی کنید تا مطمئن بشید LV درست رو انتخاب کردید. اگر LV در حال استفاده باشه ، معمولاً باید ابتدا مصرف‌ کننده‌ ها و filesystem مربوطه رو مدیریت کنید.
+
+---
+
+### 
