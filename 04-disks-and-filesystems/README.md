@@ -45,25 +45,15 @@
 - [Creating Logical Volumes](#creating-logical-volumes)
 - [Working with Logical Volumes](#working-with-logical-volumes)
 - [Delete Logical Volume](#delete-logical-volume)
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
+- [Resize Logical Volume and Filesystem](#resize-logical-volume-and-filesystem)
+- [Internal LVM implementation](#internal-lvm-implementation)
+- [Disks and User Space](#disks-and-user-space)
+- [A look inside a traditional filesystem](#a-look-inside-a-traditional-filesystem)
+- [Inode and Link Count Details](#inode-and-link-count-details)
+- [Block allocation](#block-allocation)
+- [Working with file systems from a user space perspective](#working-with-file-systems-from-a-user-space-perspective)
+- [Tips](#tips)
+
 
 ---
 
@@ -812,6 +802,479 @@ Filesystem
 
 برای حذف LV از ```lvremove``` استفاده میشه. مثلاً ```lvremove myvg/mylv2``` دقت کنید syntax اینجا مهمه ، ```VG/LV``` یعنی ```myvg/mylv2``` نه ```myvg mylv2``` اگر syntax رو اشتباه وارد کنید، ممکنه command-line parser برداشت متفاوتی از argument ها داشته باشه. از طرف دیگه lvremove یک عملیات destructive هستش بنابراین نباید صرفاً چون prompt پرسید : ```Do you really want to remove``` به‌ صورت کورکورانه y بزنید. قبل از حذف همیشه ```lvs``` و ```lsblk``` بزنید و در صورت نیاز ```mount``` رو بررسی کنید تا مطمئن بشید LV درست رو انتخاب کردید. اگر LV در حال استفاده باشه ، معمولاً باید ابتدا مصرف‌ کننده‌ ها و filesystem مربوطه رو مدیریت کنید.
 
+<img width="100%" height="295" alt="image" src="https://github.com/user-attachments/assets/2b266ad8-242b-4d4d-bc7c-2577612dc2dc" />
+
+
 ---
 
-### 
+### Resize Logical Volume and Filesystem
+
+یک نکته‌ ی بسیار مهم ، **تغییر اندازه‌ ی LV با تغییر اندازه‌ ی filesystem یکی نیست**. این دو لایه جدا هستن. ساختار:
+```
+Logical Volume
+      ↓
+Filesystem
+```
+
+اگر LV رو بزرگ کنید ولی filesystem رو بزرگ نکنید ، filesystem هنوز فقط اندازه‌ ی قبلی خودش رو می‌ بینه بنابراین معمولاً باید انجام بشه :
+
+```
+LV resize
+   ↓
+Filesystem resize
+```
+
+#### 🔹 Enlarge LV
+
+با ```lvresize``` می‌تونید اندازه‌ی LV رو تغییر بدید. برای استفاده از فضای آزاد VG میشه از option های extent استفاده کرد مثلاً مفهوم کلی:
+
+```lvresize -l +100%FREE /dev/myvg/mylv```
+
+یعنی LV رو با استفاده از فضای آزاد موجود در VG بزرگ‌ تر کن. بعد filesystem باید با اندازه‌ ی جدید هماهنگ بشه.
+
+#### 🔹 fsadm
+
+ابزار fsadm برای ساده‌ تر کردن resize filesystem ها استفاده میشه. این ابزار می‌ تونه عملیات مناسب برای filesystem مورد نظر رو به ابزار اختصاصی همون filesystem منتقل کنه. مثلاً در ext filesystem ممکنه ابزارهایی مثل ```resize2fs``` در پشت صحنه مورد استفاده قرار بگیرن.
+
+#### 🔹 -r
+
+چون resize کردن LV و filesystem یک کار بسیار رایج ، lvresize هستش option مثل r- دارد که resize کردن filesystem رو هم همراه LV مدیریت می‌ کنه این قابلیت می‌ تونه بخشی از پیچیدگی workflow رو از administrator بگیره مثلاً:
+
+```lvresize -r -L +10G /dev/myvg/mylv```
+
+#### 🔹 Resize ext2/ext3/ext4
+
+یک نکته‌ ی بسیار مهم درباره‌ ی ext2/ext3/ext4 اینکه **بزرگ کردن filesystem معمولاً می‌تونه در حالت mounted انجام بشه**. اما **کوچک کردن filesystem** محدودیت بیشتری دارد. برای کوچک کردن filesystem باید ابتدا خود filesystem رو کوچک کنید و بعد block device زیر اون رو کوچک کنید. یعنی ترتیب مهمه :
+
+- **کوچک کردن** :
+```
+Filesystem
+   ↓
+LV / Partition
+```
+
+نه برعکس ، اگر اول LV رو کوچک کنید ممکنه بخشی از داده‌ های filesystem که هنوز در محدوده‌ ی جدید قرار نگرفتن از بین برن به همین دلیل shrink کردن filesystem یک عملیات حساسه در مقابل برای grow معمولاً ترتیب برعکس میشه:
+
+- **بزرگ کردن** :
+```
+LV / Partition
+   ↓
+Filesystem
+```
+
+---
+
+### Internal LVM implementation
+
+مثل خیلی از موضوعات دیگه‌ ی این کتاب LVM هم مرز مشخصی بین kernel space و user space دارد.**LVM2 در اصل مجموعه‌ ای از ابزار های user-space برای مدیریت LVM هستش**. کرنل لازم نیست خودش تمام منطق مربوط به:
+
+- پیدا کردن PV ها
+- پیدا کردن VG ها
+- خواندن metadata های LVM
+- تصمیم‌ گیری درباره‌ ی layout
+- مدیریت command های مدیریتی LVM
+
+رو انجام بده ، این منطق در user space قرار دارد. در عوض ، kernel مسئول اجرای mapping هایی میشه که LVM در نهایت ایجاد کرده. اینجاست که **Device Mapper** وارد میشه.
+
+#### 🔹 Device Mapper
+
+یک subsystem در kernel هستش که می‌تونه یک block device مجازی رو روی block device های دیگر map کنه. می‌تونیم به شکل ساده تصور کنیم :
+```
+Virtual Block Device
+        ↓
+ Device Mapper
+        ↓
+Physical Block Devices
+```
+
+اسم Device Mapper دقیقاً از همین ایده میاد. یک mapping بین آدرس‌ های منطقی و محل‌ واقعی storage ها . LVM2 در user space تصمیم می‌گیره LV ها چطور روی PV ها قرار گرفتن و بعد این mapping رو به kernel تحویل میده.
+
+#### 🔹 What does LVM do when it starts ?
+
+قبل از اینکه LVM بتونه volume ها رو فعال کنه باید block device های سیستم رو بررسی کنه. به‌ صورت مفهومی مراحل می‌ تونن اینطور باشن :
+```
+Scan Block Devices
+        ↓
+Find PVs
+        ↓
+Read PV UUIDs
+        ↓
+Find Volume Groups
+        ↓
+Check VG completeness
+        ↓
+Find Logical Volumes
+        ↓
+Determine Mapping
+        ↓
+Configure Device Mapper
+```
+
+هر PV هم metadata خودش رو نگه میدارد. این metadata به LVM کمک می‌ کنه بفهمه PV عضو کدام VG هست و layout مربوط به LV ها چطور تعریف شده.
+
+#### 🔹 ioctl and Device Mapper
+
+بعد از اینکه LVM ساختار مورد نظر رو در user space تعیین کرد، باید این اطلاعات رو به kernel منتقل کنه. برای ارتباط با Device Mapper از interface های kernel از جمله ```ioctl``` استفاده میشه. در نتیجه user-space LVM می‌تونه از kernel بخواد device mapping مناسب رو ایجاد یا تغییر بده. بعد kernel از این mapping برای مسیریابی block I/O استفاده می‌ کنه.
+
+#### 🔹 dmsetup
+
+برای مشاهده‌ ی Device Mapper می‌تونید از ```dmsetup``` استفاده کنید مثلاً ```dmsetup info``` اطلاعات device های mapped رو نمایش میده. در این اطلاعات ممکنه ```major``` و ```minor``` رو ببینید. این شماره‌ ها با device هایی مثل ```dev/dm-0/``` و ```dev/dm-1/``` ارتباط دارن.
+
+#### 🔹 dmsetup table
+
+دستور ```dmsetup table``` میتونه mapping مربوط به device ها رو نمایش میده. یعنی به‌ جای اینکه فقط بگه این device وجود دارد ، می‌ تونه اطلاعاتی درباره‌ی mapping block های اون ارائه بده.برای LVM این mapping مشخص می‌ کنه بخش‌ های مختلف LV به کدام بخش‌ های storage زیرین map شدن.
+
+<img width="100%" height="139" alt="image" src="https://github.com/user-attachments/assets/7c76cc9c-2837-4276-96db-403a107596a5" />
+
+
+کتاب مثالی هم ارائه میده که در اون بعد از حذف یک LV و گسترش LV دیگر ، mapping مربوط به Device Mapper تغییر می‌کنه.
+
+<img width="100%" height="148" alt="image" src="https://github.com/user-attachments/assets/cde34329-8ec7-405c-9452-fa3c83bd25f0" />
+
+
+#### 🔹 Device Mapper is not just for LVM
+
+یکی از نکات مهم این بخش اینه که Device Mapper یک تکنولوژی عمومی‌ تر از LVM هستش. LVM فقط یکی از استفاده‌ های مهم اون محسوب میشه فناوری‌ هایی که می‌تونن از Device Mapper استفاده کنن مثلا : 
+
+- encrypted block devices
+- software RAID
+- multipath
+- snapshot
+
+بنابراین ```*-dev/dm``` به‌ تنهایی معنی «LVM» نمی‌ دهد.
+
+---
+
+### Disks and User Space
+
+مرز بین user space و kernel در بحث storage گاهی کمی مبهم میشه. Kernel مسئول کارهای پایه‌ ای هست مثل :
+
+- block I/O
+- device driver
+- filesystem implementation
+- caching
+- scheduling
+- device mapping
+
+در مقابل ، user space ابزارهایی برای مدیریت این زیرساخت فراهم می‌ کنه که در user space اجرا میشن. برای مثال:
+
+- fdisk
+- parted
+- mkfs
+- fsck
+- mount
+- lvm
+
+یعنی partitioning ، ساخت filesystem ، مدیریت swap و مدیریت LVM در اصل کارهایی هستن که ابزارهای user-space انجام میدن و برای اعمال تغییرات از interfaceهای kernel استفاده می‌کنن. در استفاده‌ ی روزمره ، application ها معمولاً مستقیماً با block device کار نمی‌ کنن به‌ جای:
+
+```
+Application
+   ↓
+Block Device
+```
+
+معمولاً این مسیر رو داریم:
+
+```
+Application
+   ↓
+System Calls
+   ↓
+VFS
+   ↓
+Filesystem
+   ↓
+Block Layer
+   ↓
+Device
+```
+
+این abstraction یکی از دلایل اصلی ساده بودن interface فایل برای application هاست.
+
+---
+
+### A look inside a traditional filesystem
+
+حالا کتاب یک قدم دیگه پایین‌ تر میره. تا اینجا filesystem رو مثل یک abstraction در نظر گرفتیم. اما داخل filesystem چه خبره؟ یک filesystem سنتی یونیکسی رو میشه به شکل ساده شامل دو بخش اصلی در نظر گرفت :
+
+- یک استخر block های داده
+- ساختارهای metadata که این block ها رو مدیریت می‌ کنن.
+
+مرکز این ساختار metadata در filesystem های سنتی Unix، مفهومی به نام **inode** هستش.
+
+#### 🔹 inode
+
+مجموعه‌ ای از metadata مربوط به یک filesystem object هستش. برای یک فایل میتونه شامل اطلاعاتی باشه مثل :
+
+- Object type
+- permissions
+- owner
+- group
+- timestamps
+- link count
+- size
+- pointers or mappings related to data blocks
+
+> 💡 اما یک نکته‌ ی بسیار مهم: **اسم فایل داخل inode قرار نداره**. نام فایل بخشی از ساختار directory هستش و این موضوع برای درک hard link ها خیلی مهمه.
+
+#### 🔹 Directory
+
+یک directory هم خودش یک filesystem object هستش و inode خودش رو دارد. داده‌ ی directory شامل mapping هایی بین Filename و Inode Number هست. مثلاً به‌ صورت مفهومی :
+
+```
+"file1" → inode 100
+"file2" → inode 101
+"dir1"  → inode 200
+```
+
+در نتیجه برای پیدا کردن ```dir_1/file_2``` باید filesystem مسیر رو مرحله‌ ب ه‌مرحله دنبال کنه. ابتدا root directory رو پیدا می‌کنه و بعد entry مربوط به ```dir_1``` رو پیدا می‌کنه. این entry به inode مربوط به ```dir_1``` اشاره می‌ کنه. بعد داخل داده‌ ی directory مربوط به ```dir_1``` دنبال ```file_2``` می‌ گرده و در نهایت inode مربوط به ```file_2``` پیدا میشه.
+
+#### 🔹 Root Inode in ext2/ext3/ext4
+
+در filesystem های ext2/ext3/ext4، root directory با inode شماره‌ی ```2``` شناخته میشه. پس برای دنبال کردن یک path می‌تونیم مفهوم کلی زیر رو داشته باشیم :
+
+```
+Root inode #2
+      ↓
+Directory entry
+      ↓
+Next inode
+      ↓
+Directory entry
+      ↓
+Final inode
+```
+
+این موضوع یکی از پایه‌ های مهم فهمیدن اینکه filesystem چطور path ها رو resolve می‌ کنه.
+
+<img width="100%" height="226" alt="image" src="https://github.com/user-attachments/assets/3327816c-9ba2-4196-8af4-92d9e34c54e3" />
+
+کتاب یک مثال عملی با چند فایل و directory و یک hard link ارائه میده و بعد ساختار user-visible درخت فایل‌ ها رو با ساختار واقعی inode ها مقایسه می‌ کنه.
+
+<img width="100%" height="559" alt="image" src="https://github.com/user-attachments/assets/ae0fbe9e-8c83-4a17-94cc-8ccb23e29aeb" />
+
+---
+
+### Inode and Link Count Details
+
+با دستور ```ls -i``` می‌تونید inode number فایل‌ها رو مشاهده کنید. مثلاً:
+
+<img width="100%" height="40" alt="image" src="https://github.com/user-attachments/assets/3a34527e-3ea1-4f79-8cb7-e706a9917822" />
+
+#### 🔹 Link Count
+
+یکی از فیلد های مهم inode هم link count هستش. این مقدار تعداد directory entry هایی رو که به inode اشاره می‌کنن ، در مدل معمول filesystem نشون میده. یک فایل معمولی ممکنه link count برابر ```1``` داشته باشه. حالا اگر ```ln file1 file2``` اجرا کنید، یک hard link جدید ایجاد میشه. در این حالت :
+
+```
+file1 ─┐
+       ├── inode 12345
+file2 ─┘
+```
+
+هر دو نام به همان inode اشاره می‌کنن در نتیجه link count افزایش پیدا می‌ کنه.
+
+#### 🔹 Why do we call rm unlink ?
+
+وقتی میزنید ```rm file1``` در حالت معمول kernel مستقیماً «داده‌ ی فایل» رو به معنای ساده‌ ی کلمه پاک نمی‌ کنه. بلکه directory entry مربوط به file1 حذف میشه و link count inode کاهش پیدا می‌ کنه. اگر هنوز```file2``` به همان inode اشاره کنه ، داده هنوز قابل دسترسیه. فقط وقتی تعداد link ها به صفر برسه و همچنین process دیگری فایل رو باز نگه نداشته باشه ، filesystem می‌تونه inode و data blocks مربوط به فایل رو برای reuse آزاد کنه. این یکی از دلایلی هستش که اسم system call مربوط به حذف directory entry برای ```()unlink``` هست.
+
+#### 🔹 Directories and . , ..
+
+دایرکتوری ها کمی متفاوت‌ تر هستن. یک directory معمولاً entry هایی مثل '.' و  '..' دارد و '.'  به خود directory اشاره می‌کنه و '..' به parent directory اشاره می‌ کنه. بنابراین link count  directory ها رفتار متفاوتی نسبت به فایل‌ های معمولی داره و نباید آن را صرفاً با مدل «یک فایل = یک link» توضیح داد. در مورد root directory هم نباید بگیم که root inode صرفاً به دلیل یک «link در superblock» شناسایی میشه. در filesystem هایی مثل ext ، root inode یک inode شناخته‌ شده با شماره‌ ی مشخصه و filesystem metadata و ساختارهای خودش اطلاعات لازم برای پیدا کردن filesystem root رو فراهم می‌کنن.
+
+---
+
+### Block allocation
+
+وقتی یک فایل جدید ساخته میشه ، filesystem باید بفهمه کدام block های data آزاد هستن. یکی از روش‌ های ساده برای مدیریت این اطلاعات **block bitmap** هستش. در bitmap، هر bit می‌تونه وضعیت یک block رو مشخص کنه به‌ صورت مفهومی :
+
+```
+Block 0 → 1
+Block 1 → 1
+Block 2 → 0
+Block 3 → 1
+Block 4 → 0
+```
+
+مثلاً ```1 = used``` و ```0 = free``` . البته جزئیات دقیق allocation در filesystem های مدرن می‌ تونه بسیار پیچیده‌ تر از یک bitmap ساده باشه و ext4 از ساختارهایی مثل block group ها و extent ها هم استفاده می‌کنه.
+
+#### 🔹 Metadata incompatibility
+
+مشکلات filesystem زمانی پیش میان که ساختارهای مختلف filesystem با هم سازگار نباشند. مثلاً ممکنه  Block Bitmap بگه یک block آزاد هست ، در حالی که metadata دیگری نشون بده اون block در حال استفاده‌ ست یا directory entry به inode ای اشاره کنه که وضعیت metadata اون درست نیست. خاموشی ناگهانی سیستم می‌ تونه یکی از عواملی باشه که باعث چنین ناسازگاری‌ هایی بشه.
+
+#### 🔹 The role of fsck
+
+یکی از کارهای fsck اینه که ساختارهای مختلف filesystem رو با هم مقایسه کنه و inconsistency ها رو پیدا کنه به‌ صورت مفهومی :
+
+```
+Inode Metadata
+      ↕
+Directory Structure
+      ↕
+Block Allocation
+      ↕
+Filesystem Metadata
+```
+
+اگر filesystem یک inode پیدا کنه که هیچ directory entry به اون اشاره نمی‌ کنه ، ممکنه اون inode به‌عنوان orphan شناخته بشه. در ext filesystem ها ، در صورت امکان داده‌ ی مرتبط می‌تونه به ```lost+found``` وصل بشه تا اطلاعات کاملاً از دست نره.
+
+---
+
+### Working with file systems from a user space perspective
+
+نباید Process های معمولی مجبور باشن درباره‌ ی ساختار داخلی filesystem چیزی بدونن. یک برنامه‌ ی user space معمولاً فقط system call هایی رو می‌ بینه مثل :
+
+- open()
+- read()
+- write()
+- close()
+- stat()
+
+بعد kernel از طریق VFS و filesystem implementation مناسب این درخواست رو پردازش می‌ کنه.
+
+#### 🔹 stat()
+
+با system call هایی مثل ```()stat``` برنامه می‌تونه اطلاعاتی رو دریافت کنه مثل :
+
+- inode number
+- file size
+- permissions
+- timestamps
+- link count
+
+اما این به این معنی نیست که تمام filesystem ها دقیقاً همین مفهوم inode رو در داخل خودشون دارن. VFS برای اینکه interface یکسانی به user space بده اطلاعات filesystem specific رو تا حد ممکن در abstraction های عمومی قرار میده. در بعضی filesystem ها ممکنه بعضی فیلدها معنی متفاوتی داشته باشن یا اصلاً به همان شکل داخلی وجود نداشته باشن.
+
+#### 🔹 VFAT and Hard Link
+
+یک مثال خوب برای ```VFAT``` اینکه فایل سیستمی هستش که برای compatibility با دنیای Windows طراحی شده. در ساختار VFAT مفهوم hard link مثل filesystem های Unix به همان شکل وجود نداره. بنابراین نمی‌ تونید انتظار داشته باشید ```ln file1 file2``` روی یک VFAT filesystem همان رفتار یک ext4 filesystem رو داشته باشه. این مثال به‌ خوبی نشون میده که VFS یک interface عمومی به برنامه میده ولی قابلیت‌ های واقعی filesystem ها ممکنه متفاوت باشن.
+
+---
+
+### Tips
+
+در این فصل مسیر کامل مدیریت Storage در لینوکس را از **دیسک خام تا فایل و دایرکتوری** دنبال کردیم. ابتدا دیدیم یک دیسک چگونه با **Partition Table** به partition های مختلف تقسیم می‌شود و تفاوت ساختارهای **MBR** و **GPT** چیست. بعد با ابزارهایی مثل fdisk و parted برای مشاهده و تغییر partition ها آشنا شدیم و دیدیم که partition ها در kernel به‌ صورت block device های جداگانه در دسترس قرار می‌ گیرند.
+
+بعد از partition‌ بندی ، نوبت به ساخت **Filesystem** رسید. فایل‌ سیستم لایه‌ ای است که ساختار فایل‌ ها و دایرکتوری‌ ها را روی block device پیاده می‌کند. با mkfs فایل‌ سیستم می‌سازیم ، با mount آن را به درخت دایرکتوری سیستم متصل می‌کنیم و با umount جدا می‌کنیم. همچنین دیدیم چرا استفاده از **UUID** به‌جای نام‌ هایی مثل dev/sda1/ برای شناسایی پایدار فایل‌سیستم‌ ها اهمیت دارد.
+
+در ادامه با **buffering** و **caching** آشنا شدیم. کرنل بسیاری از write ها را ابتدا در RAM نگه می‌دارد و در زمان مناسب روی Storage می‌ نویسد. دستور sync امکان درخواست نوشتن داده‌ های pending را فراهم می‌کند و umount نیز هنگام جدا کردن فایل‌ سیستم ، عملیات لازم برای sync کردن داده‌ ها را انجام می‌دهد.
+
+برای مدیریت mount های دائمی، فایل etc/fstab/ را بررسی کردیم. این فایل مشخص می‌کند چه فایل‌ سیستمی ، روی چه mount point و با چه option هایی mount شود. همچنین دیدیم گزینه‌ هایی مثل defaults، noauto، user و errors چه کاربردی دارند و چگونه mount -a ورودی‌ های مناسب fstab را mount می‌کند.
+
+بعد به مسئله‌ ی **Filesystem Integrity** رسیدیم. خاموشی ناگهانی یا خطا های دیگر می‌ توانند باعث شوند metadata فایل‌ سیستم با وضعیت واقعی داده‌ ها هماهنگ نباشد. ابزار fsck برای بررسی و در صورت نیاز تعمیر فایل‌ سیستم استفاده می‌شود و بسته به نوع فایل‌ سیستم، ابزار تخصصی مربوطه مانند e2fsck را به کار می‌گیرد. نکته‌ ی بسیار مهم این است که نباید fsck را روی یک فایل‌ سیستم در حال استفاده و mount‌ شده اجرا کرد، مگر در شرایط کنترل‌ شده‌ ی بازیابی سیستم.
+
+همچنین دیدیم همه‌ ی فایل‌ سیستم‌ ها الزاماً روی Storage فیزیکی قرار ندارند. فایل‌ سیستم‌ هایی مثل procfs، sysfs، tmpfs، squashfs و overlay هر کدام برای هدف متفاوتی استفاده می‌شوند. بعضی اطلاعات kernel و process ها را ارائه می‌کنند ، بعضی فضای موقت در اختیار سیستم قرار می‌دهند و بعضی برای ترکیب یا فشرده‌ سازی داده‌ ها استفاده می‌ شوند.
+
+بعد از آن وارد **Swap** شدیم. Swap فضایی روی Storage است که سیستم مدیریت حافظه‌ی مجازی می‌تواند در شرایط کمبود RAM از آن استفاده کند. Swap می‌تواند روی یک partition یا روی یک فایل معمولی قرار بگیرد و با mkswap و swapon آماده و فعال شود. همچنین دیدیم قانون قدیمی «Swap برابر دو برابر RAM» دیگر یک قانون عمومی و قابل اتکا نیست و مقدار مناسب Swap به نوع workload و نیازهای سیستم بستگی دارد.
+
+سپس به یکی از مهم‌ ترین بخش‌های فصل، یعنی LVM رسیدیم. LVM یک لایه‌ی انتزاعی بین block device های فیزیکی و فایل‌سیستم ایجاد می‌کند. در این مدل، block device ها به‌عنوان Physical Volume (PV) در اختیار LVM قرار می‌ گیرند، چند PV داخل یک Volume Group (VG) قرار می‌ گیرند و از VG می‌ توان چند Logical Volume (LV) ساخت. این ساختار باعث می‌شود مدیریت Storage انعطاف‌ پذیرتر شود. می‌توان PV جدید به VG اضافه کرد، فضای آزاد را به LV اختصاص داد و در بسیاری از شرایط اندازه‌ی LV و فایل‌سیستم را بدون reboot تغییر داد.
+
+با ابزارهای اصلی LVM آشنا شدیم و دیدیم هر کدام برای مدیریت یکی از این لایه‌ ها استفاده می‌شوند مثل :
+
+- pvs
+- pvdisplay
+- vgs
+- vgdisplay
+- lvs
+- lvdisplay
+- pvcreate
+- vgcreate
+- vgextend
+- lvcreate
+- lvresize
+- lvremove
+
+همچنین مفهوم Physical Extent (PE) را دیدیم. واحد هایی که LVM برای مدیریت فضای PV ها استفاده می‌ کند. Logical Volume ها نیز در نهایت به‌ صورت block device در اختیار سیستم قرار می‌ گیرند و می‌ توان دقیقاً مثل یک partition معمولی روی آن‌ها فایل‌ سیستم ساخت و آن‌ها را mount کرد.
+
+در ادامه وارد پیاده‌ سازی داخلی LVM شدیم و دیدیم که **LVM2 عمدتاً مجموعه‌ای از ابزارهای user space است** و خودش مستقیماً وظیفه‌ی مسیریابی block I/O را در kernel انجام نمی‌دهد. این بخش توسط Device Mapper در کرنل انجام می‌شود.
+
+ابزارهای LVM اطلاعات PV ها ، VG ها و LV ها را از metadata موجود روی Storage می‌خوانند و سپس از طریق ioctl با Device Mapper ارتباط برقرار می‌ کنند تا mapping مورد نیاز برای Logical Volume ها در کرنل ساخته شود. با ابزار dmsetup نیز می‌توان اطلاعات Device Mapper را بررسی کرد:
+
+- برای اطلاعات device های mapped از dmsetup info استفاده می شود.
+- برای مشاهده‌ ی mapping از dmsetup table استفاده می شود.
+
+و دیدیم که همین Device Mapper فقط مخصوص LVM نیست و قابلیت‌هایی مثل software RAID، encryption و سایر mapping های block device نیز می‌توانند بر پایه‌ی آن ساخته شوند.
+
+در بخش پایانی فصل، از لایه‌های مدیریتی Storage پایین‌تر رفتیم و وارد ساختار داخلی فایل‌سیستم‌های سنتی Unix شدیم. دیدیم یک فایل‌ سیستم سنتی را می‌توان به‌صورت ساده شامل دو بخش اصلی در نظر گرفت : اول فضای ذخیره‌ ی داده‌ ها و دوم ساختارهای metadata که این فضا را مدیریت می‌کنند. 
+
+مرکز این metadata ساختاری به نام **inode** است. inode اطلاعات مهمی درباره‌ ی یک فایل نگه می‌ دارد از جمله نوع فایل، permission ها، مالکیت، زمان‌ها، link count و اطلاعات مربوط به محل داده‌های فایل. اسم فایل در خود inode ذخیره نمی‌ شود. در عوض، یک directory شامل mapping بین نام فایل و inode number است. بنابراین وقتی kernel مسیری مانند ```dir_1/file_2`` را دنبال می‌ کند، از inode مربوط به directory شروع می‌کند، نام dir_1 را در داده‌ های directory پیدا می‌کند، inode مربوط به آن را به دست می‌ آورد و سپس همین فرآیند را برای file_2 ادامه می‌ دهد.
+
+در فایل‌ سیستم‌ های ext2/ext3/ext4، inode شماره‌ی 2 به‌عنوان root inode استفاده می‌شود. با ls -i می‌توان inode number یک فایل را مشاهده کرد.
+
+بعد مفهوم Hard Link و Link Count را بررسی کردیم. یک hard link مسیر دیگری برای دسترسی به همان inode است. بنابراین اگر یک فایل را با ```ln file1 file2``` به یک hard link تبدیل کنیم ، file1 و file2 هر دو به همان inode اشاره می‌کنند و link count افزایش پیدا می‌کند.
+
+این موضوع دلیل اصلی استفاده از واژه‌ ی **unlink** برای حذف فایل است. وقتی rm اجرا می‌شود، kernel در واقع directory entry مربوط به نام فایل را حذف می‌کند و link count inode را کاهش می‌دهد. وقتی دیگر هیچ link به inode باقی نمانده باشد و فایل توسط process نیز باز نباشد ، inode و فضای داده‌ ی مربوط به آن قابل آزاد سازی می‌ شوند.
+
+در نهایت، با مفهوم **Block Allocation** و **Block Bitmap** آشنا شدیم. فایل‌ سیستم باید بداند کدام block ها آزاد و کدام block ها در حال استفاده هستند. یکی از روش‌ های معمول برای نگهداری این اطلاعات ، bitmap است که وضعیت block ها را ثبت می‌کند.
+
+اگر metadata های مختلف فایل‌ سیستم با یکدیگر هماهنگ نباشند ، مثلاً بعد از خاموشی ناگهانی ، ابزارهای بررسی فایل‌ سیستم می‌توانند این ناسازگاری‌ ها را پیدا و در صورت امکان اصلاح کنند. پس اگر کل فصل را از پایین به بالا نگاه کنیم، معماری Storage در لینوکس تقریباً چنین مسیری دارد:
+
+```
+Physical Storage
+      ↓
+Block Device
+      ↓
+Partition Table
+      ↓
+Partition
+      ↓
+Filesystem
+      ↓
+Inode / Directory / Metadata
+      ↓
+File Data
+      ↓
+User Space
+```
+
+و در صورت استفاده از LVM ، ساختار می‌ تواند به شکل دیگری دربیاید :
+
+```
+Physical Disk / Partition
+          ↓
+     Physical Volume
+          ↓
+     Volume Group
+          ↓
+    Logical Volume
+          ↓
+      Filesystem
+          ↓
+   Files / Directories
+```
+
+نکته‌ ی مهمی که در کل فصل بارها تکرار شد ، جداسازی مسئولیت‌ ها بین **kernel space** و **user space** است. kernel مسئول انجام block I/O ، مدیریت block device ها ، اجرای filesystem code و پیاده‌ سازی Device Mapper است. در مقابل کارهایی مثل partition‌ بندی ، ساخت filesystem ، ساخت swap و مدیریت ساختار LVM عمدتاً توسط ابزارهای user space انجام می‌ شوند. 
+
+در نتیجه مسیر کلی‌ ای که در این فصل طی کردیم این بود:
+
+``` Disk → Partition → Filesystem → Mount → File ```
+
+و در صورت استفاده از LVM:
+
+```Disk/Partition → PV → VG → LV → Filesystem → Mount → File```
+
+و در پایین‌ ترین لایه‌ های فایل‌ سیستم نیز:
+
+```Directory Entry → Inode → Data Blocks```
+
+این همان تصویری است که کمک می‌کند وقتی با دستورهایی مثل fdisk، mount، df، fsck، swapon، lvs یا حتی ls -i کار می‌ کنیم ، بدانیم پشت آن دستور دقیقاً کدام لایه از سیستم Storage در حال کار است.
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
