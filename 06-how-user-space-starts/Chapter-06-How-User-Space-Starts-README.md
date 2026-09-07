@@ -686,6 +686,7 @@ User Space
 
 در فصل پنجم تمرکز روی boot شدن Kernel بود. در این فصل تمرکز روی اتفاقاتی بود که بعد از اجرای اولین user-space process رخ می‌ دهند. مهم‌ ترین مفاهیمی که در این فصل دیدیم :
 
+```
 - init
 - systemd
 - System V init
@@ -710,6 +711,7 @@ User Space
 - initramfs
 - single user mode
 - rescue environment
+```
 
 مهم‌ ترین نکته این فصل این است که **شروع user space یک نقطه پایان برای boot نیست بلکه در واقع نقطه‌ ای است که سیستم از یک مسیر عمدتاً Kernel-controlled وارد یک ساختار بزرگ از process ها ، service ها ، configuration ها و dependency ها می‌ شود**.
 
