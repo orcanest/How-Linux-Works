@@ -59,11 +59,13 @@
 
 مدل System V init اساساً مجموعه‌ ای از script هاست که init آن‌ ها را به ترتیب اجرا می‌ کند. هر script معمولاً وظیفه‌ای را انجام می‌دهد مانند:
 
+```
 - Starting a daemon
 - Preparing a subsystem
 - Mounting a filesystem
 - Configuring a service
 - Executing part of the boot process
+```
 
 این روش مزایایی دارد. مثلاً dependency ها را می‌ توان با تعیین ترتیب اجرای script ها مدیریت کرد و administrator می‌تواند script ها را برای شرایط خاص تغییر دهد اما چند مشکل مهم دارد : 
 
