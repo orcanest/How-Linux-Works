@@ -45,12 +45,14 @@
 
 برنامه init ، یک برنامه معمولی در user space است ، یعنی بخشی از Kernel نیست. نقش اصلی init این است که بعد از آماده شدن Kernel ، فرآیند راه‌ اندازی باقی سیستم را بر عهده بگیرد و سرویس‌ های مورد نیاز را شروع و در زمان مناسب متوقف کند. در سیستم‌های Linux مدرن، systemd رایج‌ ترین implementation برای init است ، اما Linux فقط یک نوع init ندارد. پیاده‌ سازی‌ های دیگری نیز وجود داشته‌ اند یا هنوز در بعضی سیستم‌ ها استفاده می‌ شوند:
 
+```
 - systemd
 - System V init
 - Upstart
 - runit
 - Special implementations in some embedded systems
 - Android-specific init
+```
 
 کتاب برای توضیح اصلی این فصل روی systemd تمرکز می‌ کند ، چون در بسیاری از توزیع‌ های اصلی Linux به implementation غالب init تبدیل شده است. در عین حال شناخت System V init همچنان مهم است ، چون تعداد زیادی script و package قدیمی بر اساس مدل آن ساخته شده‌ اند.
 
