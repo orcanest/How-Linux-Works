@@ -14,7 +14,7 @@
 - 02 [Basic Command And Directory Hierarchy](https://github.com/orcanest/How-Linux-Works/blob/main/02-basic-commands/README.md)
 - 03 [Devices](https://github.com/orcanest/How-Linux-Works/tree/main/03-devices)
 - 04 [Disks and Filesystems]()
-- 05
+- 05 [How the linux kernel boots](https://github.com/orcanest/How-Linux-Works/tree/main/05-how-the-linux-kernel-boots)
 - 06
 - 07
 - 08
