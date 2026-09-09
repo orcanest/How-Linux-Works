@@ -20,7 +20,7 @@
 - [Manipulating Users and Passwords](#manipulating-users-and-passwords)
 - [Working with Groups](#working-with-groups)
 - [getty and login](#getty-and-login)
-- [Setting the Time](#Setting-the-time)
+- [Setting the Time](#setting-the-time)
 - [Kernel Time Representation and Time Zones](#kernel-time-representation-and-time-zones)
 - [Network Time](#network-time)
 - [Scheduling Recurring Tasks with cron and Timer Units](#scheduling-recurring-tasks-with-cron-and-timer-units)
@@ -36,15 +36,11 @@
 - [Process Ownership and Effective UID and Real UID and Saved UID](#process-ownership-and-effective-uid-and-real-uid-and-saved-uid)
 - [User Identification and Authentication and Authorization](#user-identification-and-authentication-and-authorization)
 - [Using Libraries for User Information](#using-libraries-for-user-information)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
+- [Pluggable Authentication Modules](#pluggable-authentication-modules)
+- [PAM Configuration](#pam-configuration)
+- [Tips on PAM Configuration Syntax](#tips-on-pam-configuration-syntax)
+- [PAM and Passwords](#pam-and-passwords)
+- [Tips](#tips)
 
 --- 
 
@@ -755,4 +751,217 @@ line N → UID 1000
 
 #### 🔹 Password problem
 
+انجام Mapping username به UID نسبتاً ساده است اما authentication با password پیچیده‌ تر است. مدل قدیمی این بود که password verifier داخل /etc/passwd قرار بگیرد. این طراحی چند مشکل داشت :
 
+- همه باید به password field دسترسی داشته باشند یا دست‌ کم مکانیزم‌ های زیادی برای محدود کردن آن لازم بود.
+- روش password verification انعطاف کمی داشت.
+- سیستم به password به‌ عنوان روش اصلی authentication وابسته بود.
+- روش‌ هایی مانند token ، smart card یا biometric نیازمند implementation های جداگانه بودند.
+
+این محدودیت‌ ها باعث شکل‌ گیری shadow password و بعد PAM شدند.
+
+--- 
+
+### Pluggable Authentication Modules
+
+برای flexible کردن authentication ، سیستم PAM یا Pluggable Authentication Modules ایجاد شد. PAM یک architecture برای استفاده از shared authentication modules است. ایده اصلی :
+
+```
+Application
+     ↓
+    PAM
+     ↓
+Authentication Modules
+     ↓
+Password / Account / Session / Other mechanisms
+```
+
+لازم نیست Application خودش تمام جزئیات authentication را پیاده‌ سازی کند. مثلاً برنامه‌ ای مانند ```login``` می‌ تواند authentication را به PAM بسپارد. PAM سپس بر اساس configuration تصمیم می‌ گیرد :
+
+- آیا password چک شود؟
+- آیا account فعال باشد؟
+- آیا shell مجاز باشد؟
+- آیا session ساخته شود؟
+- آیا password تغییر کند؟
+- آیا MFA اجرا شود؟
+
+و غیره. PAM در سال 1995 به‌عنوان یک استاندارد توسط Sun Microsystems پیشنهاد شد و در Linux به یک بخش بسیار مهم از authentication architecture تبدیل شد.
+
+---
+
+### PAM Configuration
+
+ محل قرارگیری configuration مربوط به PAM معمولاً در /etc/pam.d/ قرار دارد. در برخی سیستم‌ ها فایل /etc/pam.conf نیز ممکن است مورد استفاده باشد. در /etc/pam.d معمولاً برای هر application یک فایل وجود دارد. مثلاً :
+
+```
+/etc/pam.d/login
+/etc/pam.d/sshd
+/etc/pam.d/sudo
+/etc/pam.d/chsh
+```
+هر خط configuration سه بخش اصلی دارد شامل function-type و  control-argument  و module . مثلاً :
+
+```auth requisite pam_shells.so```
+
+یعنی :
+
+```
+auth
+    ↓
+function
+
+requisite
+    ↓
+control
+
+pam_shells.so
+    ↓
+module
+```
+
+#### 🔹 PAM Function Types
+
+چهار function type اصلی :
+1. auth
+
+احراز هویت کاربر مثلاً آیا password درست است؟
+
+2. account
+
+وضعیت account را بررسی می‌ کند. مثلاً آیا account منقضی شده ؟ یا آیا کاربر اجازه استفاده از این سرویس را دارد؟
+
+3. session
+
+کارهای مربوط به session را انجام می‌ دهد. مثلاً ایجاد environment و نمایش پیام و ثبت session  و mount کردن resource خاص. 
+
+4. password
+
+برای تغییر password یا credential استفاده می‌ شود. یک module می‌ تواند برای چند function استفاده شود مثلاً ```pam_unix.so``` می‌ تواند هنگام auth برای بررسی password و هنگام password برای تغییر password استفاده شود. پس باید همیشه این دو را با هم دید ```function + module```.
+
+#### 🔹 Control Arguments and Stacked Rules
+
+یکی از ویژگی‌ های مهم PAM این است که rule ها به‌ صورت stack اجرا می‌ شوند مثلاً :
+
+```
+Rule 1
+  ↓
+Rule 2
+  ↓
+Rule 3
+  ↓
+Rule 4
+```
+
+نتیجه یک rule می‌ تواند تعیین کند که ادامه دهد یا متوقف شود یا authentication را موفق اعلام کند یا authentication  را شکست‌ خورده اعلام کند. سه control argument مهم هم sufficient و requisite و required هستند.
+
+#### 🔹 sufficient
+
+اگر rule موفق شود ، برای موفقیت authentication کافی است و PAM می‌ تواند ادامه rule ها را اجرا نکند. اگر rule شکست بخورد ، PAM می‌ تواند به rule های بعدی ادامه دهد. 
+
+#### 🔹 requisite
+
+اگر موفق شود continue و اگر شکست بخورد fail immediately. یعنی failure این rule باعث توقف فوری stack می‌ شود.
+
+#### 🔹 requisite
+
+اگر موفق شود continue اگر شکست بخورد remember failure و continue یعنی PAM rule های بعدی را نیز اجرا می‌کند ، اما در پایان authentication را fail اعلام خواهد کرد این تفاوت بسیار مهم است بنابراین requisite با required یکسان نیست.
+
+#### 🔹 PAM example for chsh
+
+کتاب برای توضیح stack یک نمونه برای authentication مربوط به chsh ارائه می‌ کند :
+
+```
+auth    sufficient    pam_rootok.so
+auth    requisite     pam_shells.so
+auth    sufficient    pam_unix.so
+auth    required      pam_deny.so
+```
+
+جریان منطقی آن چنین است :
+
+- مرحله اول : ```pam_rootok.so``` بررسی می‌ کند آیا کاربر root است. اگر root باشد و rule هم sufficient باشد ، authentication موفق اعلام می‌شود و مراحل بعدی لازم نیستند. اگر root نباشد، ادامه می‌ دهیم.
+- مرحله دوم : ```pam_shells.so``` بررسی می‌ کند shell کاربر در ```/etc/shells``` وجود داشته باشد. اگر shell مجاز نباشد requisite باعث می‌ شود authentication فوراً fail شود. اگر shell مجاز باشد ، ادامه می‌ دهیم.
+- مرحله سوم : ```pam_unix.so``` کارش password کاربر را بررسی می‌ کند. اگر password درست باشد و control برابر sufficient باشد ، authentication موفق است. اگر password اشتباه باشد ، stack ادامه پیدا می‌ کند.
+- مرحله چهارم : ```pam_deny.so``` همیشه failure ایجاد می‌ کند. چون required است، PAM در نهایت authentication را fail می‌ کند.
+
+> 💡 نکته مهم این است که required باعث توقف فوری نمی‌شود بلکه اگر rule های دیگری بعد از آن باشند ، PAM می‌ تواند آن‌ ها را نیز پردازش کند ، اما failure ثبت‌ شده همچنان نتیجه نهایی را شکست‌ خورده می‌ کند.
+
+<img width="100%" height="913" alt="image" src="https://github.com/user-attachments/assets/0dd45709-923b-4e17-86ef-0b3fa3a1685d" />
+
+#### 🔹 Advanced Control Syntax
+
+در PAM فقط sufficient و required و requisite وجود ندارد. یک syntax پیشرفته‌ تر نیز وجود دارد که داخل [ ... ] قرار می‌ گیرد. این syntax اجازه می‌ دهد رفتار PAM را بر اساس return value دقیق module کنترل کنیم. مثلاً می‌ توان برای یک نوع return value گفت ```success → continue``` و برای return value دیگری ```failure → ignore```. این قسمت بسیار قدرتمند است و configuration PAM را شبیه یک زبان کوچک برای کنترل جریان می‌ کند. برای جزئیات کامل باید ```pam.conf(5)``` و manual مربوط به module را بررسی کرد.
+
+#### 🔹 Module Arguments
+
+این module ها می‌ توانند argument داشته باشند مثلاً ```auth sufficient pam_unix.so nullok``` اینجا ```nullok``` یک argument مربوط به pam_unix.so است. این option می‌تواند اجازه دهد account هایی که password ندارند ، تحت شرایط مشخص authentication شوند. به همین دلیل option های PAM باید با دقت بسیار زیادی تنظیم شوند چون یک option کوچک می‌ تواند policy امنیتی سیستم را تغییر دهد.
+
+--- 
+
+### Tips on PAM Configuration Syntax
+
+تنظیمات PAM configuration می‌ تواند بسیار پیچیده شود. برای پیدا کردن module های PAM می‌توان از ```man -k pam_``` استفاده کرد. این command manual page هایی را که نام یا keyword مرتبط با pam_ دارند پیدا می‌ کند. برای بررسی location یک module نیز می‌ توان از ابزارهایی مانند locate pam_unix.so استفاده کرد ، البته در سیستم‌ هایی که database مربوط به locate در دسترس و به‌ روز باشد. همچنین manual page مربوط به هر module باید بررسی شود ، چون argument ها و رفتار دقیق module ها متفاوت است.
+
+#### 🔹 /etc/pam.d/other
+
+یکی از فایل‌ های مهم PAM در /etc/pam.d/other است. این فایل می‌ تواند policy پیش‌ فرضی را برای application هایی که configuration اختصاصی ندارند فراهم کند. در بسیاری از سیستم‌ ها policy پیش‌ فرض به‌ صورت محافظه‌ کارانه authentication را رد می‌ کند. این رفتار امنیتی مهم است ، چون application ناشناخته نباید صرفاً به دلیل نداشتن configuration اختصاصی ، authentication را بدون policy مشخص قبول کند.
+
+#### 🔹 PAM and the Order of Rules
+
+ترتیب rule ها اهمیت زیادی دارد مثلاً این دو configuration الزاماً رفتار یکسانی ندارند :
+
+```
+auth sufficient pam_unix.so
+auth requisite pam_shells.so
+
+and
+
+auth requisite pam_shells.so
+auth sufficient pam_unix.so
+```
+
+در اولی ممکن است password صحیح باعث شود قبل از بررسی shell authentication تمام شود و در دومی shell ابتدا بررسی می‌ شود. بنابراین در PAM باید همزمان به سه چیز توجه کرد  Module و Control argument و Order و همچنین module argument ها.
+
+---
+
+### PAM and Passwords
+
+سیستم‌ های قدیمی shadow password مجموعه‌ ای از ابزارها و configuration های مربوط به password داشتند. با شکل‌گیری PAM بخش زیادی از policy های authentication به PAM منتقل شد. فایل ```/etc/login.defs``` هنوز ممکن است در سیستم‌های Linux وجود داشته باشد و برای برخی policy ها و default های مربوط به account management استفاده شود. اما نباید تصور کرد که تمام password policy مدرن در login.defs قرار دارد. در سیستم‌ های PAM-based ،  بسیاری از تنظیمات password توسط PAM module ها و configuration آن‌ ها تعیین می‌ شوند.
+
+#### 🔹 pam_unix.so
+
+یکی از مهم‌ ترین module های استاندارد PAM هم **pam_unix.so** است. این module می‌ تواند در function های مختلف رفتارهای متفاوتی داشته باشد. مثلاً ```auth``` برای بررسی credential و```password``` برای تغییر password استفاده شود. روش ذخیره و hash کردن password نیز به configuration و implementation مربوط به module  و سیستم بستگی دارد. بنابراین نباید به‌ صورت مطلق گفت : **«Linux همیشه password ها را با SHA-512 ذخیره می‌ کند.»** نوع hash و format باید از configuration واقعی سیستم بررسی شود.
+
+---
+
+### Tips
+
+در این فصل بخش‌ هایی از user space را دیدیم که مستقیماً با مدیریت روزمره Linux ارتباط دارند. تا اینجا دیدیم که چگونه به هم متصل می‌ شوند :
+
+```
+Applications
+      ↓
+System libraries
+      ↓
+Configuration
+      ↓
+Users / Services / Logging / Scheduling
+```
+
+مهم‌ ترین موضوعات فصل عبارت بودند از :
+
+```
+- System Logging → journald / syslog / rsyslog
+- etc → System configuration
+- etc/passwd, /etc/shadow, /etc/group → User and group information
+- getty → login → PAM → shell
+- System Clock → RTC → Network Time
+- cron + systemd timer → Scheduled Tasks
+- UID / GID  → Process Credentials → Permissions → Identification → Authentication → Authorization
+```
+
+لایه PAM نیز یک لایه بسیار مهم در این میان ایجاد می‌ کند تا application ها مجبور نباشند خودشان تمام جزئیات authentication را پیاده‌ سازی کنند.
+
+در نتیجه معماری کلی که در این فصل دیده می‌ شود ، مجموعه‌ای از component های کوچک‌ تر و مستقل است که هرکدام یک وظیفه مشخص دارند اما از طریق configuration ، library ، process و service با یکدیگر ارتباط برقرار می‌ کنند.
+
+از اینجا به بعد کتاب دوباره تمرکز خود را به Kernel و process ها برمی‌ گرداند. فصل بعد وارد جزئیات بیشتری درباره process ها ، resource utilization ، CPU ، memory و I/O می‌ شود.
