@@ -73,4 +73,106 @@ message
 
 ### Checking Your Log Setup
 
+فایل ```etc/passwd/``` یک فایل متنی است که اطلاعات اصلی حساب‌ های کاربری را نگه می‌ دارد. هر خط با : به هفت field تقسیم می‌ شود :
+
+```username:password:UID:GID:GECOS:home:shell```
+
+مثال: ```juser:x:3119:1000:J. Random User:/home/juser:/bin/bash``` هفت field عبارت‌ اند از :
+
+- Login name
+- Password field
+- User ID
+- Group ID
+- Real name / GECOS
+- Home directory
+- Login shell
+
+Login name
+
+نامی که کاربر هنگام login استفاده می‌کند.
+
+مثلاً:
+
+juser
+Password field
+
+در سیستم‌های shadow password، معمولاً این field مقدار:
+
+x
+
+دارد.
+
+این x به معنی password واقعی نیست؛ یعنی اطلاعات password در:
+
+/etc/shadow
+
+نگهداری می‌شود.
+
+نکته مهم دیگر:
+
+Password در Linux معمولاً به‌صورت plaintext ذخیره نمی‌شود و آنچه در shadow وجود دارد نیز خود password نیست، بلکه یک مشتق رمزنگاری‌شده از آن است.
+
+UID
+
+UID شناسه عددی user برای user space و Kernel است.
+
+مثلاً:
+
+1000
+
+ممکن است UID یک کاربر عادی باشد.
+
+UID 0 برای superuser است.
+
+GID
+
+GID گروه اصلی کاربر است.
+
+این عدد باید با گروهی در database گروه‌ها مرتبط باشد.
+
+GECOS
+
+این field معمولاً اطلاعاتی مانند نام واقعی کاربر را نگه می‌دارد.
+
+ممکن است شامل اطلاعات اضافی مانند:
+
+نام
+شماره اتاق
+تلفن
+
+نیز باشد.
+
+Home directory
+
+مثلاً:
+
+/home/juser
+
+directory اصلی کاربر است.
+
+Shell
+
+مثلاً:
+
+/bin/bash
+
+برنامه‌ای است که هنگام شروع session متنی کاربر اجرا می‌شود.
+
+Shell باید در سیستم قابل اجرا باشد؛ برای بعضی عملیات مانند chsh نیز باید shell موردنظر در:
+
+/etc/shells
+
+قرار داشته باشد.
+
+ساختار فایل passwd
+
+فایل /etc/passwd syntax نسبتاً سخت‌گیرانه‌ای دارد.
+
+نباید comment یا blank line را مانند یک configuration file معمولی به آن اضافه کرد.
+
+یک entry می‌تواند وجود داشته باشد حتی اگر home directory مربوط به آن هنوز ساخته نشده باشد؛ مفهوم account در user space الزاماً به معنی وجود فیزیکی home directory نیست.
+
+همچنین /etc/passwd تنها روش ممکن برای user database نیست؛ سرویس‌های شبکه‌ای مانند LDAP نیز می‌توانند user information را در اختیار سیستم قرار دهند.
+
+Figure 7-1
 
