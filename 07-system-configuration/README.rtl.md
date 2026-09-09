@@ -6,31 +6,28 @@
 ---
 📚 Table of Contents
 
-- [تنظیمات سیستم](#تنظیمات-سیستم)
-  - [🐧 فصل دوم کتاب How Linux Works](#-فصل-دوم-کتاب-how-linux-works)
-  - [system logging](#system-logging)
-  - [Checking Your Log Setup](#checking-your-log-setup)
-    - [🔹 /var/log](#-varlog)
-    - [🔹 journal storage location](#-journal-storage-location)
-  - [Searching and Monitoring Logs](#searching-and-monitoring-logs)
-    - [🔹 Filtering by Time](#-filtering-by-time)
-    - [🔹 Filtering by Unit](#-filtering-by-unit)
-    - [🔹 Finding Fields](#-finding-fields)
-    - [🔹 Filtering by Text](#-filtering-by-text)
-    - [🔹 Filtering by Boot](#-filtering-by-boot)
-    - [🔹 Filtering by Priority](#-filtering-by-priority)
-    - [🔹 Monitoring Logs in Real Time](#-monitoring-logs-in-real-time)
-  - [Logfile Rotation](#logfile-rotation)
-    - [🔹 Compressing old logs](#-compressing-old-logs)
-    - [🔹 open logfile](#-open-logfile)
-  - [Journal Maintenance](#journal-maintenance)
-  - [A Closer Look at System Logging](#a-closer-look-at-system-logging)
-    - [🔹 Syslog and Network](#-syslog-and-network)
-    - [🔹 journald vs syslog](#-journald-vs-syslog)
-  - [The Structure of /etc](#the-structure-of-etc)
-    - [🔹 What should be in /etc ?](#-what-should-be-in-etc-)
-  - [User Management Files](#user-management-files)
-  - [The etc passwd File](#the-etc-passwd-file)
+- [Figure 7-1](#figure-7-1)
+      - [🔹 /var/log](#-varlog)
+      - [🔹 journal storage location](#-journal-storage-location)
+    - [Searching and Monitoring Logs](#searching-and-monitoring-logs)
+      - [🔹 Filtering by Time](#-filtering-by-time)
+      - [🔹 Filtering by Unit](#-filtering-by-unit)
+      - [🔹 Finding Fields](#-finding-fields)
+      - [🔹 Filtering by Text](#-filtering-by-text)
+      - [🔹 Filtering by Boot](#-filtering-by-boot)
+      - [🔹 Filtering by Priority](#-filtering-by-priority)
+      - [🔹 Monitoring Logs in Real Time](#-monitoring-logs-in-real-time)
+    - [Logfile Rotation](#logfile-rotation)
+      - [🔹 Compressing old logs](#-compressing-old-logs)
+      - [🔹 open logfile](#-open-logfile)
+    - [Journal Maintenance](#journal-maintenance)
+    - [A Closer Look at System Logging](#a-closer-look-at-system-logging)
+      - [🔹 Syslog and Network](#-syslog-and-network)
+      - [🔹 journald vs syslog](#-journald-vs-syslog)
+    - [The Structure of /etc](#the-structure-of-etc)
+      - [🔹 What should be in /etc ?](#-what-should-be-in-etc-)
+    - [User Management Files](#user-management-files)
+    - [The etc passwd File](#the-etc-passwd-file)
 
 --- 
 
@@ -69,6 +66,110 @@ message
 
 ### Checking Your Log Setup
 
+<<<<<<< HEAD:07-system-configuration/README.rtl.md
+فایل ```etc/passwd/``` یک فایل متنی است که اطلاعات اصلی حساب‌ های کاربری را نگه می‌ دارد. هر خط با : به هفت field تقسیم می‌ شود :
+
+```username:password:UID:GID:GECOS:home:shell```
+
+مثال: ```juser:x:3119:1000:J. Random User:/home/juser:/bin/bash``` هفت field عبارت‌ اند از :
+
+- Login name
+- Password field
+- User ID
+- Group ID
+- Real name / GECOS
+- Home directory
+- Login shell
+
+Login name
+
+نامی که کاربر هنگام login استفاده می‌کند.
+
+مثلاً:
+
+juser
+Password field
+
+در سیستم‌های shadow password، معمولاً این field مقدار:
+
+x
+
+دارد.
+
+این x به معنی password واقعی نیست؛ یعنی اطلاعات password در:
+
+/etc/shadow
+
+نگهداری می‌شود.
+
+نکته مهم دیگر:
+
+Password در Linux معمولاً به‌صورت plaintext ذخیره نمی‌شود و آنچه در shadow وجود دارد نیز خود password نیست، بلکه یک مشتق رمزنگاری‌شده از آن است.
+
+UID
+
+UID شناسه عددی user برای user space و Kernel است.
+
+مثلاً:
+
+1000
+
+ممکن است UID یک کاربر عادی باشد.
+
+UID 0 برای superuser است.
+
+GID
+
+GID گروه اصلی کاربر است.
+
+این عدد باید با گروهی در database گروه‌ها مرتبط باشد.
+
+GECOS
+
+این field معمولاً اطلاعاتی مانند نام واقعی کاربر را نگه می‌دارد.
+
+ممکن است شامل اطلاعات اضافی مانند:
+
+نام
+شماره اتاق
+تلفن
+
+نیز باشد.
+
+Home directory
+
+مثلاً:
+
+/home/juser
+
+directory اصلی کاربر است.
+
+Shell
+
+مثلاً:
+
+/bin/bash
+
+برنامه‌ای است که هنگام شروع session متنی کاربر اجرا می‌شود.
+
+Shell باید در سیستم قابل اجرا باشد؛ برای بعضی عملیات مانند chsh نیز باید shell موردنظر در:
+
+/etc/shells
+
+قرار داشته باشد.
+
+ساختار فایل passwd
+
+فایل /etc/passwd syntax نسبتاً سخت‌گیرانه‌ای دارد.
+
+نباید comment یا blank line را مانند یک configuration file معمولی به آن اضافه کرد.
+
+یک entry می‌تواند وجود داشته باشد حتی اگر home directory مربوط به آن هنوز ساخته نشده باشد؛ مفهوم account در user space الزاماً به معنی وجود فیزیکی home directory نیست.
+
+همچنین /etc/passwd تنها روش ممکن برای user database نیست؛ سرویس‌های شبکه‌ای مانند LDAP نیز می‌توانند user information را در اختیار سیستم قرار دهند.
+
+Figure 7-1
+=======
 اولین کار هنگام بررسی logging این است که ببینیم سیستم از چه logger هایی استفاده می‌ کند. در سیستم‌ های دارای    systemd ، ابزار اصلی ```journalctl```است. اجرای ```journalctl``` معمولاً پیام‌ های journal را نمایش می‌ دهد. برای بررسی خود daemon مربوط به journal می‌ توان وضعیت ```systemd-journald``` را بررسی کرد. در کنار journald ممکن است یکی از logger های قدیمی نیز نصب شده باشد. 
 
 یکی از رایج‌ ترین آن‌ها ```rsyslogd```است. برای بررسی rsyslog معمولاً configuration اصلی را بررسی می‌ کنیم ```etc/rsyslog.conf``` و همچنین directory هایی مانند ```/etc/rsyslog.d/``` که ممکن است configuration های اضافی در آن‌ ها قرار داشته باشند. logger دیگری که ممکن است با آن مواجه شوید ```syslog-ng``` است که معمولاً configuration خود را در ```/etc/syslog-ng/``` نگه می‌ دارد.
@@ -215,120 +316,4 @@ Local files / Remote server
 
 ---
 
-### The etc passwd File
-
-
-
-
-
-
-
-
-
-
-
-
-
-فایل ```etc/passwd/``` یک فایل متنی است که اطلاعات اصلی حساب‌ های کاربری را نگه می‌ دارد. هر خط با : به هفت field تقسیم می‌ شود :
-
-```username:password:UID:GID:GECOS:home:shell```
-
-مثال: ```juser:x:3119:1000:J. Random User:/home/juser:/bin/bash``` هفت field عبارت‌ اند از :
-
-- Login name
-- Password field
-- User ID
-- Group ID
-- Real name / GECOS
-- Home directory
-- Login shell
-
-Login name
-
-نامی که کاربر هنگام login استفاده می‌کند.
-
-مثلاً:
-
-juser
-Password field
-
-در سیستم‌های shadow password، معمولاً این field مقدار:
-
-x
-
-دارد.
-
-این x به معنی password واقعی نیست؛ یعنی اطلاعات password در:
-
-/etc/shadow
-
-نگهداری می‌شود.
-
-نکته مهم دیگر:
-
-Password در Linux معمولاً به‌صورت plaintext ذخیره نمی‌شود و آنچه در shadow وجود دارد نیز خود password نیست، بلکه یک مشتق رمزنگاری‌شده از آن است.
-
-UID
-
-UID شناسه عددی user برای user space و Kernel است.
-
-مثلاً:
-
-1000
-
-ممکن است UID یک کاربر عادی باشد.
-
-UID 0 برای superuser است.
-
-GID
-
-GID گروه اصلی کاربر است.
-
-این عدد باید با گروهی در database گروه‌ها مرتبط باشد.
-
-GECOS
-
-این field معمولاً اطلاعاتی مانند نام واقعی کاربر را نگه می‌دارد.
-
-ممکن است شامل اطلاعات اضافی مانند:
-
-نام
-شماره اتاق
-تلفن
-
-نیز باشد.
-
-Home directory
-
-مثلاً:
-
-/home/juser
-
-directory اصلی کاربر است.
-
-Shell
-
-مثلاً:
-
-/bin/bash
-
-برنامه‌ای است که هنگام شروع session متنی کاربر اجرا می‌شود.
-
-Shell باید در سیستم قابل اجرا باشد؛ برای بعضی عملیات مانند chsh نیز باید shell موردنظر در:
-
-/etc/shells
-
-قرار داشته باشد.
-
-ساختار فایل passwd
-
-فایل /etc/passwd syntax نسبتاً سخت‌گیرانه‌ای دارد.
-
-نباید comment یا blank line را مانند یک configuration file معمولی به آن اضافه کرد.
-
-یک entry می‌تواند وجود داشته باشد حتی اگر home directory مربوط به آن هنوز ساخته نشده باشد؛ مفهوم account در user space الزاماً به معنی وجود فیزیکی home directory نیست.
-
-همچنین /etc/passwd تنها روش ممکن برای user database نیست؛ سرویس‌های شبکه‌ای مانند LDAP نیز می‌توانند user information را در اختیار سیستم قرار دهند.
-
-Figure 7-1
-
+### The etc passwd File**
