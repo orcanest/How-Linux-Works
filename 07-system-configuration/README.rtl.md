@@ -15,15 +15,27 @@
 - [The Structure of etc](#the-structure-of-etc)
 - [User Management Files](#user-management-files)
 - [The etc passwd File](#the-etc-passwd-file)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
+- [Special Users](#special-users)
+- [The /etc/shadow File](#the-etc-shadow-file)
+- [Manipulating Users and Passwords](#manipulating-users-and-passwords)
+- [Working with Groups](#working-with-groups)
+- [getty and login](#getty-and-login)
+- [Setting the Time](#Setting-the-time)
+- [Kernel Time Representation and Time Zones](#kernel-time-representation-and-time-zones)
+- [Network Time](#network-time)
+- [Scheduling Recurring Tasks with cron and Timer Units](#scheduling-recurring-tasks-with-cron-and-timer-units)
+- [Installing Crontab Files](#installing-crontab-files)
+- [System Crontab Files](#system-crontab-files)
+- [Timer Units](#timer-units)
+- [cron vs Timer Units](#cron-vs-timer-units)
+- [Scheduling one time tasks with at](#scheduling-one-time-tasks-with-at)
+- [Timer Unit Equivalents](#timer-unit-equivalents)
+- [Timer Units Running as Regular Users](#timer-units-running-as-regular-users)
+- [User Access Topics](#user-access-topics)
+- [User IDs and User Switching](#user-ids-and-user-switching)
+- [Process Ownership and Effective UID and Real UID and Saved UID](#process-ownership-and-effective-uid-and-real-uid-and-saved-uid)
+- [User Identification and Authentication and Authorization](#user-identification-and-authentication-and-authorization)
+- [Using Libraries for User Information](#using-libraries-for-user-information)
 - [](#)
 - [](#)
 - [](#)
@@ -270,14 +282,477 @@ Login shell
 
 <img width="100%" height="182" alt="Screenshot from 2026-09-09 13-46-25" src="https://github.com/user-attachments/assets/fc1233de-143a-4c4a-a8a7-f800c02b5376" />
 
+<img width="100%" height="226" alt="image" src="https://github.com/user-attachments/assets/633d29f3-5a01-46a6-b4a4-b8b30bac05d2" />
+
+
 ---
 
-### 
+### Special Users
+
+در /etc/passwd علاوه بر کاربران عادی ، user هایی وجود دارند که برای اهداف سیستمی ایجاد شده‌ اند. مهم‌ترین آن‌ها ```root``` است. root همیشه ```UID = 0``` دارد و primary GID آن ```GID = 0``` است.
+
+#### 🔹 System Users
+
+ممکن است user هایی مانند ```daemon``` یا ```nobody``` را ببینید. این user ها معمولاً برای اجرای سرویس‌ها یا محدود کردن privilege یک process استفاده می‌ شوند. مثلاً یک daemon به‌ جای اجرای مستقیم با root ، می‌ تواند با یک user کم‌ امتیاز اجرا شود. اگر daemon مورد حمله قرار بگیرد، attacker در حالت ایده‌ آل فقط privilege همان user را خواهد داشت. به چنین حساب‌ هایی در ادبیات Unix گاهی ```pseudo-user``` گفته می‌ شود. اما نکته بسیار مهم این است که این مفهوم برای Kernel یک user ویژه به حساب نمی‌آید. Kernel در سطح UID با آن‌ ها کار می‌ کند و UID 0 است که برای Kernel معنای ویژه دارد بنابراین nobody ذاتاً و به‌ صورت غیرقابل تغییر «کاربری که نمی‌تواند هیچ کاری انجام دهد» نیست و permission های آن به UID و group membership و capability ها و سایر مکانیزم‌ های امنیتی بستگی دارد.
+
+---
+
+### The etc shadow file
+
+فایل ```etc/shadow/``` محل اصلی اطلاعات حساس مربوط به password در سیستم‌ های shadow password است. این اطلاعات می‌ تواند شامل password hash و زمان تغییر password و حداقل عمر password و حداکثر عمر password و زمان warning و زمان disable شدن account و اطلاعات مربوط به expiration باشد. در حالت عادی کاربران عادی نباید بتوانند این فایل را بخوانند.  دلیل اصلی این طراحی این است که اگر hash های password در اختیار تمام کاربران قرار بگیرد، attacker می‌ تواند به‌صورت offline روی آن‌ ها password guessing انجام دهد.
+
+#### 🔹 Password Hash
+
+اصطلاح دقیق‌ تر برای چیزی که در ```etc/shadow/``` ذخیره می‌ شود ```password hash / password verifier``` است، نه encrypted password. در حالت معمول password plaintext ذخیره نمی‌ شود. اگر field مربوط به password شامل ```*``` باشد ، معمولاً login با password برای آن account غیرفعال است. مقدار```!``` نیز در بسیاری از سیستم‌ ها برای lock کردن credential استفاده می‌ شود. رفتار دقیق بعضی special value ها به ابزارها و implementation سیستم بستگی دارد.
+
+---
+
+### Manipulating Users and Passwords
+
+روش مناسب مدیریت user ها استفاده از command های مخصوص است ، نه ویرایش مستقیم /etc/passwd. برای تغییر password از ```passwd``` یا برای administrator از ```passwd username``` و برای تغییر نام یا اطلاعات GECOS از ```chfn username``` و برای تغییر shell از ```chsh username``` استفاده می‌ شود. shell انتخاب‌ شده باید در ```etc/shells/``` مجاز باشد. برای ساخت و حذف کاربران نیز بسته به distribution ابزارهایی مانند ```useradd``` یا ```userdel``` یا wrapper هایی مانند ```adduser``` وجود دارند.
 
 
+#### 🔹 Why shouldn't you edit /etc/passwd directly ?
+
+از نظر فنی /etc/passwd یک فایل متنی معمولی است و root می‌ تواند آن را با editor تغییر دهد. اما این کار خطرناک است. یک اشتباه کوچک در syntax می‌تواند باعث شود که user database خراب شود و login کار نکند و یک user اطلاعات نادرست داشته باشد و ابزارهای مدیریت user دچار مشکل شوند برای همین اگر واقعاً لازم باشد فایل را مستقیم ویرایش کنیم، ابزار ```vipw``` برای /etc/passwd طراحی شده است. vipw فایل را به‌ صورت کنترل‌ شده edit می‌ کند و locking و backup مناسب را در نظر می‌گیرد. برای /etc/shadow از دستور ```vipw -s``` استفاده می‌ شود.
+
+--- 
+
+### Working with Groups
+
+گروه برای اشتراک‌ گذاری permission بین مجموعه‌ ای از user ها استفاده می‌ شوند. مثلاً می‌ توان گفت ```owner  = alice``` و ```group  = developers``` و سپس اعضای group بتوانند فایل را بخوانند یا تغییر دهند. اطلاعات group های local در ```etc/group/``` قرار دارد. هر خط چهار field دارد : ```group_name:password:GID:members``` مثلاً ```disk:*:6:juser,beazley```.
+
+#### 🔹 Group name
+نام گروه ```disk``` این نام هنگام نمایش permission ها نیز دیده می‌ شود.
 
 
+#### 🔹 Group password
+
+در سیستم‌ های مدرن تقریباً استفاده نمی‌ شود. معمولاً مقدارهایی مانند ```*``` یا ```x``` دیده می‌ شود. اگر x باشد ، ممکن است اطلاعات مربوط به group password در ```etc/gshadow/``` قرار داشته باشد.
+
+#### 🔹 GID
+
+شناسه عددی گروه است ```6```.
+
+#### 🔹 Additional members
+
+لیست username هایی است که به‌ عنوان member اضافی گروه معرفی شده‌ اند : ```juser,beazley``` . کاربر همچنین می‌ تواند از طریق primary GID خود عضو گروه باشد. بنابراین عضویت group فقط به field آخر /etc/group محدود نیست. برای مشاهده گروه‌ های کاربر از ```groups``` استفاده می‌ شود. بسیاری از distribution ها هنگام ایجاد یک user، group با همان نام user نیز ایجاد می‌ کنند.
+
+<img width="100%" height="205" alt="image" src="https://github.com/user-attachments/assets/650bb2dd-dbef-400f-95f6-05b61799eb6b" />
+
+<img width="1207" height="186" alt="image" src="https://github.com/user-attachments/assets/adb52325-7684-41da-baee-4f8e601dbec3" />
+
+---
+
+### getty and login
+
+در یک terminal متنی ، برنامه‌ ای لازم است که terminal را برای login آماده کند. این وظیفه معمولاً با ```getty``` یا implementation هایی مانند ```agetty``` انجام می‌ شود. getty به terminal متصل می‌ شود و چیزی مانند ```login``` نمایش می‌ دهد. برای مثال ممکن است در process list چیزی شبیه این ببینیم ```ps ao args | grep getty``` و```/sbin/agetty ... tty1``` دیده شود.
+
+#### 🔹  Login flow
+
+```
+getty 
+     ↓
+login prompt 
+     ↓
+username 
+     ↓
+login 
+     ↓
+authentication 
+     ↓
+user shell
+```
+
+معمولا getty مسئول login authentication کامل نیست. پس از وارد شدن username ، برنامه ```login``` می‌ تواند ادامه فرآیند را بر عهده بگیرد. login password را می‌ گیرد و authentication را انجام می‌ دهد. در سیستم‌ های امروزی PAM معمولاً در این بخش وارد می‌ شود. اگر authentication موفق باشد، login باید محیط user را آماده کند و shell مناسب را اجرا کند. در نهایت process مربوط به login معمولاً با shell کاربر جایگزین می‌ شود. از نظر process، این کار می‌ تواند با ```()exec``` انجام شود. بنابراین مسیر conceptually شبیه این است :
+
+```
+getty process
+      ↓
+login program
+      ↓
+user shell
+```
+
+امروزه در بسیاری از سیستم‌ ها login مستقیم روی virtual terminal تنها یکی از روش‌ های ورود است و روش‌ هایی مانند display manager و SSH و remote login نیز وجود دارند.
+
+---
+
+### Setting the Time
+
+لینوکس باید یک مفهوم قابل اعتماد از زمان داشته باشد. دو ساعت مهم در یک PC معمولی وجود دارند ```System Clock``` و ```Real-Time Clock (RTC)``` که System Clock توسط Kernel مدیریت می‌ شود و RTC یک clock سخت‌ افزاری است که معمولاً با باتری تغذیه می‌ شود و می‌ تواند زمان را در هنگام خاموش بودن سیستم نیز حفظ کند. هنگام boot ، Kernel یا user space زمان RTC را می‌ خواند و بر اساس آن system clock را تنظیم می‌ کند.
+
+#### 🔹 System Clock
+
+همان زمانی است که بیشتر برنامه‌ های Linux هنگام درخواست زمان از سیستم دریافت می‌ کنند. می‌ توان آن را با ابزارهایی مانند ```date``` مشاهده کرد. برای تنظیم ساعت نیز ابزارهای مختلفی وجود دارند ، هرچند در سیستم‌ های مدرن بهتر است synchronization سرویس مدیریت زمان را به عهده بگیرد.
+
+#### 🔹 Hardware Clock
+
+برای مشاهده RTC از ```hwclock``` استفاده می‌ شود. برای همگام کردن RTC با system clock از ```hwclock --systohc --utc``` استفاده می‌ شود و گزینه utc-- مشخص می‌ کند که RTC به‌ عنوان UTC تفسیر شود.
+
+#### 🔹 Why UTC ?
+
+نگه داشتن RTC روی UTC باعث می‌ شود تغییرات timezone و daylight saving time کمتر باعث مشکل شوند. سیستم عامل هنگام نمایش زمان محلی ، UTC را با timezone مناسب تبدیل می‌ کند. البته در dual-boot با سیستم‌ هایی که RTC را به‌صورت local time نگه می‌ دارند ، باید configuration دو سیستم عامل با یکدیگر هماهنگ باشد.
+
+---
+
+### Kernel Time Representation and Time Zones
+
+برای نمایش زمان در user space ، لینوکس باید یک representation استاندارد داشته باشد. یکی از مهم‌ ترین مفاهیم Unix epoch است ```1970-01-01 00:00:00 UTC```. زمان Unix به‌ طور مفهومی تعداد واحد های زمانی سپری‌ شده از این نقطه را نشان می‌ دهد. برای بسیاری از کاربردهای Linux ، این واحد seconds است. اما نباید این را با تمام representation های داخلی Kernel یکی دانست. Kernel subsystem های مختلفی برای clock های مختلف دارد  مانند   wall-clock time و monotonic time و boot time که کاربرد آن‌ ها متفاوت است.
+
+#### 🔹 Time Zone
+
+کرنل به‌ تنهایی مسئول نمایش زمان محلی مانند America/New_York یا  Asia/Tehran یا Europe/Berlin نیست. اطلاعات timezone در user space و timezone database استفاده می‌ شود. فایل ```/etc/localtime/ معمولاً فایل timezone مربوط به سیستم است و در بسیاری از distribution ها symbolic link  به یکی از فایل‌های ```/usr/share/zoneinfo/``` است بنابراین یک timestamp واحد می‌ تواند بر اساس timezone سیستم به شکل‌ های مختلف نمایش داده شود.
+
+---
+
+### Network Time
+
+فقط وقتی RTC زمان را نگه می‌ دارد که آخرین بار تنظیم شده است. در طول زمان ممکن است clock سخت‌ افزاری یا system clock دچار drift شود. برای همین سیستم‌ ها معمولاً از یک time synchronization protocol استفاده می‌ کنند. پروتکل رایج ```NTP``` است. در سیستم‌ های دارای systemd ، یکی از گزینه‌ ها ```systemd-timesyncd``` است. این سرویس می‌ تواند system clock را با remote time server هماهنگ کند. configuration آن در ```timesyncd.conf``` قابل بررسی است. بسته به distribution ممکن است سرویس‌ های دیگری نیز استفاده شوند. یکی از مهم‌ ترین گزینه‌ ها ```chronyd``` است. chronyd برای محیط‌ هایی که اتصال شبکه دائمی ندارند نیز کاربرد خوبی دارد ، چون می‌ تواند زمان را در هنگام قطع اتصال مدیریت کند. پس نباید فرض کنیم هر Linux system الزاماً فقط از timesyncd استفاده می‌ کند.
+
+---
+
+### Scheduling Recurring Tasks with cron and Timer Units
+
+بسیاری از کارهای administration باید به‌ صورت دوره‌ ای اجرا شوند مثلاً backup و cleanup و rotation و maintenance و report generation و synchronization . برای این کار دو مدل مهم وجود دارد ```cron``` و ```systemd timer units``` که کتاب هر دو را بررسی می‌ کند.
+
+#### 🔹 cron
+
+یک scheduler سنتی Unix/Linux است. کار زمان‌ بندی‌ شده‌ای که توسط cron اجرا می‌ شود cron job نام دارد. کاربر معمولاً schedule را در ```crontab``` قرار می‌ دهد. یک entry ساده : 
+
+```15 09 * * * /home/juser/bin/spmake```
+
+یعنی command مورد نظر هر روز ساعت 09:15 اجرا شود.
+
+#### 🔹 Five cron fields
+
+فرمت اصلی ```minute hour day-of-month month day-of-week command``` و محدوده‌ ها :
+
+```
+minute       0-59
+hour         0-23
+day of month 1-31
+month        1-12
+day of week  0-7
+```
+
+در بسیاری از cron ها  ```0 = Sunday``` و ```7 = Sunday``` است. علامت ```*``` یعنی تمام مقدارهای ممکن مثلاً ```* * * * *``` یعنی هر دقیقه و ```` * * * * 0``` یعنی در دقیقه صفر هر ساعت.
+
+<img width="100%" height="255" alt="image" src="https://github.com/user-attachments/assets/8ed8d776-f979-459c-9727-f7f194185a89" />
+
+#### 🔹 Combining values
+
+- می‌ توان چند مقدار را با comma مشخص کرد ``` * * * * 0,30``` یعنی دقیقه 0 و 30 هر ساعت.
+- می‌ توان range نیز داشت ```* * * 17-9 0``` یعنی در ساعت‌های 9 تا 17.
+- همچنین syntax مربوط به step نیز در cron های رایج وجود دارد ```* * * */15*``` یعنی هر 15 دقیقه.
+
+#### 🔹 A note about Day of Month and Day of Week
+
+در cron های قدیمی ، اگر هر دو field مربوط به ```day of month``` و ```day of week``` محدود شده باشند ، رفتار آن‌ ها در بسیاری از implementation های رایج به‌ شکل OR است ، نه اینکه الزاماً هر دو شرط هم‌ زمان برقرار باشند. این یکی از بخش‌هایی است که می‌ تواند باعث اشتباه در طراحی crontab شود. بنابراین برای schedule های پیچیده باید manual مربوط به cron implementation همان سیستم را بررسی کرد.
+
+--- 
+
+### Installing Crontab Files
+
+هر user می‌ تواند crontab خودش را داشته باشد : 
+
+- برای مشاهده ```crontab -l```
+- برای ویرایش ```crontab -e```
+- برای حذف ```crontab -r```
+
+استفاده می‌ شود. همچنین می‌ توان یک فایل آماده را نصب کرد ```crontab file``` یعنی محتویات file به‌عنوان crontab کاربر نصب شود. 
+
+> 💡 دستور ```crontab -e``` مزیت مهمی دارد. ابزار معمولاً syntax را بررسی می‌ کند و در صورت وجود خطا اجازه می‌ دهد آن را اصلاح کنید.
+
+#### 🔹 Environment in cron
+
+یک cron job لزوماً همان environment را ندارد که وقتی در shell تعاملی command را اجرا می‌ کنید. این موضوع درباره موارد PATH و HOME و SHELL و environment variables و  working directory اهمیت دارد بنابراین بهتر است در script های cron مسیر executable ها مشخص باشد و environment مورد نیاز explicit باشد همچنین فرض نکنیم shell تعاملی دقیقاً همان environment را دارد.
+
+---
+
+### System Crontab Files
+
+برای job های سراسری سیستم ، distribution ها معمولاً فایل ```etc/crontab/``` را در اختیار دارند. تفاوت مهم ***/etc/crontab*** با crontab معمولی این است که یک field اضافی برای username دارد. فرمت:
+
+```
+minute hour day-of-month month day-of-week user command
+-> 42 6 * * * root /usr/local/bin/cleansystem
+```
+
+یعنی command در ساعت 06:42 و با user:root اجرا شود.
+
+#### 🔹 /etc/cron.d
+
+بسیاری از distribution ها directory زیر را نیز دارند ```/etc/cron.d/``` فایل‌ های داخل آن معمولاً syntax مشابه ```/etc/crontab``` دارند و می‌ توانند username را مشخص کنند مثلاً ```/etc/cron.d/backup``` ممکن است schedule مربوط به backup را نگه دارد.
+
+#### 🔹 /etc/cron.daily
+
+ممکن است directory هایی مانند /etc/cron.daily و /etc/cron.hourly و /etc/cron.weekly و /etc/cron.monthly نیز وجود داشته باشند. این directory ها معمولاً مستقیماً به معنی یک scheduler مستقل نیستند. اغلب یک cron job دیگر script های داخل آن‌ها را در زمان مناسب اجرا می‌کند. به همین دلیل برای فهمیدن زمان واقعی اجرای یک script باید configuration مربوط به cron را تا انتها دنبال کرد.
+
+---
+
+### Timer Units
+
+در systemd یک روش جایگزین برای cron ارائه می‌ شود به نام ```timer unit``` . برای ساخت یک timer جدید معمولاً دو unit داریم ```example.timer``` و ```example.service``` که timer مسئول زمان‌ بندی است و service مسئول کاری است که باید اجرا شود این separation یک طراحی مهم است. Timer خودش نمی‌ گوید دقیقاً چه command باید انجام شود  بلکه مشخص می‌ کند چه زمانی unit دیگری را activate کند.
+
+#### 🔹 Timer example
+
+```
+[Unit]
+Description=Example timer unit
+
+[Timer]
+OnCalendar=*-*-* *:00,20,40
+Unit=loggertest.service
+
+[Install]
+WantedBy=timers.target
+```
+این timer در  00 و 20 و  40 دقیقه هر ساعت فعال می‌ شود یعنی :
+
+```
+12:00
+12:20
+12:40
+13:00
+13:20
+13:40
+...
+```
+در OnCalendar از syntax تقویمی systemd استفاده می‌ کند که بسیار انعطاف‌ پذیرتر از schedule های ساده cron است.
+
+#### 🔹 Timer related service
+
+معمولاً timer با نام service متناظر را فعال می‌ کند. مثلاً ```loggertest.timer``` می‌تواند ```loggertest.service``` را فعال کند. 
+
+```[Unit]
+Description=Example service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/loggertest
+```
+
+در این مدل قرار دارد :
+```
+timer
+   ↓
+activation
+   ↓
+service
+   ↓
+ExecStart
+```
+
+#### 🔹 Activate Timer
+
+پس از ایجاد unit ها ```systemctl daemon-reload``` سپس ```systemctl enable --now loggertest.timer``` می‌ تواند timer را enable و هم‌ زمان start کند. برای مشاهده timer ها از ```systemctl list-timers``` استفاده می‌ شود. این command اطلاعاتی مانند زمان activation بعدی و زمان activation قبلی و زمان باقی‌ مانده و unit مربوطه را نشان می‌ دهد.
+
+#### 🔹 Monotonic Timers
+
+در systemd timer ها فقط OnCalendar ندارند. گزینه‌ هایی نیز وجود دارند  مانند  :
+
+```
+OnBootSec=
+OnStartupSec=
+OnUnitActiveSec=
+OnUnitInactiveSec=
+```
+
+این‌ ها برای schedule هایی مناسب‌ اند که به یک event مانند boot یا activation unit نسبت داده می‌ شوند. مثلاً ```OnBootSec=10min``` یعنی 10 دقیقه بعد از boot یا ```OnUnitActiveSec=1h``` یعنی یک ساعت بعد از آخرین activation موفق unit.
+
+---
+
+###  cron vs Timer Units
+
+هر دو روش مفید هستند : 
+
+- مزایای cron : ساده و قدیمی و بسیار شناخته‌ شده است در بسیاری از سیستم‌ها وجود دارد و ابزارها و script های زیادی برای آن نوشته شده‌اند . برای schedule های ساده بسیار سریع قابل فهم است. به همین دلیل cron با وجود systemd همچنان به‌ طور گسترده استفاده می‌ شود.
+
+- مزایای systemd timer: در Timer unit ها با ecosystem خود systemd integration بیشتری دارند. مثلاً process ها زیر cgroup مربوط به service قرار می‌ گیرند و log ها در journal قابل مشاهده‌ اند. dependency های systemd در اختیار job قرار دارند و ordering قابل تعریف است همچنین failure status قابل مشاهده هستند. timer state با systemctl قابل بررسی و schedule های calendar پیچیده‌ تری وجود دارد. مثلاً :
+
+```
+systemctl status backup.service
+or
+journalctl -u backup.service
+```
+
+می‌ توانند اطلاعات اجرای job را نشان دهند در مقابل cron job ها معمولاً به شکل ساده‌ تر و مستقل‌ تری اجرا می‌ شوند. بنابراین جایگزینی systemd timer با cron همیشه ضروری نیست. برای یک task ساده ، cron ممکن است انتخاب بسیار خوبی باشد. برای کاری که tightly integrated با systemd service هاست ، timer unit می‌ تواند مناسب‌ تر باشد.
+
+---
+
+### Scheduling one time tasks with at
+
+قابلیت cron برای task های تکرار شونده است اما اگر بخواهیم یک command را فقط یک‌ بار در آینده اجرا کنیم ، از ابزار ```at``` استفاده می کنیم. مثلاً conceptually از ```at 23:00``` سپس command های مورد نظر را وارد می‌ کنیم. بعد از پایان input ، job برای اجرای آینده ثبت می‌ شود.
+
+#### 🔹 View Jobs at
+
+- برای مشاهده job های منتظر از ```atq``` استفاده می‌ شود.
+- برای حذف job از ```atrm jobid``` استفاده می‌ شود.
+
+```
+at
+ ↓
+schedule one job
+ ↓
+atq
+ ↓
+view pending jobs
+ ↓
+atrm
+ ↓
+remove job
+```
+
+---
+
+### Timer Unit Equivalents
+
+درsystemd می‌ تواند بسیاری از کاربرد های at را نیز پوشش دهد. یکی از روش‌ های راحت استفاده از ```systemd-run``` است. مثلاً با :
+
+```systemd-run --on-calendar="..."```
+
+می‌توان یک transient unit ساخت که در زمان مشخص اجرا شود. مزیت این روش این است که لازم نیست برای یک job ساده حتماً فایل timer. و service. دائمی بسازیم. systemd این unit را به‌ صورت موقت ایجاد می‌ کند و آن را در چارچوب مدیریت خودش اجرا می‌ کند. این روش برای task های یک‌ باره‌ای که می‌ خواهیم تحت کنترل systemd باشند ،  بسیار مناسب است.
+
+---
+
+### Timer Units Running as Regular Users
+
+قابلیت systemd timer فقط برای root نیست ، کاربر عادی نیز می‌ تواند user unit داشته باشد. برای تعامل با systemd user manager از ```systemctl --user``` استفاده می‌ شود. مثلاً timer های user را نمایش می‌ دهد :
+
+```systemctl --user list-timers```
+
+#### 🔹 systemd-run --user
+
+برای ایجاد transient user unit می‌ توان ```systemd-run --user``` استفاده کرد. در این حالت job با identity کاربر اجرا می‌ شود ، نه با root. این موضوع برای automation شخصی کاربر بسیار مفید است.
+
+#### 🔹 Logout problem
+
+یک نکته مهم وجود دارد. user manager معمولاً زمانی فعال است که user session وجود داشته باشد بنابراین اگر کاربر logout کند ، بسته به configuration سیستم ممکن است user manager نیز متوقف شود و timer های آن دیگر اجرا نشوند. برای اینکه user manager حتی بعد از logout نیز فعال بماند، می‌ توان از :
+
+```loginctl enable-linger username```
+
+استفاده کرد. Linger باعث می‌ شود user manager برای آن user مستقل از login session نیز بتواند باقی بماند. در این حالت user timer ها می‌ توانند حتی زمانی که user login نیست ، اجرا شوند.
+
+---
+
+### User Access Topics
+
+تا اینجا درباره فایل‌ هایی صحبت کردیم که user information را ذخیره می‌ کنند. اکنون باید یک سؤال مهم‌ تر را بررسی کنیم : **Linux چگونه تعیین می‌ کند یک process با چه هویتی اجرا شود و چه دسترسی‌ هایی داشته باشد؟** ، در سطح Kernel مبنای اصلی  UID و GID و permission های مرتبط با آن‌ ها هستند. اما user authentication و authorization یک فرآیند چند مرحله‌ ای است.
+
+---
+
+### User IDs and User Switching
+
+یک process می‌ تواند در شرایط خاص identity خود را تغییر دهد. یکی از مکانیزم‌ های مهم ```()setuid``` است. همچنین برنامه‌های setuid می‌توانند هنگام اجرا identity مؤثر متفاوتی داشته باشند. مثلاً یک executable با مالک root و  permission مثلاً ```rwsr-xr-x-``` دارای set-user-ID bit است. اگر یک کاربر عادی آن را اجرا کند، process می‌ تواند با ```Effective UID = 0``` اجرا شود. این دقیقاً یکی از مهم‌ ترین مکانیزم‌ های privilege escalation کنترل‌ شده در Unix است.
+
+#### 🔹 Three important principles
+
+به‌ صورت ساده ، سه رفتار مهم وجود دارد : 
+
+1. Setuid executable
+
+یک process عادی می‌ تواند برنامه‌ ای را که setuid شده اجرا کند و process حاصل effective identity متفاوتی داشته باشد.
+
+2. Root
+
+یک process دارای privilege مناسب root می‌تواند UID خود را تغییر دهد. در مدل سنتی این privilege با UID صفر مرتبط است. در Linux مدرن capability ها نیز در این تصمیم نقش دارند.
+
+3. Non-root process
+
+یک process عادی نمی‌تواند آزادانه خود را به هر UID دلخواهی تبدیل کند. Kernel محدودیت‌ هایی روی ()setuid و تغییر credential ها اعمال می‌ کند.
+
+---
+
+### Process Ownership and Effective UID and Real UID and Saved UID
+
+یک process فقط یک UID ساده ندارد مهم‌ ترین UID ها عبارت‌ اند از Real UID و Effective UID و Saved UID.
+
+#### 🔹 Real UID
+
+نشان می‌ دهد process از طرف چه user ایجاد شده است مثلاً اگر ```alice``` یک برنامه را اجرا کند ```RUID = alice ``` باقی می‌ ماند.
+
+#### 🔹 Effective UID
+
+برای تصمیم‌ های permission بسیار مهم است. مثلاً Kernel هنگام بررسی دسترسی یک process به فایل ، در بسیاری از موارد از effective credentials آن استفاده می‌ کند. بنابراین ممکن است ```RUID = alice``` و ```EUID = root ``` باشد. این حالت می‌ تواند در setuid program ها رخ دهد.
+
+#### 🔹 Saved UID
+
+به process اجازه می‌ دهد بعضی credential های قبلی را برای بازگشت یا تغییر کنترل‌ شده نگه دارد. این موضوع در طراحی برنامه‌ هایی که privilege خود را موقتاً تغییر می‌ دهند اهمیت دارد.
+
+> 💡 sudo tip
+> 
+> یک تصور اشتباه رایج این است که اگر یک برنامه با sudo اجرا شود ، تمام UID های آن به root تبدیل می‌ شوند. این الزاماً درست نیست در یک اجرای ```sudo command``` معمولاً program موردنظر effective privilege لازم را دریافت می‌کند ، اما real identity مربوط به user فرا خواننده همچنان می‌ تواند متفاوت باشد. بنابراین باید بین ```who started the process ``` و ```what identity the kernel uses for permission checks``` تفاوت قائل شد.
+
+#### 🔹 Permission and Process Ownership
+
+تصور ساده‌ ای مثل RUID مالک process است و حتماً می‌ تواند آن را kill کند بیش از حد ساده‌ سازی شده است. قواعد signal permission به credential های process ها و نوع signal و privilege ها وابسته‌ اند.  بنابراین برای فهم دقیق رفتار()kill باید permission های signal و UID ها و capability ها را با هم در نظر گرفت.
+
+---
+
+### User Identification and Authentication and Authorization
+
+امنیت چند کاربره را می‌توان به سه مرحله مفهومی تقسیم کرد :  **Identification و Authentication و Authorization** .
 
 
+#### 🔹 Identification
+
+سؤال : شما چه کسی هستید؟ مثلاً ```username = alice``` و کاربر identity خود را اعلام می‌ کند.
+
+#### 🔹 Authentication
+
+سؤال : آیا واقعاً همان کسی هستید که ادعا می‌ کنید؟. روش‌ های authentication می‌توانند شامل ، password و SSH key و  smart card و token و certificate و biometric و multi-factor authentication باشند.
+
+#### 🔹 Authorization
+
+بعد از اینکه identity مشخص و authenticate شد ، سؤال این است : چه کاری اجازه دارید انجام دهید؟ مثلاً alice ممکن است اجازه خواندن یک فایل را داشته باشد اما اجازه تغییر آن را نداشته باشد.
+
+#### 🔹 What role does the kernel play ?
+
+کرنل عمد تاً با credential های عددی مانند UID و GID کار می‌ کند. Kernel معمولاً نمی‌ داند alice چه کسی است. همچنین password authentication در سطح user space انجام می‌ شود مثلاً :
+
+```
+login
+   ↓
+PAM
+   ↓
+authentication modules
+   ↓
+credentials
+   ↓
+process
+   ↓
+Kernel permission checks
+```
+
+بنابراین authentication و authorization را نباید یکی دانست.
+
+---
+
+### Using Libraries for User Information
+
+فرض کنید یک برنامه UID خودش را دارد و می‌ خواهد username مربوط به آن را پیدا کند. یک روش ساده این است که UID را بگیرد و /etc/passwd را باز کند و خط‌ ها را یکی‌یکی بخواند و field ها را جدا کند و UID هر خط را بررسی و وقتی UID موردنظر پیدا شد ، username همان خط را برگرداند. مثلاً : 
+
+```
+UID = 1000
+
+/etc/passwd
+    ↓
+line 1 → UID 0
+line 2 → UID 1
+line 3 → UID 2
+...
+line N → UID 1000
+             ↓
+          username
+```
+
+اما اگر هر برنامه این کار را خودش انجام دهد، سیستم بسیار پیچیده و تکراری می‌ شود. به همین دلیل library های استاندارد این کار را انجام می‌ دهند مثلاً ```()getpwuid``` می‌ تواند اطلاعات مربوط به UID را برگرداند.
+
+#### 🔹 Library advantage
+
+این abstraction فقط برای راحتی نیست. فرض کنید برنامه‌ ها مستقیماً /etc/passwd را می‌ خواندند اگر بعداً بخواهیم user database را به LDAP منتقل کنیم ، باید تمام برنامه‌ ها را تغییر دهیم. اما وقتی برنامه از standard library و name service mechanism استفاده می‌ کند ، configuration سیستم می‌ تواند تعیین کند user information از کجا بیاید. در نتیجه application نیازی ندارد بداند user data دقیقاً در /etc/passwd است یا از network service می‌ آید. این یکی از دلایل اهمیت abstraction در user management است.
+
+#### 🔹 Password problem
 
 
