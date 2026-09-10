@@ -17,7 +17,7 @@
 - 05 [How the linux kernel boots](https://github.com/orcanest/How-Linux-Works/tree/main/05-how-the-linux-kernel-boots)
 - 06 [How user space starts](https://github.com/orcanest/How-Linux-Works/tree/main/06-how-user-space-starts)
 - 07 [System configuration](https://github.com/orcanest/How-Linux-Works/tree/main/07-system-configuration)
-- 08
+- 08 [A closer look at processes and resource utilization](https://github.com/orcanest/How-Linux-Works/tree/main/08-%20a-closer-look-at-processes-and-resource-utilization)
 - 09
 - 10
 - 11
