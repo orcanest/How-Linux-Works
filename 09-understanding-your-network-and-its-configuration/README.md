@@ -42,29 +42,18 @@ Physical / Wireless
 - [Introduction to Network Interface Configuration](#introduction-to-network-interface-configuration)
 - [Problems with Manual and Boot Activated Network Configuration](#problems-with-manual-and-boot-activated-network-configuration)
 - [Network Configuration Managers](#network-configuration-managers)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
+- [Localhost](#localhost)
+- [The Transport Layer](#the-transport-layer)
+- [Understanding DHCP](#understanding-dhcp)
+- [Automatic IPv6 Network Configuration](#automatic-ipv6-network-configuration)
+- [Configuring Linux as a Router](#configuring-linux-as-a-router)
+- [Private Networks](#private-networks)
+- [Network Address Translation](#network-address-translation)
+- [Routers and Linux](#routers-and-linux)
+- [Firewalls](#firewalls)
+- [Ethernet and IP and ARP and NDP](#ethernet-and-ip-and-arp-and-ndp)
+- [Wireless Ethernet](#wireless-ethernet)
+- [Tips](#tips)
 
 ---
 
@@ -434,7 +423,262 @@ Did the address change?
 
 ### Resolving Hostnames
 
+برای kernel و network stack  هم IP address مهم  است ، ولی application ها اغلب با hostname کار می‌ کنند. مثلاً برنامه به جای 192.0.2.20 ممکن است بخواهد به server.example.com متصل شود. این کار نیازمند name resolution است. DNS در application layer و user space قرار دارد و بسیاری از برنامه‌ ها مستقیماً خودشان DNS protocol را پیاده نمی‌ کنند. در عوض معمولاً از library ها و system APIs برای lookup استفاده می‌ کنند. 
 
+برای kernel و network stack  هم IP address مهم  است ، ولی application ها اغلب با hostname کار می‌ کنند. مثلاً برنامه به جای 192.0.2.20 ممکن است بخواهد به server.example.com متصل شود. این کار نیازمند name resolution است. DNS در application layer و user space قرار دارد و بسیاری از برنامه‌ ها مستقیماً خودشان DNS protocol را پیاده نمی‌ کنند. در عوض معمولاً از library ها و system APIs برای lookup استفاده می‌ کنند. 
 
+#### 🔹 /etc/hosts
 
+فایل etc/hosts/ یک راه ساده و local برای تعریف mapping بین hostname و IP address است مثلاً : 
 
+```
+192.168.1.10    server1
+192.168.1.11    server2
+```
+در چنین حالتی سیستم می‌ تواند بدون مراجعه به DNS  برای این نام‌ ها address پیدا کند. etc/hosts/ برای مواردی مثل local test environments و small networks و temporary overrides مفید است. اما برای شبکه‌ های بزرگ ، نگهداری دستی چنین mapping هایی معمولاً مناسب نیست.
+
+#### 🔹 resolv.conf
+
+فایل etc/resolv.conf/ اطلاعات مهمی درباره‌ ی name resolution ارائه می‌ دهد. یکی از مهم‌ ترین موارد آن nameserver است مثلاً ```nameserver 192.168.1.1```  یعنی سیستم ممکن است برای DNS query از آن resolver استفاده کند.
+
+نکته‌ ی مهم این است که در سیستم‌ های مدرن /etc/resolv.conf ممکن است فایل واقعی نباشد و مثلاً به یک فایل تولید شده یا stub resolver اشاره کند. پس هنگام troubleshooting نباید صرفاً بر اساس ظاهر این فایل فرض کنید دقیقاً کدام daemon آن را تولید کرده است.
+
+#### 🔹 Caching and Zero-Configuration DNS
+
+معمولاً DNS query ها هزینه دارند و اگر یک hostname چند بار پشت سر هم resolve شود ، انجام query شبکه‌ ای برای هر درخواست منطقی نیست. به همین دلیل resolver ها و سرویس‌ های مربوط می‌ توانند پاسخ‌ ها را cache کنند. در Linux یکی از سرویس‌ هایی که ممکن است در این زمینه دیده شود ، ```systemd-resolved```است. این سرویس می‌ تواند DNS  response ها را cache کند و به application ها یک interface محلی برای resolution ارائه دهد. همچنین در شبکه‌ های محلی پروتکل‌ هایی مانند mDNS و LLMNR ممکن است برای name resolution بدون استفاده‌ ی کلاسیک از DNS server استفاده شوند. mDNS معمولاً برای local-name discovery اهمیت دارد. نکته‌ی مهم این است که استفاده از این سرویس‌ها universal نیست و توزیع ، نسخه و configuration سیستم تعیین می‌ کند چه resolver فعال باشد.
+
+#### 🔹 /etc/nsswitch.conf
+
+فایل etc/nsswitch.conf/ یکی از فایل‌ های مهم برای تعیین source های اطلاعات سیستم است. مثلاً system ممکن است برای hostname lookup چنین ترتیبی داشته باشد ```hosts: files dns``` یعنی اول /etc/hosts بعد DNS و NSS فقط برای hostname ها نیست. در سیستم Linux از همین مکانیزم می‌ توان برای lookup اطلاعات دیگری مثل users و groups نیز استفاده کرد. به این ترتیب برنامه‌ ها لازم نیست بدانند اطلاعات دقیقاً در کجا ذخیره شده‌ اند. برای مثال یک application می‌تواند از API استاندارد استفاده کند و NSS بعداً تصمیم بگیرد داده از etc/passwd/ یا LDAP یا SSSD یا source دیگری تأمین شود.
+
+---
+
+### Localhost
+
+یکی از مهم‌ترین network interface های لینوکس lo است. این interface همان **loopback interface** است. هر داده‌ ای که به loopback ارسال شود به خود همان ماشین بر می‌گردد و از network hardware واقعی عبور نمی‌ کند.  در IPv4 address معروف 127.0.0.1 برای localhost استفاده می‌ شود. اما نکته‌ی مهم این است که کل بازه‌ ی  127.0.0.0/8 برای loopback رزرو شده است. بنابراین address هایی مانند 127.0.0.53 نیز می‌ توانند روی loopback استفاده شوند. در بعضی سیستم‌ ها مثلاً یک local DNS stub روی چنین address هم listen می‌ کند. در IPv6 آدرس اصلی loopback هم 1:: است. 
+
+<img width="100%" height="242" alt="image" src="https://github.com/user-attachments/assets/9818baed-ae86-408b-97cb-d3438032f5e5" />
+
+بنابراین IPv4 localhost برابر 127.0.0.1 و IPv6 localhost برابر با 1:: است. Loopback برای سرویس‌ هایی که فقط باید از همان ماشین قابل دسترسی باشند اهمیت زیادی دارد. مثلاً اگر یک application فقط روی 127.0.0.1:8080 ، listen کند ، سیستم‌ های دیگر معمولاً نمی‌ توانند مستقیماً به آن service متصل شوند ، حتی اگر ماشین روی شبکه‌ی بیرونی نیز address داشته باشد.
+
+---
+
+### The Transport Layer
+
+تا اینجا IP تعیین می‌ کرد packet به کدام host برسد اما وقتی packet به یک host رسید ، یک سؤال دیگر داریم ، این داده مربوط به کدام application است؟ اینجا **port number** وارد می‌ شود. Transport layer بین application و IP قرار می‌ گیرد. دو پروتکل اصلی TCP و UDP هستند. TCP و UDP هر دو از port number استفاده می‌ کنند ، ولی مدل ارتباطی‌ شان متفاوت است.
+
+#### 🔹 TCP Ports and Connections
+
+یک host ممکن است هم‌ زمان چند سرویس داشته باشد مثلاً SSH و Web server و DNS server و Database همه‌ ی این سرویس‌ ها می‌ توانند از یک IP address استفاده کنند. Port number کمک می‌ کند ارتباط به application مناسب برسد. به‌ صورت مفهومی 192.168.1.10:22 ، 192.168.1.10:80 و 192.168.1.10:443 همگی ممکن است روی یک machine وجود داشته باشند ، ولی به سرویس‌ های متفاوت اشاره کنند.
+
+برای مشاهده‌ ی socket ها و connection ها می‌ توان از ```ss``` استفاده کرد. netstat نیز ابزار شناخته‌ شده‌ ای است، ولی در سیستم‌ های جدید ```ss``` معمولاً انتخاب رایج‌ تری است.
+
+وقتی یک client connection ایجاد می‌ کند ، معمولاً نیازی نیست خودش یک well-known port داشته باشد. Kernel می‌تواند یک port موقت به نام ephemeral port اختصاص دهد مثلاً :
+
+```
+Client:
+192.168.1.50:52134
+
+Server:
+192.168.1.10:443
+```
+
+در این مثال 52134 یک client-side ephemeral port است در مقابل server معمولاً یک port شناخته‌ شده دارد.
+
+برای برخی سرویس‌ ها شماره‌ های استاندارد وجود دارد مثلاً HTTPS → 443 . فهرست mapping های سرویس و port در etc/services/ قرار دارد. این فایل یک registry محلی برای نام سرویس‌ ها و port هاست البته application ها الزاماً مجبور نیستند از نام‌ های موجود در آن استفاده کنند.
+
+در مدل سنتی Unix/Linux، پورت های  1023-1 هم privileged محسوب می‌ شوند. در حالت معمول ، bind کردن به چنین port هایی به امتیازهای خاصی نیاز دارد. در Linux این کار می‌ تواند با root یا capability مناسب مثل CAP_NET_BIND_SERVICE انجام شود. بنابراین جمله‌ی «فقط root می‌تواند port زیر 1024 را باز کند» دقیق نیست و capability ها نیز می‌ توانند نقش داشته باشند.
+
+#### 🔹 TCP as a Byte Stream
+
+پروتکل TCP مانند UDP پیام‌ های مستقل را تحویل application نمی‌ دهد  بلکه TCP یک byte stream ارائه می‌ کند. TCP داده را برای انتقال به segment ها تقسیم می‌ کند و در سمت مقصد با استفاده از sequence information آن را دوباره در قالب stream مناسب در اختیار application قرار می‌ دهد. ممکن است segment ها خارج از ترتیب دریافت شوند TCP این مسئله را مدیریت می‌ کند. در صورت نیاز retransmission نیز انجام می‌ شود در نتیجه application لازم نیست خودش packet های از دست‌ رفته را مجدداً مرتب و درخواست کند.
+
+<img width="100%" height="701" alt="image" src="https://github.com/user-attachments/assets/d4597e48-5cfc-4e27-908b-ee10a2898499" />
+
+#### 🔹 UDP
+
+پروتکل UDP برخلاف TCP connection-oriented نیست. UDP برای ارسال datagram های مستقل طراحی شده و تضمین‌ های TCP را ندارد. به‌صورت کلی UDP تضمین نمی‌ کند که packet delivered و packet ordered و packet  retransmitted باشد. یعنی packet ممکن است lost و duplicated و delivered out of order شود و خود UDP این مشکل را مانند TCP حل  نمی‌کند.
+
+این سادگی مزایایی دارد و UDP برای workload هایی مناسب است که simplicity و low overhead و low latency و application-level control اهمیت داشته باشند. NTP یکی از نمونه‌ های کلاسیک استفاده از UDP است. البته application هایی که از UDP استفاده می‌ کنند در صورت نیاز می‌ توانند خودشان reliability یا ordering را در لایه‌ ی application پیاده کنند.
+
+---
+
+### Understanding DHCP
+
+در یک شبکه‌ ی ساده ممکن است IP address را به‌ صورت دستی برای هر machine تنظیم کنیم. اما اگر صد ها یا هزاران host داشته باشیم ، این روش عملی نیست. DHCP برای خودکار کردن بخشی از network configuration استفاده می‌ شود. وقتی host به‌ صورت DHCP client تنظیم شده باشد ، می‌ تواند از DHCP server اطلاعاتی مانند IP address و Subnet mask / prefix و Default gateway و DNS server دریافت کند. این اطلاعات معمولاً به‌صورت lease در اختیار client قرار می‌ گیرند یعنی lease برای همیشه تضمین نمی‌ شود و client در طول زمان باید آن را تمدید کند :
+```
+address assignment
+        ↓
+temporary lease
+        ↓
+renewal
+```
+
+#### 🔹 Linux DHCP Clients
+
+در Linux نرم‌ افزارها و manager های مختلفی می‌ توانند DHCP client باشند یکی از ابزارهای سنتی dhclient است. در محیط‌ هایی که ```systemd-networkd``` مسئول network management باشد ، خود ```networkd``` نیز می‌ تواند نقش DHCP client را ایفا کند.  در سیستم‌ هایی که NetworkManager فعال است نیز DHCP می‌ تواند توسط خود NetworkManager یا component های مرتبط مدیریت شود. بنابراین «DHCP client در Linux» الزاماً به یک برنامه‌ ی واحد محدود نیست.
+
+#### 🔹 Linux DHCP Servers
+
+یک سیستم Linux فقط client نیست و می‌ تواند DHCP server نیز باشد. DHCP server می‌ تواند برای یک subnet address و configuration مورد نیاز client ها را ارائه کند.
+
+---
+
+### Automatic IPv6 Network Configuration
+
+یکی از ویژگی‌های مهم IPv6، امکان پیکربندی stateless است و IPv6 فقط به DHCP وابسته نیست. در این مدل host می‌ تواند ابتدا یک link-local address ایجاد کند و سپس با استفاده از پیام‌ های router، prefix شبکه را دریافت کند.
+
+#### 🔹 Router Advertisement
+
+معمولاً Router ها می‌ توانند پیام‌ هایی به نام Router Advertisement یا RA ارسال کنند. این پیام‌ ها می‌ توانند اطلاعاتی درباره‌ ی prefix و ویژگی‌ های شبکه ارائه دهند. Host بر اساس این اطلاعات می‌ تواند address مناسب خودش را بسازد.
+
+#### 🔹 Duplicate Address Detection
+
+قبل از اینکه host address را به‌ صورت کامل استفاده  کند ، مکانیزم Duplicate Address Detection یا DAD برای بررسی duplicate نبودن address استفاده می‌ شود. به‌ صورت کلی :
+
+```
+Create tentative address
+        ↓
+Perform DAD
+        ↓
+Use address if no duplicate detected
+```
+
+این رویکرد با مدل کلاسیک DHCP متفاوت است. در IPv6 هنوز DHCPv6 نیز وجود دارد ، اما SLAAC و Router Advertisement می‌ توانند بخش مهمی از automatic configuration را انجام دهند.
+
+---
+
+### Configuring Linux as a Router
+
+لینوکس می‌ تواند خودش نقش router را بازی کند. در ساده‌ ترین حالت یک router کامپیوتری است که حداقل دو مسیر یا interface شبکه دارد مثلاً :
+
+```
+Network A 192.168.1.0/24
+       │
+     eth0 → 192.168.1.1/24
+     Linux
+     eth1 → 192.168.2.1/24
+       │
+Network B 192.168.2.0/24
+```
+در این حالت Linux می‌ تواند بین دو subnet قرار بگیرد. هر interface باید address مناسب خودش را داشته باشد. اما صرف داشتن دو interface کافی نیست. به‌ صورت پیش‌ فرض kernel قرار نیست packet های ورودی از یک interface را به‌ طور خودکار از interface دیگر عبور دهد. برای فعال کردن IPv4 forwarding می‌توان از ```sysctl -w net.ipv4.ip_forward=1``` استفاده کرد. این تنظیم forwarding را در runtime فعال می‌ کند. برای پیکربندی دائمی معمولاً باید sysctl configuration مناسب نیز تنظیم شود و در IPv6 forwarding تنظیم جداگانه‌ ی مربوط به IPv6 وجود دارد.
+
+<img width="100%" height="785" alt="image" src="https://github.com/user-attachments/assets/f9924d24-118e-4ecb-9e17-bcb87ca3403e" />
+
+---
+
+### Private Networks
+
+فضای IPv4 محدود است. اگر قرار بود هر دستگاه داخل خانه یا شرکت یک public IPv4 address داشته باشد ، address space بسیار سریع مصرف می‌ شد. برای همین RFC 1918 سه بازه‌ ی معروف private IPv4 را مشخص می‌ کند 10.0.0.0/8 و 172.16.0.0/12 و 192.168.0.0/16 ، این address ها برای استفاده‌ ی داخلی شبکه‌ ها طراحی شده‌ اند و در اینترنت عمومی به‌ صورت عادی route نمی‌ شوند. مثلاً ممکن است شبکه‌ ی داخلی یک شرکت این باشد 10.0.0.0/8 و صدها host داخل آن از addressهای private استفاده کنند. این host ها برای دسترسی به اینترنت به mechanism دیگری نیاز دارند و رایج‌ ترین آن NAT است.
+
+---
+
+### Network Address Translation
+
+نام NAT در Linux در سناریوی رایج خروجی شبکه **IP masquerading** نامیده می‌ شود. فرض کنید چند host داخلی داریم : 192.168.1.10 و 192.168.1.11 و 192.168.1.12 که همه باید از طریق یک public address به اینترنت دسترسی داشته باشند. Router می‌ تواند packet خروجی را تغییر دهد مثلاً :
+
+```
+Private source
+192.168.1.10:50000
+
+        ↓ NAT
+
+Public source
+203.0.113.10:40001
+```
+
+و Router اطلاعات مربوط به این translation را نگه می‌ دارد وقتی پاسخ برگردد ، router می‌ تواند آن را به host داخلی صحیح هدایت کند.
+
+#### 🔹 Why is the port important ?
+
+ممکن است چند host داخلی هم‌ زمان از port های مشابه استفاده کنند. بنابراین NAT می‌ تواند علاوه بر IP address، source port را نیز تغییر دهد و از ترکیب IP + Port برای tracking connection ها استفاده کند. به این مدل ترجمه در بسیاری از محیط‌های IPv4 اصطلاحاً PAT یا NAT overload نیز گفته می‌ شود.
+
+در Linux می‌ توان NAT را با ابزارهای firewall stack مدیریت کرد. در محیط‌ های قدیمی iptables target  مانند MASQUERADE را ارائه می‌ کند. در سیستم‌ هایی که از nftables استفاده می‌ شود نیز می‌ توان NAT را در همان framework پیاده کرد.
+
+> 💡 یک نکته‌ ی مهم ، NAT ذاتاً معادل firewall نیست. NAT می‌ تواند روی visibility و مسیر connection ها اثر بگذارد ، ولی سیاست امنیتی filtering موضوعی جداست. همچنین IPv6 به دلیل فضای address بسیار بزرگ برای ارتباط عادی host-to-host ذاتاً به NAT نیاز ندارد.
+
+---
+
+### Routers and Linux
+
+بسیاری از router های تجاری در لایه‌ های پایین خود از Linux kernel یا سیستم‌ های مشابه Unix استفاده کرده‌ اند. سازنده‌ ی hardware می‌ تواند Linux kernel و Drivers و Networking features و Management software و Web interface را در یک محصول واحد قرار دهد. این موضوع باعث شده Linux در embedded networking کاربرد بسیار گسترده‌ ای داشته باشد. یکی از پروژه‌ های شناخته‌ شده در این حوزه OpenWRT است که برای اجرای یک سیستم Linux انعطاف‌ پذیر روی طیف بزرگی از hardware های router توسعه یافته است. چون این دستگاه‌ ها معمولاً resource محدودی دارند ، ابزارهای user space نیز ممکن است سبک باشند. اینجاست که BusyBox اهمیت پیدا می‌ کند. BusyBox یک باینری واحد است که مجموعه‌ ای از ابزارهای رایج Unix/Linux را در یک executable کوچک ارائه می‌ کند به همین دلیل در محیط‌ های embedded بسیار رایج است.
+
+---
+
+### Firewalls
+
+یکی از مهم‌ ترین اجزای امنیت شبکه Firewall است. Firewall ترافیک را بررسی می‌ کند و بر اساس rule های مشخص تصمیم می‌ گیرد که packet یا connection را  accepted یا dropped یا rejected کند یا چه processing دیگری روی آن انجام گیرد. Firewall می‌تواند در جاهای مختلف قرار داشته باشد مثلاً Internet یا Firewall / Router یا Internal Network یا مستقیماً روی خود host مثلاً Network یا Linux Host یا Local Firewall یا Application قرار بگیرد. در حالت دوم معمولاً درباره‌ی host-based IP filtering صحبت می‌ کنیم.
+
+#### 🔹 Linux Firewall Basics
+
+در Linux یکی از ابزارهای مهم firewall  ، ابزار ```iptables``` بوده است. در سیستم‌ های جدید ```nftables``` معماری جدیدتر و ترجیحی kernel firewall framework است و iptables در بسیاری از سیستم‌ها به‌ صورت compatibility layer روی nftables یا در کنار آن دیده می‌ شود. در مدل کلاسیک iptables هم Rules و Chains و Tables داریم.
+
+در table معروف filter سه chain اصلی عبارت‌اند از INPUT و OUTPUT و FORWARD : 
+
+- **اول INPUT** : که packet هایی مقصد نهایی‌ شان خود host است.
+- **دوم OUTPUT** : که Packet هایی از خود host خارج می‌ شوند.
+- **سوم FORWARD** : که packet هایی که host را به‌ عنوان router عبور می‌ دهند و مقصد نهایی‌ شان خود host نیست.
+
+<img width="100%" height="737" alt="image" src="https://github.com/user-attachments/assets/23f1cf67-554f-4cdb-9d0c-94925e5f4933" />
+
+#### 🔹 Setting Firewall Rules
+
+برای مشاهده‌ ی بعضی rule های iptables می‌توان از```iptables -L``` استفاده کرد. هر chain می‌ تواند یک default policy داشته باشد. دو مقدار بسیار مهم ACCEPT و DROP هستند.  مثلاً اگر policy یک chain روی DROP باشد و هیچ rule در packet را مجاز نکند ، packet در نهایت drop می‌ شود.
+
+با ```iptables -A``` می‌توان rule را به انتهای chain اضافه کرد و با ```iptables -I``` می‌توان rule را در یک موقعیت مشخص insert کرد. ترتیب rule ها بسیار مهم است مثلاً اگر rule اول خیلی عمومی باشد و packet را ACCEPT کند ، ممکن است rule های پایین‌ تر هرگز packet را نبینند. 
+
+باید بین دو مفهوم تمایز قائل شد ، Rule match و Final verdict . برخی target ها verdict نهایی ایجاد می‌ کنند و processing مربوط به chain را خاتمه می‌ دهند. برخی عملیات‌ ها مانند بعضی target های non-terminal الزاماً به معنی پایان کل processing نیستند. بنابراین جمله‌ ی «هر match باعث توقف chain می‌ شود» دقیق نیست.
+
+#### 🔹 Firewall Strategies
+
+یکی از استراتژی‌ های رایج و امن این است که Default = DROP و سپس فقط traffic مورد نیاز به‌ صورت صریح مجاز شود. به‌صورت مفهومی :
+
+```
+Incoming packet
+       ↓
+Is it trusted/required?
+   ↙         ↘
+ yes          no
+  ↓            ↓
+ACCEPT       DROP
+```
+
+در یک host عادی ممکن است rule های firewall شامل مواردی برای ICMP و Loopback و Established و connections و Related connections و DNS replies و SSH باشند. اما ترتیب دقیق و جزئیات rule ها باید متناسب با نقش واقعی سیستم باشد. مثلاً یک server عمومی ممکن است نیاز داشته باشد TCP 443 را قبول کند ، ولی host دیگری که فقط یک client است ممکن است اصلاً چنین rule را لازم نداشته باشد همچنین باید دقت کرد که rule های مربوط به ESTABLISHED و RELATED باعث می‌ شوند response مربوط به connection هایی که از داخل سیستم شروع شده‌ اند یا connection های related ، بدون نوشتن rule کامل و جداگانه برای هر response مدیریت شوند. Firewall خوب یعنی minimum required access نه اینکه فقط «همه‌چیز را ببندیم».
+
+---
+
+### Ethernet and IP and ARP and NDP
+
+فرض کنید یک packet آماده‌ ی ارسال روی Ethernet است و destination IP آن را می‌ دانیم. هنوز یک سؤال داریم ، برای ارسال local frame چه MAC address باید استفاده شود ؟ در IPv4 این mapping با ARP انجام می‌شود.
+
+#### 🔹 ARP
+
+مخفف Address Resolution Protocol است. اگر host بداند که 192.168.1.20 اما MAC مربوط به این IP را نداند ، می‌ تواند یک ARP request ارسال کند. این request به شکل broadcast روی شبکه‌ ی local فرستاده می‌ شود. Host که آن IP را دارد پاسخ می‌ دهد : IP 192.168.1.20 و MAC aa:bb:cc:dd:ee:ff . این mapping معمولاً مدتی در cache نگهداری می‌ شود و برای مشاهده‌ ی neighbor information در لینوکس استفاده از ```ip neigh``` مفید است.
+
+#### 🔹 IPv6 and NDP
+
+هیچوقت IPv6 از ARP استفاده نمی‌ کند در IPv6 پروتکل NDP یا Neighbor Discovery Protocol این نقش را بر عهده دارد. NDP بخشی از ICMPv6 است و از پیام‌هایی مثل Neighbor Solicitation یا Neighbor Advertisement استفاده می‌ کند.
+
+---
+
+### Wireless Ethernet
+
+از نظر مفهومی Wi-Fi هنوز در دنیای link-layer networking قرار دارد و از MAC address و frame استفاده می‌ کند ، اما medium دیگر کابل Ethernet نیست. در شبکه‌ ی بی‌ سیم با مفاهیمی مانند Frequency و Channel و SSID و Access Point و Authentication و Encryption سر و کار داریم. در Ethernet سیمی، دستگاه معمولاً با یک کابل و link فیزیکی مشخص ارتباط دارد. اما در Wi-Fi باید network discovery و association و authentication و key negotiation نیز مدیریت شوند به همین دلیل wireless networking از Ethernet سیمی پیچیده‌ تر است.
+
+#### 🔹 iw
+
+ابزار iw یکی از ابزارهای اصلی برای مشاهده و مدیریت wireless interface ها در Linux است. مثلاً برای مشاهده‌ ی interface های wireless می‌ توان از command های آن استفاده کرد. برای scan کردن شبکه‌ های اطراف نیز iw قابلیت‌ هایی ارائه می‌ دهد. در سیستم‌های managed ، کاربر ممکن است به‌ جای استفاده‌ ی مستقیم از iw از NetworkManager استفاده کند و NetworkManager در پشت صحنه بخش زیادی از این کارها را انجام دهد.
+
+#### 🔹 Wireless Security
+
+اتصال به یک Wi-Fi فقط به پیدا کردن SSID محدود نیست باید authentication و key management نیز انجام شود. یکی از daemon های مهم در لینوکس ```wpa_supplicant``` است. این daemon برای پیاده‌ سازی و مدیریت فرآیند های مرتبط با WPA و سازوکارهای authentication و encryption استفاده می‌ شود. در محیط‌ های مدرن ممکن است با استاندارد ها و mode های مختلفی مانند WPA2 و WPA3 روبرو شویم.
+
+مدیریت مستقیم ```wpa_supplicant``` می‌ تواند پیچیده باشد ، چون تنظیم authentication ، interface و network profile ها نیازمند جزئیات زیادی است به همین دلیل ابزارهایی مثل ```NetworkManager``` یک لایه‌ ی ساده‌ تر برای کاربر ارائه می‌ دهند. بنابراین در یک سیستم Linux مدرن ممکن است شما فقط روی ```nmcli``` کار کنید ، در حالی که لایه‌ های پایین‌ تر مسئول جزئیات واقعی اتصال Wi-Fi باشند.
+
+---
+
+### Tips
+
+در این بخش با پایه‌های شبکه در لینوکس آشنا شدیم. از packet ها ، لایه‌های شبکه ، IPv4 و IPv6 گرفته تا routing ، default gateway ، Ethernet ، network interface ، DNS و TCP/UDP. این بخش نشان داد که شبکه هم مثل بیشتر بخش‌ های لینوکس، بین kernel و user space تقسیم شده :
+
+ کرنل وظایفی مثل packet forwarding ، routing و تعامل با network interface ها رو انجام میده و ابزارهای user space مثل NetworkManager ، DHCP client ها و Firewall tools مدیریت این زیرساخت رو ساده‌ تر می‌ کنن. فصل بعدی از این زیرساخت عبور می‌ کند و وارد application layer میشه. جایی که برنامه‌ های واقعی از شبکه برای برقراری ارتباط استفاده می‌ کنند.
