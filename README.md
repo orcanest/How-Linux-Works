@@ -18,8 +18,8 @@
 - 06 [How user space starts](https://github.com/orcanest/How-Linux-Works/tree/main/06-how-user-space-starts)
 - 07 [System configuration](https://github.com/orcanest/How-Linux-Works/tree/main/07-system-configuration)
 - 08 [A closer look at processes and resource utilization](https://github.com/orcanest/How-Linux-Works/tree/main/08-%20a-closer-look-at-processes-and-resource-utilization)
-- 09
-- 10
+- 09 [Understanding your network and its configuration](https://github.com/orcanest/How-Linux-Works/tree/main/09-understanding-your-network-and-its-configuration)
+- 10 [Network applications and services]()
 - 11
 - 12
 - 13
