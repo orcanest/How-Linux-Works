@@ -25,26 +25,11 @@ Browser → HTTP → TCP → IP → Ethernet / Wi-Fi → Network
 - [Network Servers](#network-servers)
 - [Pre systemd Network Connection Servers](#pre-systemd-network-connection-servers)
 - [Diagnostic Tools](#diagnostic-tools)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
+- [Remote Procedure Calls](#remote-procedure-calls)
+- [Looking Forward](#looking-forward)
+- [Network Sockets](#network-sockets)
+- [Unix Domain Sockets](#unix-domain-sockets)
+- [Tips](#tips)
 
 ---
 
@@ -262,15 +247,275 @@ server process
 
 #### 🔹 lsof
 
+همان‌ طور که در فصل هشتم دیدیم ، lsof می‌ تواند resource های باز process ها را نشان دهد. برای network نیز می‌توان از ```lsof -i```استفاده کرد. این command می‌ تواند socket های شبکه‌ ای مرتبط با process ها را نشان دهد. مثلاً ```lsof -iTCP یا lsof -iTCP:443 ``` می‌ تواند خروجی را به connection های TCP یا یک port خاص محدود کند. این ابزار برای سؤال‌ هایی مانند ، چه process ای به یک connection خاص متصل است؟ یا این socket مربوط به کدام PID است؟ بسیار مفید است. برای مثال ممکن است ببینید :
+
+```nginx   1234   root   ... TCP *:443 (LISTEN)```
+
+و فوراً متوجه شوید که port 443 توسط nginx در اختیار گرفته شده است.
+
+#### 🔹 tcpdump
+
+گاهی دانستن اینکه یک process روی port گوش می‌ دهد کافی نیست. باید ببینیم واقعاً چه packet هایی روی network حرکت می‌ کنند. ابزار اصلی برای این کار```tcpdump``` است. tcpdump می‌ تواند packet هایی را که یک interface می‌بیند capture کند و اطلاعات مختلفی از آن‌ها را نمایش دهد. مثلاً ```tcpdump``` برای capture اولیه یا ```tcpdump -i eth0``` برای مشخص کردن interface.
+
+#### 🔹 Filtering
+
+یکی از ویژگی‌ های مهم tcpdump ، filter expression ها هستند. مثلاً ```tcpdump tcp``` فقط traffic مربوط به TCP را هدف می‌ گیرد یا ```tcpdump udp``` برای UDP همچنین ```tcpdump port 80``` برای traffic مربوط به port 80 می‌توان filter های پیچیده‌ تر نیز ساخت برای مثال ```tcpdump 'tcp port 443'``` یا ```tcpdump 'host 192.168.1.10'``` در troubleshooting باید توجه داشت که tcpdump traffic را در نقطه‌ ای capture می‌ کند که interface مورد نظر آن را می‌ بیند. بنابراین capture نکردن یک packet لزوماً به معنی این نیست که packet هیچ‌ جا وجود نداشته  ممکن است از interface دیگری عبور کرده باشد ،  توسط offload ها یا filtering های مختلف به شکل متفاوتی دیده شود یا اصلاً به host نرسیده باشد.
+
+#### 🔹 netcat
+
+یکی از ابزارهای بسیار ساده و در عین حال انعطاف‌ پذیر در شبکه ```netcat``` یا ```nc``` است. netcat می‌ تواند هم client باشد و هم server. مثلاً برای اتصال به یک TCP service دستور ```nc host.example.com 80``` و بعد می‌توانید یک HTTP request ارسال کنید. از طرف دیگر می‌توان یک listener ساده ایجاد کرد.
+
+تفاوت مهم netcat با telnet این است که netcat فقط به یک کاربرد خاص یا TCP محدود نیست و می‌ تواند برای TCP و UDP و سناریوهای مختلف testing استفاده شود. در troubleshooting می‌ توان با nc بررسی کرد که آیا یک port reachable است ؟  یا connection TCP برقرار می‌شود؟  ، البته موفق شدن TCP connection به این معنی نیست که application protocol نیز درست کار می‌ کند.
+
+#### 🔹 Port Scanning
+
+برای بررسی مجموعه‌ ای از port ها و سرویس‌ های قابل دسترسی ، ابزار معروف ```Nmap``` است. Nmap می‌ تواند برای شناسایی وضعیت port ها و در بعضی mode ها اطلاعات بیشتری درباره‌ ی service های فعال جمع‌ آوری کند. یک scan ساده ممکن است مشخص کند که port هایی مانند 22 ،  80 و 443 قابل دسترسی هستند.
+
+از Nmap می‌ توان برای Network inventory و Troubleshooting و Security auditing و Service discovery استفاده کرد. اما یک اصل مهم وجود دارد ، اسکن کردن سیستم‌ ها یا شبکه‌ هایی که مالک آن‌ ها نیستید یا اجازه‌ ی بررسی آن‌ ها را ندارید ، می‌ تواند غیرقانونی باشد بنابراین Nmap باید در شبکه‌ های خودتان ، آزمایشگاه شخصی یا محیط‌ هایی که مجوز صریح دارید استفاده شود.
+
+---
+
+### Remote Procedure Calls
+
+مخفف Remote Procedure Call مفهومی است که به برنامه اجازه می‌ دهد یک operation را روی سیستم دیگری اجرا کند، به شکلی که از دید programmer تا حدی شبیه فراخوانی یک local function باشد. 
+
+```
+Application A
+    ↓
+call function()
+    ↓
+RPC layer
+    ↓
+Network
+    ↓
+RPC server
+    ↓
+Execute operation
+```
+
+هدف RPC این است که جزئیات ارتباط شبکه ای تا حدی از application logic جدا شود. البته در عمل ، RPC واقعاً یک local function call نیست. latency ، failure ، serialization ، authentication و network errors همگی وجود دارند.
+
+#### 🔹  rpcbind
+
+در سیستم‌ های Unix سرویسی به نام ```rpcbind``` نقش مهمی در پیدا کردن سرویس‌ های RPC داشت. RPC service ها معمولاً یک program number دارند. rpcbind این شناسه را با یک transport  و port mapping مرتبط می‌ کند. client می‌ تواند از rpcbind بپرسد که برنامه‌ ی RPC مورد نظر روی چه port قرار دارد این مدل مخصوصاً در  سرویس‌ هایی مانند ```NFS``` اهمیت تاریخی و عملی داشته است. البته دنیای modern RPC بسیار متنوع‌ تر از مدل ONC RPC است و framework هایی مثل gRPC و JSON-RPC و XML-RPC هم وجود دارند.
+
+اما مفهوم پایه همچنان همان است application یک operation را برای remote system درخواست می‌ کند و زیرساخت RPC جزئیات ارتباط و encoding/transport را مدیریت می‌ کند.
+
+#### 🔹  Network Security
+
+وقتی یک service را روی شبکه قرار می‌ دهیم ، دیگر مسئله فقط «کار کردن» نیست. هر port باز و هر service فعال ، بخشی از attack surface سیستم است به همین دلیل چند اصل ساده اهمیت زیادی دارند.
+
+#### 🔹 Minimum number of services
+
+هر سرویسی که لازم ندارید بهتر است اجرا نشود. مثلاً اگر machine فقط برای SSH استفاده می‌ شود، نیازی نیست چندین daemon شبکه‌ ای غیرضروری روی آن فعال باشند. این رویکرد با اصل Minimize attack surface مطابقت دارد.
+
+#### 🔹 Firewall
+
+فقط service هایی را که واقعاً لازم هستند در معرض شبکه قرار دهید یعنی اگر application فقط از localhost استفاده می‌ کند ، نباید الزاماً روی همه‌ی interface ها listen کند برای مثال 127.0.0.1:8080 با 0.0.0.0:8080 از نظر exposure کاملاً متفاوت است.
+
+#### 🔹 Update
+
+سرویس‌ هایی که روی شبکه در معرض attack هستند باید مرتب به‌ روزرسانی شوند. این موضوع مخصوصاً برای vulnerability های شناخته‌ شده اهمیت دارد.
+
+#### 🔹 Supported versions
+
+استفاده از release های دارای پشتیبانی بلند مدت می‌ تواند مدیریت امنیت را ساده‌ تر کند ، چون patch های امنیتی برای مدت مشخصی ارائه می‌ شوند.
+
+#### 🔹 unnecessary accounts
+
+ایجاد user account بدون دلیل ، attack surface را افزایش می‌ دهد. اگر یک account دیگر استفاده نمی‌ شود ، بهتر است حذف یا غیرفعال شود.
+
+#### 🔹 Three general categories of attacks
+
+از دید ساده‌ ی این فصل می‌ توان چند هدف اصلی حملات را در نظر گرفت.
+
+#### 🔹 Full Compromise
+
+هدف مهاجم به دست آوردن کنترل گسترده روی سیستم است بدترین حالت می‌تواند به دست آوردن دسترسی ```root``` یا سطحی معادل آن باشد. در این وضعیت مهاجم می‌ تواند بخش بزرگی از سیستم را کنترل کند.
+
+#### 🔹 Denial of Service
+
+ در DoS هدف لزوماً کنترل سیستم نیست. هدف می‌ تواند این باشد که Service unavailable یا System overloaded یا Resource exhausted شود. مثلاً مهاجم ممکن است CPU ، memory ، connection slots یا bandwidth را مصرف کند.
+
+#### 🔹 Malware
+
+دسته‌ی بزرگی از software های مخرب است که می‌ توانند برای Data theft و Remote control و Persistence و Destruction و Cryptomining و Spying استفاده شوند.
+
+#### 🔹 Typical Vulnerabilities
+
+دو دسته‌ ی مهم از مشکلات امنیتی که در چنین محیط‌ هایی باید به آن‌ ها توجه کرد عبارت‌ اند از **ضعف در خود برنامه و ارسال یا نگهداری ناامن اطلاعات**.
+
+#### 🔹 Direct Attacks
+
+در این حالت مهاجم از یک ضعف مستقیم در برنامه یا سرویس سوء استفاده می‌ کند. یکی از مثال‌ های کلاسیک buffer overflow است. اگر یک برنامه بدون بررسی مناسب مقدار داده را در buffer قرار دهد ، ممکن است مهاجم بتواند از memory corruption ایجاد شده سوء استفاده کند. اما modern operating systems و compiler ها چندین mechanism دفاعی دارند.
+
+یکی از مهم‌ ترین آن‌ها ASLR یا Address Space Layout Randomization است. ASLR باعث می‌ شود location برخی بخش‌ های مهم memory در اجرا ها قابل‌ پیش‌ بینی نباشد و در نتیجه برخی exploit ها دشوارتر شوند. البته ASLR به‌ تنهایی یک buffer overflow را اصلاح نمی‌ کند فقط یکی از لایه‌ های دفاعی است. سازوکارهای دیگری مانند NX / DEP و Stack canaries و PIE و Control-flow defenses و Memory-safe languages نیز می‌ توانند نقش مهمی داشته باشند.
+
+#### 🔹 Cleartext Data
+
+دسته‌ ی دیگر، ارسال اطلاعات حساس بدون رمزنگاری است. اگر protocol ارتباطی plaintext باشد ، افراد یا دستگاه‌ هایی که در مسیر قرار دارند ممکن است بتوانند اطلاعات را مشاهده کنند. نمونه‌های کلاسیک telnet و ftp هستند. این ابزارها برای داده‌ های حساس مناسب نیستند ، چون حفاظت رمزنگاری‌ شده‌ ی مدرن SSH یا TLS را ندارند. در مقابل ، باید از protocol هایی استفاده کرد که confidentiality و integrity را فراهم می‌ کنند. برای مثال : SSH و HTTPS و TLS در سناریوهای مناسب.
+
+#### 🔹 Security Resources
+
+امنیت شبکه حوزه‌ ی بسیار گسترده‌ ای است و تنها با خواندن یک فصل نمی‌ توان به تسلط کامل رسید. برای مطالعه‌ ی بیشتر، منابع و سازمان‌ های امنیتی مختلفی وجود دارند. از جمله SANS Institute و CERT این منابع می‌ توانند برای مطالعه‌ ی Vulnerabilities و Incident response و Security practices و Network security مفید باشند.
+
+یکی از موضوعات مهم برای ادامه‌ ی مسیرTLS است. TLS سازوکاری برای ایجاد ارتباط امن روی شبکه است. باید توجه کرد که SSL نام خانواده‌ ی قدیمی‌ تر همین technology است و نسخه‌ های قدیمی SSL امروزه منسوخ و ناامن محسوب می‌ شوند. در عمل ، وقتی امروز از secure HTTPS صحبت می‌ کنیم ، اساساً درباره‌ ی TLS صحبت می‌کنیم ، نه SSL قدیمی.
+
+---
+
+### Looking Forward
+
+بعد از یادگیری مفاهیم اولیه‌ ی network service ، بهترین راه ادامه دادن این است که با server های واقعی کار کنیم. مثلاً Apache یا nginx یا Postfix هرکدام نمونه‌ ی خوبی برای دیدن یک application-layer service واقعی هستند. با نصب یک server می‌توانید زنجیره‌ ی مفاهیم فصل‌ های قبل را هم‌ زمان ببینید :
+
+```
+Application
+    ↓
+Socket
+    ↓
+TCP
+    ↓
+IP
+    ↓
+Network interface
+    ↓
+Kernel
+```
+
+مثلاً در مورد یک web server می‌ توانید بررسی کنید ```ss -lntp``` کدام process روی port گوش می‌ دهد. بعد ```lsof -i``` را بررسی کنید سپس ```tcpdump``` را اجرا کنید تا packet های واقعی را ببینید و در نهایت ```curl``` را برای صحبت با application اجرا کنید. این روش باعث می‌ شود چند فصل مختلف کتاب به یکدیگر متصل شوند.
+
+#### 🔹 The Importance of Firewalls and NAT in Testing
+
+یکی از بهترین روش‌ های مطالعه‌ی این موضوع ، قرار دادن server در محیطی است که access آن تحت کنترل شما باشد. مثلاً : 
+
+```
+Internet
+   ↓
+Firewall / NAT
+   ↓
+Lab machine
+   ↓
+Apache / nginx / sshd
+```
 
 
+این ساختار اجازه می‌ دهد رفتار واقعی service ها را بررسی کنید ، بدون اینکه مستقیماً یک machine آزمایشی را بدون حفاظت مناسب در معرض اینترنت قرار دهید.
+
+---
+
+### Network Sockets
+
+از این بخش به بعد ، کتاب وارد سطح فنی‌ تری می‌ شود که برای programmer ها اهمیت بیشتری دارد. تا اینجا گفتیم application از TCP یا UDP استفاده می‌ کند. اما برنامه دقیقاً چطور با این protocol ها کار می‌ کند ؟ جواب socket است. Socket یک abstraction و programming interface است که application از طریق آن با communication subsystem سیستم‌عامل کار می‌کند.
+
+```
+Application
+    ↓
+Socket API
+    ↓
+Kernel
+    ↓
+TCP / UDP / IP
+    ↓
+Network Device
+```
+
+یعنی application معمولاً لازم نیست packet های Ethernet را خودش بسازد. در عوض با API های socket کار می‌ کند.
+
+#### 🔹 Socket Types
+
+دو نوع مهم socket در networking هم Stream socket و Datagram socket هستند. Stream socket معمولاً برای TCP استفاده می‌ شود و TCP byte stream ارائه می‌ کند و Application می‌ تواند داده را بنویسد و دریافت کند . همچنین Datagram socket معمولاً برای UDP استفاده می‌ شود. در این مدل message ها به‌ صورت datagram های جداگانه ارسال می‌ شوند. در Unix/Linux خانواده‌ ی دیگری از socket ها نیز وجود دارد که کمی جلوتر درباره‌ ی آن‌ها صحبت می‌ کنیم Unix domain sockets .
+
+#### 🔹 Server Socket Lifecycle
+
+یک TCP server معمولاً lifecycle مشخصی دارد. ابتدا application یک socket ایجاد می‌ کند بعد socket را به address و port خاصی bind می‌ کند مثلاً ```192.168.1.10:8080``` سپس آن را وارد وضعیت listening می‌ کند. وقتی یک client connection برقرار می‌ کند ، server از()accept استفاده می‌ کند.
+
+اینجا یک نکته‌ ی بسیار مهم وجود دارد ، socket که برای listen استفاده می‌ شود با socket که برای یک connection مشخص به client استفاده می‌شود یکی نیست : 
 
 
+```
+Listening Socket
+       │
+       ├── accept() → Connection Socket A
+       ├── accept() → Connection Socket B
+       └── accept() → Connection Socket C
+```
 
+همچنان Listening socket وظیفه‌ ی گرفتن connection های جدید را دارد. هر connection یک socket مخصوص خودش دریافت می‌ کند پس ```listen socket``` برای پذیرش connection های جدید است و ```connected socket``` برای ارتباط واقعی با یک client مشخص.
 
+#### 🔹 Handling Connections with fork()
 
+در معماری‌ های قدیمی‌ تر، server می‌توانست بعد از()accept یک Child process ایجاد کند :
 
+```
+Parent
+  │
+  ├── accept()
+  │
+  ├── fork()
+  │      ↓
+  │   Child handles client
+  │
+  └── continues accepting
+```
 
+در این مدل Parent وظیفه connection management و Child وظیفه client request را بر عهده می‌گیرد. با افزایش تعداد connection ها ، process های بیشتری ساخته می‌ شوند. اما ایجاد process برای هر connection همیشه بهترین روش نیست. به همین دلیل معماری‌ های دیگر نیز وجود دارند مانند Threads و Worker pools و Event loops و Async I/O و Multiplexing . مثلاً سروری مانند nginx می‌ تواند تعداد زیادی connection را با معماری event-driven مدیریت کند.
 
+#### 🔹 File Descriptor and Socket
 
+از دید برنامه ، socket معمولاً مانند یک **file descriptor** در اختیار process قرار می‌ گیرد. این یک ایده‌ ی بسیار مهم Unix است یعنی همان abstraction عمومی که برای file و pipe و terminal و socket داریم ، در بسیاری از موارد از descriptor ها استفاده می‌ کند مثلاً process ممکن است : 
 
+```
+fd 0 → stdin
+fd 1 → stdout
+fd 2 → stderr
+fd 3 → socket
+```
+
+داشته باشد. پس وقتی برنامه روی socket عملیات read/write انجام می‌ دهد ، در نهایت از همان interface عمومی descriptorها استفاده می‌ کند.
+
+<img width="100%" height="478" alt="image" src="https://github.com/user-attachments/assets/e273ec92-07ed-405a-8cef-35302b3053b2" />
+
+---
+
+### Unix Domain Sockets
+
+شبکه تنها زمانی نیست که دو process باید با یکدیگر ارتباط برقرار کنند گاهی هر دو process روی یک machine قرار دارند مثلاً Process A به Process B و بالعکس . در این وضعیت اگر فقط نیاز به ارتباط local داشته باشیم ، لازم نیست داده را از network interface واقعی عبور دهیم. برای چنین کاربرد هایی Unix domain socket بسیار مناسب است. Unix domain socket از نظر programming model بسیار شبیه network socket است ، اما endpoint ها به جای IP/port از local namespace استفاده می‌ کنند. یک نمونه‌ی معمول ```/tmp/my-service.sock``` یا socket که در مسیرهای runtime مانند run/ قرار گرفته باشد.
+
+#### 🔹 Network Socket vs Unix Domain Socket
+
+به شکل ساده :
+
+```
+Network socket
+→ communication through network stack
+→ IP address / port
+
+vs
+
+Unix domain socket
+→ local IPC
+→ filesystem path یا abstract namespace
+```
+
+این بدان معنی نیست که Unix domain socket هیچ‌ وقت وارد kernel networking نمی‌شود اتفاقاً communication همچنان توسط kernel مدیریت می‌ شود. منظور این است که ارتباط به network protocol های معمول IP/TCP/UDP وابسته نیست و در همان host انجام می‌ شود.
+
+#### 🔹 Advantages of Unix Domain Sockets
+
+یکی از مزیت‌ های Unix domain socket این است که در حالت pathname-based می‌ توان از permission های filesystem برای کنترل دسترسی استفاده کرد و ownership مناسب روی socket وجود داشته باشد در نتیجه دسترسی process ها به socket می‌ تواند با مدل permission های Unix هماهنگ شود. علاوه بر آن، Unix domain sockets اطلاعاتی مثل peer credentials را نیز در اختیار سازوکارهای مناسب قرار می‌ دهند که می‌ تواند برای authorization محلی مفید باشد.
+
+#### 🔹 Performance
+
+چون ارتباط local است ، نیازی به عبور واقعی از Ethernet یا Wi-Fi یا Router یا IP network نیست. در نتیجه برای بسیاری از ارتباطات  local مثل  Unix domain socket می‌ تواند  سربار کمتری نسبت به ارتباط network داشته باشد. اما نباید این را به یک قانون مطلق تبدیل کرد. performance واقعی به application ، message size ، kernel behavior و implementation بستگی دارد.
+
+نمونه‌ های استفاده Unix domain sockets در سرویس‌ های مختلف بسیار رایج هستند. مثلاً در بعضی deployment ها MySQL / MariaDB می‌ توانند برای  local connection از Unix socket استفاده کنند. همچنین سرویس‌ هایی مانند D-Bus از مکانیزم‌ های ارتباط local بر پایه‌ ی Unix domain sockets استفاده می‌کنند. در چنین طراحی‌ ای به جای ```127.0.0.1:3306``` ممکن است application از socket path local استفاده کند. این مدل هم performance و هم مدل امنیتی متفاوتی ارائه می‌ دهد.
+
+#### 🔹 View Unix Domain Sockets
+
+برای دیدن Unix domain socket ها می‌ توان از ```lsof -U``` استفاده کرد همچنین ابزارهایی مانند ```ss -x``` برای مشاهده‌ ی Unix sockets مفید هستند. این ابزارها کمک می‌کنند بفهمیم چه process ای socket را ایجاد کرده ؟ یا socket در کجا قرار دارد ؟ یا چه process هایی از آن استفاده می‌کنند ؟ در نتیجه مفهوم socket دوباره به فصل هشتم و lsof برمی‌گردد.
+
+---
+
+### Tips 
+
+در این فصل وارد لایه‌ ی Application شدیم و دیدیم سرویس‌ هایی مثل HTTP و SSH چگونه روی زیرساخت شبکه کار می‌کنند. سپس ابزارهایی مثل curl، lsof، tcpdump، netcat و nmap را برای بررسی و عیب‌ یابی سرویس‌ های شبکه دیدیم.
+
+در ادامه با معماری server ها ، inetd و xinetd ، مفاهیم پایه‌ی امنیت شبکه و در نهایت socket آشنا شدیم. همچنین دیدیم که Unix domain socket چگونه برای ارتباط بین process های روی یک ماشین استفاده می‌ شود.
