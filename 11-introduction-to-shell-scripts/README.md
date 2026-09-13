@@ -21,20 +21,10 @@
 - [Here Documents](#here-documents)
 - [Important Shell Script Utilities](#important-shell-script-utilities)
 - [Subshells](#subshells)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
+- [Including Other Files in Scripts](#including-other-files-in-scripts)
+- [Reading User Input](#reading-user-input)
+- [When Not to Use Shell Scripts](#when-not-to-use-shell-scripts)
+- [Tips](#tips)
 
 ---
 
@@ -803,29 +793,107 @@ New program
 
 ### Subshells
 
+گاهی می‌خواهیم تعدادی command را در یک محیط Shell موقت اجرا کنیم، بدون اینکه تغییرات آن‌ ها به Shell فعلی برگردد. برای این کار می‌ توان command ها را داخل پرانتز قرار داد ```(cd uglydir; uglyprogram)``` این ساختار در یک **subshell environment** اجرا می‌ شود. اگر داخل آن cd uglydir انجام دهیم ، تغییر directory فقط برای همان subshell است و بعد از پایان آن ، Shell اصلی هنوز در directory قبلی خواهد بود.
 
+#### 🔹 Environment Variable
 
+همین موضوع برای environment variable نیز کاربرد دارد ```(PATH=/usr/confusing:$PATH; uglyprogram)``` در این حالت مقدار جدید PATH فقط برای آن execution context استفاده می‌ شود. یک syntax بسیار ساده‌ تر نیز وجود دارد ```PATH=/usr/confusing:$PATH uglyprogram``` این مقدار environment را فقط برای اجرای همان command تنظیم می‌ کند. این روش نیازی به subshell صریح ندارد.
 
+#### 🔹 Subshell and Pipeline
 
+همچنین Pipeline ها نیز می‌ توانند باعث ایجاد execution environment های جداگانه شوند. به همین دلیل بعضی تغییرات variable در یک بخش pipeline الزاماً در Shell اصلی قابل مشاهده نیستند. این جزئیات یکی از دلایل تفاوت Shell scripting با زبان‌هایی مثل Python است. process model و environment باید همیشه در ذهن برنامه‌ نویس باشد.
 
+---
 
+### Including Other Files in Scripts
 
+گاهی لازم است چند script یا configuration مشترک داشته باشند. به جای اینکه محتویات را کپی کنیم ، می‌ توان فایل دیگری را در Shell فعلی وارد کرد عملگر '.' برای این کار استفاده می‌ شود مثلاً ```config.sh . ``` این عملیات را **sourcing** می‌ گویند. در Bash می‌ توان شکل دیگری هم دید ```source config.sh``` اما '.' روش استاندارد تر و قابل‌ حمل‌ تر در Bourne-style shells است.
 
+#### 🔹 Difference between source and standard script execution
 
+فرض کنید config.sh یک variable تعریف کند. اگر آن script را به‌عنوان یک command معمولی اجرا کنیم ، تغییر environment آن معمولاً به Shell والد برنمی‌ گردد ولی اگر ```config.sh .``` اجرا کنیم ، command های فایل در همان Shell فعلی اجرا می‌ شوند. در نتیجه : 
 
+```
+. config.sh
+echo "$MY_VARIABLE"
+```
 
+می‌تواند variable ای را که داخل config.sh تعریف شده ، در Shell فعلی در اختیار داشته باشد این برای shared configuration و environment variables و function definitions و common shell code بسیار مفید است.
 
+---
 
+### Reading User Input
 
+فقط Shell script می‌تواند argument دریافت کند. می‌ تواند هنگام اجرا نیز از user ورودی بگیرد و builtin read برای این کار استفاده می‌ شود و Shell یک line از standard input می‌خواند و آن را در متغیر قرار می‌ دهد مثلاً  : 
 
+```
+read var
+echo "You entered: $var"
+```
 
+#### 🔹 User interaction
 
+می‌ توان برای تعامل با user  یک prompt ساخت :
 
+```
+printf "Enter your name: "
+read name
+echo "Hello, $name"
+```
 
+یا قبل از انجام عملیات حساس تأیید گرفت بعد می‌ توان با case یا if پاسخ را بررسی کرد :
 
+```
+printf "Are you sure? [y/N] "
+read answer
+```
 
+#### 🔹 Limiting input
 
+محدود کردن ورودی بسته به Shell می‌ توان برای read گزینه‌های مختلفی داشت. مثلاً Bash امکاناتی برای timeout و delimiter و silent input و multiple variables ارائه می‌ دهد. اما اگر هدف portability به bin/sh/ است ، باید فقط به قابلیت‌ هایی تکیه کرد که توسط shell هدف تضمین شده‌ اند.
 
+---
 
+### When Not to Use Shell Scripts
 
+این بخش یکی از مهم‌ ترین قسمت‌ های فصل است ، چون به جای آموزش یک syntax جدید ، درباره‌ ی **انتخاب ابزار مناسب** صحبت می‌ کند Shell برای این کارها عالی است :
 
+```
+- Executing commands
+- Combining commands
+- Pipelines
+- File management
+- Connecting Unix tools
+- Simple automation
+- System administration
+```
+
+مثلاً چنین چیزی کاملاً در حوزه‌ ی طبیعی Shell است :
+
+```
+find /var/log -name '*.log' |
+    grep error |
+    sort |
+    head
+```
+
+در اینجا Shell به‌ عنوان چسبی میان چند ابزار تخصصی عمل می‌ کند. اما وقتی script تبدیل شود به یک برنامه‌ی بزرگ با state پیچیده و ساختمان داده و الگوریتم‌ های پیچیده و پردازش سنگین و error handling گسترده همراه با بخش‌ های زیاد و وابسته ، دیگر مزیت Shell کمتر می‌ شود. یکی از نشانه‌ های خوب این است اگر بیشتر زمانتان صرف جنگیدن با syntax و quoting و word splitting می‌ شود تا حل خود مسئله ، احتمالاً باید ابزار دیگری انتخاب کنید.
+
+#### 🔹 Select another language
+
+بسته به مسئله ممکن است انتخاب‌ های مناسب‌ تر این‌ ها باشند ، Python و Perl و awk . مثلاً :
+
+```
+Shell → Orchestration and system commands
+awk → Text processing and structured records
+Python → Complex logic and data structures
+```
+
+این به معنی بد بودن Shell نیست برعکس، Shell یکی از مهم‌ ترین ابزارهای Unix است. اما قدرت واقعی یک programmer یا administrator این نیست که هر کاری را با Shell انجام دهد بلکه این است که تشخیص دهد **چه زمانی Shell ابزار مناسب است و چه زمانی مناسب نیست**.
+
+---
+
+### Tips
+
+فصل یازدهم Shell را از یک محیط اجرای command به یک ابزار واقعی برای automation و scripting تبدیل می‌ کند. در این فصل ساختار script ، shebang ، quoting ، پارامترها ، exit code ها ، شرط‌ ها ، case، loop ها، command substitution ، فایل‌ های موقت ، here document ، ابزارهایی مثل awk و sed ، exec ، subshell ، sourcing و read را بررسی کردیم.
+مهم‌ تر از syntax ، فصل تأکید می‌کند که باید مرز استفاده از Shell را بشناسیم: **برای ترکیب command ها و automation عالی است ، اما برای منطق پیچیده بهتر است سراغ زبان مناسب‌ تری برویم**.
