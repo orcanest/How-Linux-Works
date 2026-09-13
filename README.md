@@ -19,8 +19,8 @@
 - 07 [System configuration](https://github.com/orcanest/How-Linux-Works/tree/main/07-system-configuration)
 - 08 [A closer look at processes and resource utilization](https://github.com/orcanest/How-Linux-Works/tree/main/08-%20a-closer-look-at-processes-and-resource-utilization)
 - 09 [Understanding your network and its configuration](https://github.com/orcanest/How-Linux-Works/tree/main/09-understanding-your-network-and-its-configuration)
-- 10 [Network applications and services]()
-- 11
+- 10 [Network applications and services](https://github.com/orcanest/How-Linux-Works/tree/main/10-network-applications-and-services)
+- 11 [Introduction to Shellscripts](https://github.com/orcanest/How-Linux-Works/tree/main/11-introduction-to-shell-scripts)
 - 12
 - 13
 - 14
