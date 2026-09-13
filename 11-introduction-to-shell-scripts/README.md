@@ -16,11 +16,11 @@
 - [Exit Codes](#exit-codes)
 - [Conditionals](#conditionals)
 - [Loops](#loops)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
-- [](#)
+- [Command Substitution](#command-substitution)
+- [Temporary File Management](#temporary-file-management)
+- [Here Documents](#here-documents)
+- [Important Shell Script Utilities](#important-shell-script-utilities)
+- [Subshells](#subshells)
 - [](#)
 - [](#)
 - [](#)
@@ -487,6 +487,328 @@ esac
 ---
 
 ### Loops
+
+شل علاوه بر branch ها ، امکان تکرار command ها را نیز فراهم می‌ کند. دو loop اصلی در شل for و while هستند و until نیز loop دیگری است که منطق آن تقریباً معکوس while عمل می‌ کند.
+
+#### 🔹 for Loops
+
+حلقه for در Bourne-style شل بیشتر شبیه for-each loop است تا for عددی در زبان‌ هایی مانند C. در این ساختار، یک متغیر در هر iteration مقدار بعدی را از یک فهرست دریافت  می‌کند :
+
+```
+for str in one two three four; do
+    echo "$str"
+done
+```
+
+در هر iteration ، مقدار str به‌ ترتیب one ، two ، three و four می‌ شود. بنابراین for می‌ تواند روی یک فهرست از value ها پیمایش کند. این فهرست می‌تواند نتیجه globbing نیز باشد :
+
+```
+for file in *.txt; do
+    echo "$file"
+done
+```
+
+در اینجا ابتدا globbing الگوی txt.* را به مجموعه‌ ای از filename ها تبدیل می‌ کند و سپس loop روی این filename ها حرکت می‌ کند.
+#### 🔹 The importance of quoting
+
+در script های واقعی ، هنگام استفاده از متغیرهایی که ممکن است شامل space باشند ، باید به quote کردن توجه کنیم. برای مثال : 
+
+```echo "$file"```
+
+امن‌تر از echo $file است زیرا در حالت دوم ممکن است word splitting اتفاق بیفتد و مقدار متغیر به چند word تقسیم شود.
+
+#### 🔹 Script arguments
+
+یک الگوی بسیار رایج برای پیمایش تمام آرگومان‌ های script استفاده از "@$" است :
+
+```
+for arg in "$@"; do
+    echo "argument: $arg"
+done
+```
+در این حالت، "@$" هر آرگومان را به‌ صورت جداگانه حفظ می‌ کند بنابراین ساختار آرگومان‌ ها ، حتی اگر شامل space باشند ، از بین نمی‌ رود.
+
+#### 🔹 while Loops
+
+حلقه while نیز بر اساس exit status یک command عمل می‌ کند . ساختار کلی آن به شکل زیر است:
+
+```
+while some_command; do
+    ...
+done
+```
+
+تا زمانی که some_command با status صفر تمام شود ، loop ادامه پیدا می‌ کند. به محض اینکه command یک status غیرصفر برگرداند ، شرط while برقرار نیست و loop پایان می‌ یابد.
+
+#### 🔹 break
+
+با استفاده از break می‌ توان بدون منتظر ماندن برای false شدن شرط ، زودتر از loop خارج  شد. برای مثال :
+
+```
+while true; do
+    read answer
+
+    if [ "$answer" = "quit" ]; then
+        break
+    fi
+done
+```
+
+در این مثال ، while true به‌ صورت عادی همیشه ادامه پیدا می‌ کند ، اما وقتی کاربر مقدار quit را وارد کند ، دستور break اجرا می‌ شود و Shell بلافاصله از loop خارج می‌ شود.
+
+#### 🔹 until
+
+ از نظر منطق شرط until ، تقریباً معکوس while است :
+```
+until some_command; do
+    ...
+done
+````
+
+در until ، loop تا زمانی ادامه پیدا می‌ کند که command status غیرصفر برگرداند. وقتی command با status صفر تمام شود، loop پایان می‌ یابد. بنابراین می‌ توان منطق این دو را به شکل زیر خلاصه کرد :
+
+```
+while → continue while status == 0
+until → continue while status != 0
+```
+
+در نهایت ، وجود loop های زیاد و منطق بسیار پیچیده در یک Shell script می‌ تواند نشانه‌ ای باشد که مسئله از محدوده مناسب Shell خارج شده و بهتر است با زبان یا ابزار مناسب‌ تری پیاده‌ سازی شود.
+
+---
+
+### Command Substitution
+
+یکی از قابلیت‌ های بسیار مهم Shell ، استفاده از خروجی یک command به‌ عنوان بخشی از command دیگر است. syntax مدرن (command)$ است مثلاً :
+
+```
+today=$(date)
+echo "$today"
+```
+
+ابتدا date اجرا می‌ شود و خروجی آن جمع‌ آوری می‌ شود و بعد در assignment قرار می‌ گیرد.
+#### 🔹 Pipeline in command substitution
+
+مثلاً :
+
+```FLAGS=$(grep '^flags' /proc/cpuinfo | sed 's/.*://' | head -1)```
+
+از چند command تشکیل شده است ابتدا grep داده را پیدا می‌ کند بعد sed آن را پردازش می‌ کند و head مقدار مورد نیاز را انتخاب می‌ کند. در پایان نتیجه داخل FLAGS قرار می‌گیرد. Command substitution برای ترکیب قدرت command های Unix با منطق script بسیار مهم است.
+
+#### 🔹 Legacy syntax
+
+در Shell های قدیمی می‌ توان از backtick نیز استفاده کرد`command` اما (command)$ خوانا تر است و امکان nesting آن نیز بهتر است در حالی که nesting backtick ها بسیار دشوار و گیج‌ کننده می‌ شود  مثلاً :
+
+#### 🔹 trailing newlines
+
+یکی از جزئیات مهم command substitution این است که trailing newline های output در هنگام substitution حذف می‌ شوند. این موضوع در بعضی پردازش‌ های متنی اهمیت دارد. همچنین اگر خروجی command شامل چند خط باشد ، کل خروجی وارد context substitution می‌ شود و بعد بسته به استفاده‌ ی آن ممکن است تحت splitting قرار گیرد پس مثلاً : 
+
+```files=$(find . -type f)```
+
+همیشه بهترین روش انتقال لیست فایل‌ ها نیست ، مخصوصاً اگر filename ها بتوانند شامل newline یا کاراکترهای عجیب باشند. این همان دلیلی است که در کار با file list ها گاهی بهتر است از pipe مستقیم ، find -exec یا find -print0 استفاده کنیم.
+
+---
+
+### Temporary File Management
+
+گاهی script نیاز دارد داده‌ ای را موقتاً در یک فایل نگهداری کند مثلاً : 
+
+```
+command A
+     ↓
+temporary file
+     ↓
+command B
+```
+یکی از بد ترین روش‌ ها این است که یک نام ثابت و قابل‌ پیش‌بینی بسازیم tmp/myfile/ چون ممکن است  race condition یا حتی مشکل امنیتی ایجاد شود :
+
+```
+- file already exists
+- another process creates it first
+- another user can manipulate it
+```
+#### 🔹 Using PID
+
+روشی قدیمی‌ تر استفاده از $$./tmp/file است. چون $$ معمولاً PID shell را در بر دارد و احتمال برخورد را کاهش می‌ دهد. اما این روش تضمین امنیتی کافی ندارد.
+
+#### 🔹 mktemp
+
+روش مناسب‌ ترmktemp است مثلاً :
+
+```TMPFILE=$(mktemp /tmp/example.XXXXXX)```
+
+با XXXXXX توسط mktemp یک الگوی مناسب و unique جایگزین می‌ شود و فایل را نیز ایجاد می‌ کند. این نکته خیلی مهم است **فقط انتخاب یک نام تصادفی کافی نیست باید creation هم به شکلی امن انجام شود**. mktemp دقیقاً برای همین سناریو طراحی شده است.
+
+#### 🔹 cleanup
+
+فرض کنید script با Ctrl+C قطع شود. در این حالت ممکن است temporary file باقی بماند برای cleanup می‌ توان از ```trap``` استفاده کرد مثلاً : 
+
+```
+TMPFILE=$(mktemp)
+
+cleanup() {
+    rm -f "$TMPFILE"
+}
+
+trap cleanup EXIT
+```
+
+در این الگو cleanup به پایان script متصل می‌ شود استفاده از trap باعث می‌ شود cleanup فقط به یک خط موفقیت‌ آمیز در انتهای script وابسته نباشد.
+
+---
+
+### Here Documents
+
+اگر بخواهیم حجم نسبتاً بزرگی از متن را به standard input یک command بدهیم ، مجبور نیستیم چندین echo بنویسیم. Shell مکانیزمی به نام here document دارد ساختار کلی :
+
+```
+command <<EOF
+line 1
+line 2
+line 3
+EOF
+```
+
+در اینجا >>EOF به Shell می‌ گوید خطوط بعدی را به standard input command بدهد. وقتی Shell به خطی برسد که فقط شامل EOF است، here document پایان می‌ یابد. EOF نام خاص و جادویی نیست می‌توان نام دیگری انتخاب کرد مانند >>END ، مهم این است که marker ابتدا و پایان یکسان باشد.
+
+#### 🔹 Variable Expansion
+
+در حالت معمول ، متغیرها داخل here document expand می‌ شوند مثلاً :
+```
+DATE=$(date)
+
+cat <<EOF
+Date: $DATE
+The output above is from the Unix date command.
+EOF
+```
+
+در اینجا DATE$ قبل از اینکه متن به cat داده شود ، توسط Shell جایگزین می‌ شود.
+#### 🔹 Quoted Delimiter
+
+اگر delimiter را quote کنیم Shell expansion را انجام نمی‌ دهد یعنی محتوا تقریباً literal باقی می‌ ماند  :
+
+```
+cat <<'EOF'
+$HOME
+$(date)
+EOF
+```
+
+کاربرد Here document برای مواردی مثل  configuration generation و SQL input و multi-line messages و scripted commands و report generation می باشد.
+
+---
+
+### Important Shell Script Utilities
+
+شل خودش امکاناتی برای منطق برنامه فراهم می‌ کند ، اما قدرت واقعی آن وقتی مشخص می‌ شود که command های Unix را کنار هم قرار دهید. این بخش چند ابزار مهم را معرفی می‌ کند : basename و awk و sed و xargs و expr و exec . بعضی از این‌ ها مثل basename utility های ساده‌ اند و بعضی دیگر مثل awk تقریباً یک زبان برنامه‌ نویسی مستقل هستند.
+
+#### 🔹 basename
+
+برای استخراج بخش نهایی یک pathname استفاده می‌ شود مثلاً ```basename /usr/local/bin/example``` نتیجه example خواهد بود. یعنی component های directory حذف می‌ شوند. همچنین می‌ توان suffix مشخصی را نیز حذف کرد ```basename example.html .html``` که نتیجه example است. این utility در script ها برای جدا کردن filename از path بسیار رایج است مثلاً : 
+
+```
+file="/var/log/app.log"
+name=$(basename "$file")
+```
+
+اکنون name=app.log است. البته برای بعضی عملیات path در  scriptهای پیچیده‌ تر، ابزارهایی مثل dirname نیز اهمیت دارند.
+
+#### 🔹 awk
+
+نباید awk را صرفاً یک command ساده در نظر گرفت. awk در واقع یک زبان پردازش متن و برنامه‌ نویسی است. یکی از کاربردهای بسیار رایج آن استخراج field هاست مثلاً :
+
+```ls -l | awk '{print $5}'```
+
+در یک output کلاسیک ls -l، این command field پنجم را چاپ می‌ کند. مفاهیم مهم awk شامل records و fields و patterns و actions و variables و conditions و loops هستند می‌ توان نوشت :
+
+```awk '$5 > 1000 {print $9}' file```
+
+یعنی برای record هایی که field پنجم شان از مقدار مشخصی بیشتر است ، field دیگری را نمایش بده.
+
+> نکته‌ ی مهم درباره‌ ی ls ، استفاده از ```ls -l | awk``` برای آموزش مفهوم field مفید است، اما برای automation دقیق روی filename ها همیشه انتخاب مطمئنی نیست ، چون ls برای machine parsing طراحی نشده است. برای  script های robust معمولاً بهتر است از ابزارهایی استفاده شود که خروجی ساختاریافته‌ تری دارند.
+
+#### 🔹 sed
+
+مخفف stream editor است. این ابزار input را به‌ صورت stream می‌ گیرد و می‌ تواند بر اساس pattern ها آن را تغییر دهد .دو operation بسیار رایج s و d هستند.
+
+#### 🔹 sed - Substitute
+
+مثلاً ```sed 's/:/%/g' /etc/passwd هر : را به % تبدیل می‌ کند. ساختار کلی به صورت s/old/new/  است و g در پایان یعنی تمام occurrence های مورد نظر در هر خط جایگزین شوند ، نه فقط اولین occurrence.
+
+#### 🔹 sed - Delete
+
+با d می‌ توان line هایی را حذف کرد بر اساس range یا pattern مثلاً ```sed '/pattern/d' file```.
+
+#### 🔹 sed - Regular Expressions
+
+به‌ طور گسترده sed از pattern matching و regular expressions برای انتخاب line ها استفاده می‌ کند در نتیجه می‌توان بر اساس line number و range و regex تصمیم گرفت چه چیزی تغییر کند. sed مخصوصاً برای transformation های متنی سریع بسیار مناسب است.
+
+#### 🔹 xargs
+
+فرض کنید command A یک فهرست طولانی از argument تولید می‌ کند و command B باید روی آن‌ ها اجرا شود. xargs می‌ تواند output را به argument تبدیل کند و command مورد نظر را با آن‌ ها اجرا کند. مثال کلاسیک :
+
+```find . -name '*.gif' -print | xargs file```
+
+اما این روش یک مشکل جدی دارد. اگر filename شامل space یا newline یا quotes باشد ، parsing ساده‌ ی xargs می‌ تواند خروجی را خراب کند. حتی در بعضی context ها می‌ تواند security problem ایجاد کند.
+
+#### 🔹 xargs - A safer way for filenames
+
+استفاده از null delimiter :
+
+```find . -name '*.gif' -print0 | xargs -0 file```
+
+در این مدل print0- هر path را با byte صفر جدا می‌کند و 0- در xargs می‌ گوید همین روش parsing را استفاده کند. این روش می‌تواند filename هایی با space یا newline را نیز بهتر مدیریت کند.
+
+#### 🔹 xargs - find -exec
+
+گاهی اصلاً xargs لازم نیست خود find می‌تواند از :
+
+```find . -name '*.gif' -exec file {} \;```
+
+استفاده کند. یا برای کاهش تعداد invocation ها در حالت‌ های مناسب :
+
+```find . -name '*.gif' -exec file {} +```
+
+این روش در بسیاری از script ها ساده‌ تر و مطمئن‌ تر است.
+
+#### 🔹 expr
+
+برای expression های ساده استفاده می‌ شود مثلاً expr 1 + 2 نتیجه 3 است. می‌ توان از آن برای عملیات عددی و بعضی عملیات string نیز استفاده کرد. اما syntax آن قدیمی است در Shell های امروزی ، برای محاسبات ساده معمولاً روش‌ های دیگری وجود دارند. مثلاً Bash امکانات arithmetic expansion دارد : ```echo $((1 + 2))``` . در script های sh نیز بسته به نیاز می‌ توان از ابزارها یا زبان دیگری استفاده کرد. بنابراین expr بیشتر برای شناخت محیط کلاسیک Unix اهمیت دارد.
+
+#### 🔹 exec
+
+یک Shell builtin بسیار مهم است کار آن این است که process فعلی Shell را با برنامه‌ ی جدید جایگزین کند مثلاً ```exec command``` باعث می‌ شود Shell process دیگر command قبلی را به‌ عنوان child اجرا نکند بلکه خودش جای آن command قرار بگیرد. از دید مفهومی، در اجرای معمولی یک command ، ساختار به این صورت است :
+
+```
+Shell process
+     ↓
+ run command
+     ↓
+New program
+```
+
+در این حالت ، Shell به اجرای خود ادامه می‌ دهد و در صورت نیاز منتظر پایان command می‌ ماند. اما با استفاده از exec ، خود process مربوط به Shell با برنامه جدید جایگزین می‌ شود :
+
+```
+Shell process
+     ↓
+    exec
+     ↓
+New program
+```
+
+پس بعد از اجرای exec command ، شل قبلی دیگر به‌ عنوان یک process جداگانه وجود ندارد همان process که قبلاً Shell بود ، اکنون برنامه جدید را اجرا می‌ کند. بنابراین exec command با اجرای معمولی command تفاوت اساسی دارد : در حالت معمول ، Shell باقی می‌ ماند و command را اجرا یا برای آن wait می‌ کند ، اما در حالت exec command ، خود Shell با command جایگزین می‌ شود.
+
+---
+
+### Subshells
+
+
+
+
+
+
+
 
 
 
