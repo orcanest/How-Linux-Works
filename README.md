@@ -21,7 +21,7 @@
 - 09 [Understanding your network and its configuration](https://github.com/orcanest/How-Linux-Works/tree/main/09-understanding-your-network-and-its-configuration)
 - 10 [Network applications and services](https://github.com/orcanest/How-Linux-Works/tree/main/10-network-applications-and-services)
 - 11 [Introduction to Shellscripts](https://github.com/orcanest/How-Linux-Works/tree/main/11-introduction-to-shell-scripts)
-- 12
+- 12 [Network file transfer and sharing](https://github.com/orcanest/How-Linux-Works/tree/main/12-network-file-transfer-and-sharing)
 - 13
 - 14
 - 15
