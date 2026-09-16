@@ -2,77 +2,31 @@
 ### 🐧 فصل سیزدهم کتاب How Linux Works
 
 
-فصل سیزدهم با موضوع User Environments به نقطه‌ای می‌رسد که بین زیرساخت Linux و محیطی که کاربر هر روز با آن کار می‌کند ارتباط برقرار می‌شود. تا اینجا بیشتر درباره‌ی kernel، processها، filesystem، شبکه، serviceها و shell صحبت شده بود؛ اما در نهایت کاربر باید بتواند یک shell را باز کند و در یک محیط کاری مشخص شروع به کار کند.
+فصل سیزدهم با موضوع User Environments به نقطه‌ ای می‌ رسد که بین زیرساخت Linux و محیطی که کاربر هر روز با آن کار می‌ کند ارتباط برقرار می‌ شود. تا اینجا بیشتر درباره‌ ی کرنل ، process ها ، filesystem ، شبکه ، service ها و shell صحبت شده بود اما در نهایت کاربر باید بتواند یک shell را باز کند و در یک محیط کاری مشخص شروع به کار کند.
 
-این محیط از هیچ به وجود نمی‌آید. وقتی shell اجرا می‌شود، تعدادی تنظیمات از فایل‌های مختلف خوانده می‌شوند و چیزهایی مثل PATH، prompt، aliasها، editor، pager، umask و دیگر environment variableها شکل می‌گیرند.
+این محیط از هیچ به وجود نمی‌ آید. وقتی shell اجرا می‌ شود ، تعدادی تنظیمات از فایل‌ های مختلف خوانده می‌ شوند و چیزهایی مثل PATH ، prompt ، alias ها ، editor ، pager ، umask و دیگر environment variable ها شکل می‌ گیرند.
 
-بخش زیادی از این تنظیمات در فایل‌های موجود در home directory کاربر قرار دارند. این فایل‌ها معمولاً نامشان با . شروع می‌شود؛ به همین دلیل به آن‌ها dot files گفته می‌شود. برای مثال:
+بخش زیادی از این تنظیمات در فایل‌ های موجود در home directory کاربر قرار دارند. این فایل‌ ها معمولاً نامشان با '.' شروع می‌ شود به همین دلیل به آن‌ ها dot files گفته می‌ شود برای مثال :
 
 - .bashrc
 - .bash_profile
 - .profile
 - .cshrc
 
-این فایل‌ها هیچ ویژگی جادویی خاصی به خاطر نقطه‌ی ابتدای نامشان ندارند؛ فقط بسیاری از ابزارها و file managerها آن‌ها را به‌صورت پیش‌فرض نمایش نمی‌دهند تا home directory بیش از حد شلوغ نشود.
+این فایل‌ ها هیچ ویژگی جادویی خاصی به خاطر نقطه‌ ی ابتدای نامشان ندارند فقط بسیاری از ابزارها و file manager ها آن‌ ها را به‌ صورت پیش‌ فرض نمایش نمی‌ دهند تا home directory بیش از حد شلوغ نشود.
 
-نکته‌ی مهم فصل این است که startup fileها اگر به‌مرور زمان بی‌دلیل بزرگ و پیچیده شوند، می‌توانند منبع مشکلات جدی شوند. یک environment ممکن است در یک shell درست کار کند ولی در login از طریق SSH، در یک terminal emulator یا در یک shell غیرinteractive رفتار متفاوتی داشته باشد.
-
-ساختار فصل سیزدهم در ویرایش سوم به این صورت است: 13.1 تا 13.7 و زیر‌بخش‌های مربوط به command path، manual page path، prompt، aliasها، umask، startup fileهای Bash و tcsh و defaultهای shell، editor و pager.
+نکته‌ ی مهم فصل این است که startup file ها اگر به‌ مرور زمان بی‌ دلیل بزرگ و پیچیده شوند ، می‌ توانند منبع مشکلات جدی شوند. یک environment ممکن است در یک shell درست کار کند ولی در login از طریق SSH ، در یک terminal emulator یا در یک shell غیر interactive  رفتار متفاوتی داشته باشد.
 
 ---
 📚 Table of Contents
 
-- [13.1 Guidelines for Creating Startup Files](#131-guidelines-for-creating-startup-files)
-  - [Simplicity](#simplicity)
-  - [Readability](#readability)
-- [13.2 When to Alter Startup Files](#132-when-to-alter-startup-files)
-- [13.3 Shell Startup File Elements](#133-shell-startup-file-elements)
-  - [13.3.1 The Command Path](#1331-the-command-path)
-    - [The Difference Between /usr/local/bin and /usr/bin](#the-difference-between-usrlocalbin-and-usrbin)
-    - [Programs Located in Special Paths](#programs-located-in-special-paths)
-    - [$HOME/bin](#homebin)
-    - [Adding a Dot to the PATH](#adding-a-dot-to-the-path)
-  - [13.3.2 The Manual Page Path](#1332-the-manual-page-path)
-  - [13.3.3 The Prompt](#1333-the-prompt)
-    - [Special Characters](#special-characters)
-    - [A Simple Prompt in Bash](#a-simple-prompt-in-bash)
-    - [Some Important Escapes in Bash](#some-important-escapes-in-bash)
-  - [13.3.4 Aliases](#1334-aliases)
-    - [Problem One: Arguments](#problem-one-arguments)
-    - [Problem Two: Finding Where It's Defined](#problem-two-finding-where-its-defined)
-    - [Problem Three: Subshells and Noninteractive Shells](#problem-three-subshells-and-noninteractive-shells)
-    - [Aliasing Standard Commands](#aliasing-standard-commands)
-    - [When Does an Alias Make Sense?](#when-does-an-alias-make-sense)
-  - [13.3.5 The Permissions Mask](#1335-the-permissions-mask)
-    - [umask 077](#umask-077)
-    - [umask 022](#umask-022)
-- [13.4 Startup File Order and Examples](#134-startup-file-order-and-examples)
-  - [13.4.1 The bash Shell](#1341-the-bash-shell)
-    - [Interactive Shell](#interactive-shell)
-    - [Noninteractive Shell](#noninteractive-shell)
-    - [Login Shells](#login-shells)
-    - [Order of Reading the Files](#order-of-reading-the-files)
-    - [Non-Login Shells](#non-login-shells)
-    - [Why Are Login and Non-Login Separate?](#why-are-login-and-non-login-separate)
-    - [Building a Shared .bashrc](#building-a-shared-bashrc)
-    - [Why Does Sourcing Matter?](#why-does-sourcing-matter)
-    - [Checking Whether a Shell Is Interactive](#checking-whether-a-shell-is-interactive)
-    - [A Practical Pattern for .bash_profile](#a-practical-pattern-for-bash_profile)
-  - [13.4.2 The tcsh Shell](#1342-the-tcsh-shell)
-    - [An Example .cshrc](#an-example-cshrc)
-- [13.5 Default User Settings](#135-default-user-settings)
-  - [The Right Way to Test](#the-right-way-to-test)
-  - [13.5.1 Shell Defaults](#1351-shell-defaults)
-  - [13.5.2 Editor](#1352-editor)
-  - [13.5.3 Pager](#1353-pager)
-- [13.6 Startup File Pitfalls](#136-startup-file-pitfalls)
-  - [Running Graphical Commands in Startup](#running-graphical-commands-in-startup)
-  - [Manually Setting DISPLAY](#manually-setting-display)
-  - [Manually Setting Terminal Type](#manually-setting-terminal-type)
-  - [Insufficient Comments](#insufficient-comments)
-  - [Producing Output in Startup Files](#producing-output-in-startup-files)
-  - [LD_LIBRARY_PATH](#ld_library_path)
-- [13.7 Further Startup Topics](#137-further-startup-topics)
+- [Guidelines for Creating Startup Files](#guidelines-for-creating-startup-files)
+- [When to Alter Startup Files](#when-to-alter-startup-files)
+- [Shell Startup File Elements](#shell-startup-file-elements)
+- [Startup File Order and Examples](#startup-file-order-and-examples)
+- [Default User Settings](#default-user-settings)
+- [Startup File Pitfalls](#startup-file-pitfalls)
+- [Further Startup Topics](#further-startup-topics)
 - [How the Pieces of the Startup Environment Fit Together](#how-the-pieces-of-the-startup-environment-fit-together)
 - [A Simple, Clean Bash Environment Example](#a-simple-clean-bash-environment-example)
 - [Practical Tips from the Chapter](#practical-tips-from-the-chapter)
@@ -80,101 +34,46 @@
 
 ---
 
-### 13.1 Guidelines for Creating Startup Files
+### Guidelines for Creating Startup Files
 
-اولین نکته‌ای که هنگام ساخت startup file باید در نظر بگیریم این است که این فایل برای چه کسی نوشته می‌شود.
+اولین نکته‌ ای که هنگام ساخت startup file باید در نظر بگیریم این است که این فایل برای چه کسی نوشته می‌ شود. اگر startup file فقط برای خودمان باشد ، اشتباه موجود در آن مستقیماً فقط روی خودمان اثر می‌ گذارد. اما اگر این فایل قرار است default یک سیستم باشد یا برای چندین user استفاده شود ، شرایط کاملاً فرق می‌ کند. مثلاً تصور کنید یک startup file را برای 10 تا user نصب کرده‌ اید و بعد متوجه می‌ شوید یک خط آن اشتباه بوده است. حالا همان خطا باید در 10 تا environment مختلف اصلاح شود بنابراین کتاب روی دو اصل اساسی تأکید می‌ کند : 
 
-اگر startup file فقط برای خودمان باشد، اشتباه موجود در آن مستقیماً فقط روی خودمان اثر می‌گذارد. اما اگر این فایل قرار است default یک سیستم باشد یا برای چندین user استفاده شود، شرایط کاملاً فرق می‌کند.
+#### 🔹 Simplicity
 
-مثلاً تصور کنید یک startup file را برای ده user نصب کرده‌اید و بعد متوجه می‌شوید یک خط آن اشتباه بوده است. حالا همان خطا باید در ده environment مختلف اصلاح شود.
+باید startup file را تا حد امکان کوتاه ، ساده ، قابل فهم و قابل تغییر نگه دارید. هر command ، variable ، شرط یا dependency که به آن اضافه می‌ کنید ، یک نقطه‌ ی بالقوه برای failure است. در عمل ، startup file جای مناسبی برای قرار دادن هر configuration ممکن نیست. مثلاً اگر فقط برای اینکه یک ابزار خاص بهتر کار کند ، چندین conditional و command پیچیده وارد .bashrc کنید ،  ممکن است بعد ها همان configuration با shell دیگری ، SSH ، script یا environment متفاوت تداخل ایجاد کند.
 
-بنابراین کتاب روی دو اصل اساسی تأکید می‌کند:
+#### 🔹 Readability
 
-#### Simplicity
-
-startup file را تا حد امکان:
-
-- کوتاه
-- ساده
-- قابل فهم
-- قابل تغییر
-
-نگه دارید.
-
-هر command، variable، شرط یا dependency که به آن اضافه می‌کنید، یک نقطه‌ی بالقوه برای failure است.
-
-در عمل، startup file جای مناسبی برای قرار دادن هر configuration ممکن نیست.
-
-مثلاً اگر فقط برای اینکه یک ابزار خاص بهتر کار کند، چندین conditional و command پیچیده وارد .bashrc کنید، ممکن است بعدها همان configuration با shell دیگری، SSH، script یا environment متفاوت تداخل ایجاد کند.
-
-#### Readability
-
-startup file باید برای شخص دیگری نیز قابل فهم باشد.
-
-بنابراین commentها اهمیت زیادی دارند.
-
-مثلاً بهتر است این:
+باید startup file برای شخص دیگری نیز قابل فهم باشد بنابراین comment ها اهمیت زیادی دارند مثلاً بهتر است این :
 
 ```
 PATH="$HOME/bin:$PATH"
 ```
 
-با توضیح مناسب همراه شود:
+با توضیح مناسب همراه شود :
 
 ```
 # Put user-installed programs ahead of system commands.
 PATH="$HOME/bin:$PATH"
 ```
 
-مخصوصاً در فایل‌هایی که قرار است default چندین user باشند، comment مناسب بخش مهمی از نگهداری فایل محسوب می‌شود.
+مخصوصاً در فایل‌ هایی که قرار است default چندین user باشند ، comment مناسب بخش مهمی از نگهداری فایل محسوب می‌شود . پیام این بخش ساده است :
 
-پیام این بخش ساده است:
+> باید startup file آن‌ قدر ساده باشد که خراب کردنش سخت و اصلاح کردنش آسان باشد.
 
-> startup file باید آن‌قدر ساده باشد که خراب کردنش سخت و اصلاح کردنش آسان باشد.
-
-کتاب این دو اصل، یعنی Simplicity و Readability را مهم‌ترین راهنمای طراحی startup file برای کاربران دیگر می‌داند.
+کتاب این دو اصل ، یعنی Simplicity و Readability را مهم‌ ترین راهنمای طراحی startup file برای کاربران دیگر می‌ داند.
 
 ---
 
-### 13.2 When to Alter Startup Files
+### When to Alter Startup Files
 
-قبل از اینکه یک startup file را تغییر دهیم، باید از خودمان بپرسیم:
-
-> آیا واقعاً لازم است اینجا را تغییر بدهم؟
-
-بعضی تغییرات کاملاً منطقی هستند، مثل:
-
-- تغییر prompt
-- افزودن یک software محلی ضروری
-- رفع یک startup file خراب
-
-اما نباید صرفاً برای راحتی شخصی، configuration پیش‌فرض سیستم را بدون دلیل دستکاری کرد.
-
-کتاب در مورد نرم‌افزارهای محلی یک توصیه‌ی مهم دارد:
-
-> قبل از اینکه configuration عمومی startup را تغییر دهید، wrapper script را بررسی کنید.
-
-فرض کنید یک برنامه‌ی خاص به argument یا environment ویژه‌ای نیاز دارد. به جای اینکه .bashrc را پر از شرط‌های مربوط به آن برنامه کنید، می‌توانید یک wrapper بسازید که همان برنامه را با تنظیمات لازم اجرا کند.
-
-این روش باعث می‌شود تغییر مورد نظر در همان جایی باقی بماند که واقعاً به آن نیاز دارد.
-
-همچنین startup fileهای توزیع Linux ممکن است با فایل‌های دیگری در:
-
-```
-/etc
-```
-
-تعامل داشته باشند. بنابراین تغییر یک فایل به‌ظاهر ساده ممکن است روی رفتارهای دیگری نیز اثر بگذارد.
-
-در نتیجه، وقتی defaultهای distribution درست کار می‌کنند، تغییر آن‌ها باید با دقت انجام شود.
+قبل از اینکه یک startup file را تغییر دهیم ، باید از خودمان بپرسیم آیا واقعاً لازم است اینجا را تغییر بدهم ؟ بعضی تغییرات کاملاً منطقی هستند ، مثل تغییر prompt ، افزودن یک software محلی ضروری و رفع یک startup file خراب . اما نباید صرفاً برای راحتی شخصی ، configuration پیش‌ فرض سیستم را بدون دلیل دستکاری کرد. کتاب در مورد نرم‌ افزارهای local یک توصیه‌ ی مهم دارد اینکه قبل از اینکه configuration عمومی startup را تغییر دهید ، wrapper script را بررسی کنید. فرض کنید یک برنامه‌ ی خاص به argument یا environment ویژه‌ ای نیاز دارد به جای اینکه bashrc. را پر از شرط‌ های مربوط به آن برنامه کنید ، می‌ توانید یک wrapper بسازید که همان برنامه را با تنظیمات لازم اجرا کند. این روش باعث می‌ شود تغییر مورد نظر در همان جایی باقی بماند که واقعاً به آن نیاز دارد. همچنین startup file های توزیع Linux ممکن است با فایل‌ های دیگری در```etc/``` ، تعامل داشته باشند بنابراین تغییر یک فایل به‌ ظاهر ساده ممکن است روی رفتارهای دیگری نیز اثر بگذارد در نتیجه ، وقتی default های distribution درست کار می‌ کنند ، تغییر آن‌ ها باید با دقت انجام شود.
 
 ---
 
-### 13.3 Shell Startup File Elements
+### Shell Startup File Elements
 
-حالا کتاب وارد اجزای اصلی یک shell startup file می‌شود.
-
-مهم‌ترین مواردی که بررسی می‌شوند عبارت‌اند از:
+حالا کتاب وارد اجزای اصلی یک shell startup file می‌ شود. مهم‌ ترین مواردی که بررسی می‌ شوند هرکدام از این موارد بخشی از environment کاری shell را می‌ سازند عبارت‌اند از:
 
 - Command Path
 - Manual Page Path
@@ -182,31 +81,9 @@ PATH="$HOME/bin:$PATH"
 - Aliases
 - Permissions Mask
 
-هرکدام از این موارد بخشی از environment کاری shell را می‌سازند.
+#### 🔹 The Command Path
 
-#### 13.3.1 The Command Path
-
-یکی از مهم‌ترین environment variableهای shell:
-
-```
-PATH
-```
-
-است.
-
-PATH فهرستی از directoryهاست که shell هنگام اجرای یک command در آن‌ها به دنبال executable می‌گردد.
-
-مثلاً وقتی می‌نویسیم:
-
-```
-ls
-```
-
-shell باید بفهمد فایل اجرایی ls کجاست.
-
-یکی از directoryهای موجود در PATH پیدا می‌شود و executable مناسب اجرا می‌شود.
-
-یک PATH معمولی در سیستم Linux می‌تواند شامل این مسیرها باشد:
+یکی از مهم‌ ترین environment variable های shell هم ```PATH``` است. PATH فهرستی از directory هاست که shell هنگام اجرای یک command در آن‌ ها به دنبال executable می‌ گردد. مثلاً وقتی می‌ نویسیم ```ls``` باید shell بفهمد فایل اجرایی ls کجاست. یکی از directory های موجود در PATH پیدا می‌ شود و executable مناسب اجرا می‌ شود. یک PATH معمولی در سیستم Linux می‌ تواند شامل این مسیرها باشد و کتاب این ترتیب را عمداً مهم می‌ داند :
 
 ```
 /usr/local/bin
@@ -214,67 +91,14 @@ shell باید بفهمد فایل اجرایی ls کجاست.
 /bin
 ```
 
-کتاب این ترتیب را عمداً مهم می‌داند:
+چرا ؟ چون /usr/local/bin معمولاً محلی برای برنامه‌ های نصب‌ شده یا customized شده توسط administrator است. بنابراین اگر نسخه‌ای از یک برنامه در ```/usr/local/bin``` قرار داشته باشد و نسخه‌ ی دیگری در ```/usr/bin``` وجود داشته باشد ، نسخه‌ ی local می‌ تواند اول پیدا شود. این یک روش ساده برای override کردن بعضی برنامه‌ های عمومی بدون تغییر فایل‌ های packaged سیستم است.
 
-```
-/usr/local/bin
-/usr/bin
-/bin
-```
+به‌ صورت مفهومی ```/usr/bin``` بیشتر محل executable های نصب‌ شده توسط سیستم package management است. در مقابل ```/usr/local/bin``` محل رایجی برای software های local و administrator-managed است به همین دلیل ترتیب آن‌ ها در PATH مهم است.
 
-چرا؟
 
-چون /usr/local/bin معمولاً محلی برای برنامه‌های نصب‌شده یا customized شده توسط administrator است.
+##### 🔹 Programs Located in Special Paths
 
-بنابراین اگر نسخه‌ای از یک برنامه در:
-
-```
-/usr/local/bin
-```
-
-قرار داشته باشد و نسخه‌ی دیگری در:
-
-```
-/usr/bin
-```
-
-وجود داشته باشد، نسخه‌ی local می‌تواند اول پیدا شود.
-
-این یک روش ساده برای override کردن بعضی برنامه‌های عمومی بدون تغییر فایل‌های packaged سیستم است.
-
-##### The Difference Between /usr/local/bin and /usr/bin
-
-به‌صورت مفهومی:
-
-```
-/usr/bin
-```
-
-بیشتر محل executableهای نصب‌شده توسط سیستم package management است.
-
-در مقابل:
-
-```
-/usr/local/bin
-```
-
-محل رایجی برای softwareهای local و administrator-managed است.
-
-به همین دلیل ترتیب آن‌ها در PATH مهم است.
-
-##### Programs Located in Special Paths
-
-همه‌ی executableها لزوماً در همین سه directory قرار ندارند.
-
-مثلاً در بعضی سیستم‌ها:
-
-```
-/usr/games
-```
-
-برای commandهای مربوط به بازی وجود دارد.
-
-برنامه‌های عمومی system utility نیز ممکن است در مسیرهای sbin قرار داشته باشند:
+همه‌ ی executable ها لزوماً در همین سه directory قرار ندارند مثلاً در بعضی سیستم‌ ها ```/usr/games``` برای command های مربوط به بازی وجود دارد. برنامه‌ های عمومی system utility نیز ممکن است در مسیرهای sbin قرار داشته باشند :
 
 ```
 /usr/local/sbin
@@ -282,394 +106,112 @@ shell باید بفهمد فایل اجرایی ls کجاست.
 /sbin
 ```
 
-اما کتاب توصیه می‌کند PATH را برای هر نصب نرم‌افزاری بی‌دلیل بزرگ نکنید.
+اما کتاب توصیه می‌ کند PATH را برای هر نصب نرم‌ افزاری بی‌ دلیل بزرگ نکنید. اگر یک software محل نصب مخصوص خودش را دارد ، در بسیاری از موارد می‌ توان به‌ جای افزودن دائمی آن directory به PATH ، یک symbolic link در```/usr/local/bin``` ایجاد کرد. این کار باعث می‌ شود PATH به یک فهرست بسیار طولانی از محل‌ های مختلف تبدیل نشود.
 
-اگر یک software محل نصب مخصوص خودش را دارد، در بسیاری از موارد می‌توان به‌جای افزودن دائمی آن directory به PATH، یک symbolic link در:
+##### 🔹 $HOME/bin
 
-```
-/usr/local/bin
-```
+بعضی کاربران directory شخصی خودشان را برای script ها و برنامه‌ های local ایجاد می‌ کنند مثلاً ```HOME/bin$```  و آن را در ابتدای PATH قرار می‌ دهند ```PATH="$HOME/bin:$PATH"``` . در این حالت اگر فایلی با نام یک command سیستم در HOME/bin$ داشته باشید ، نسخه‌ ی موجود در home ابتدا پیدا می‌ شود. کتاب همچنین به convention جدید تری اشاره می‌ کند ، ```HOME/.local/bin$```. بنابراین می‌ توانید برنامه‌ های شخصی را در ```local/bin/~.``` قرار دهید.
 
-ایجاد کرد.
-
-این کار باعث می‌شود PATH به یک فهرست بسیار طولانی از محل‌های مختلف تبدیل نشود.
-
-##### $HOME/bin
-
-بعضی کاربران directory شخصی خودشان را برای scriptها و برنامه‌های محلی ایجاد می‌کنند:
-
-```
-$HOME/bin
-```
-
-و آن را در ابتدای PATH قرار می‌دهند:
-
-```
-PATH="$HOME/bin:$PATH"
-```
-
-در این حالت اگر فایلی با نام یک command سیستم در $HOME/bin داشته باشید، نسخه‌ی موجود در home ابتدا پیدا می‌شود.
-
-کتاب همچنین به convention جدیدتری اشاره می‌کند:
-
-```
-$HOME/.local/bin
-```
-
-بنابراین می‌توانید برنامه‌های شخصی را در:
-
-```
-~/.local/bin
-```
-
-قرار دهید.
-
-**یک مثال مناسب**
+**یک مثال مناسب** : 
 
 ```
 PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:/usr/bin:/bin"
 export PATH
 ```
 
-این فقط یک نمونه است؛ PATH واقعی هر سیستم ممکن است به configuration distribution، package manager و نیاز کاربر وابسته باشد.
+این فقط یک نمونه است و PATH واقعی هر سیستم ممکن است به configuration distribution ، package manager و نیاز کاربر وابسته باشد.
 
-##### Adding a Dot to the PATH
+##### 🔹 Adding a Dot to the PATH
 
-یکی از مواردی که باید در PATH با آن بسیار محتاط بود:
+یکی از مواردی که باید در PATH با آن بسیار محتاط بود ```.``` است. قرار دادن ```.``` در PATH یعنی shell می‌ تواند executable های directory فعلی را بدون نوشتن /. پیدا کند. مثلاً اگر فایل اجرایی ```ls``` در directory فعلی باشد ، shell ممکن است آن را پیدا کند. در ظاهر این ویژگی راحت است ، اما مشکل امنیتی جدی ایجاد می‌ کند. فرض کنید یک archive از اینترنت دریافت کرده‌ اید و داخل آن فایلی با نام ```ls``` وجود دارد. اگر ```.``` در PATH باشد و shell در آن directory باشد ، ممکن است به‌ جای bin/ls/ فایل موجود در directory فعلی اجرا شود. حتی قرار دادن ```.``` در انتهای PATH نیز کاملاً بی‌خطر نیست. چرا؟ چون کاربر ممکن است command را اشتباه تایپ کند مثلاً به‌ جای ```ls ``` بنویسد ```sl``` ، اگر فایل malicious با همین نام در directory فعلی وجود داشته باشد ، shell ممکن است آن را پیدا کند.
 
-```
-.
-```
+بنابراین قاعده‌ ی عملی این است که ```.```  را در PATH قرار ندهید و برای اجرای برنامه‌ ای ازcurrent directory ،  صراحتاً بنویسید ```program/.``` . این کار باعث می‌ شود تصمیم اجرای executable از current directory کاملاً آشکار باشد.
 
-است.
+کتاب دو مشکل را برای ```.``` مطرح می‌ کند ، Security و Inconsistency . چون وجود ```.``` باعث می‌ شود معنی یک command وابسته به directory فعلی تغییر کند.
 
-قرار دادن:
+#### 🔹 The Manual Page Path
 
-```
-.
-```
+دومین path مهم در محیط shell مربوط به manual page هاست ، ```MANPATH``` . در سیستم‌ های Unix قدیمی ، MANPATH برای مشخص کردن محل manual page ها استفاده می‌ شده است. اما در Linux مدرن معمولاً نباید بی‌ دلیل آن را به‌ صورت دستی تنظیم کنید. دلیل این است که سیستم می‌ تواند default های لازم را خودش از configuration هایی مانند ```etc/manpath.config/``` به دست آورد. اگر MANPATH را به‌ صورت دستی تنظیم کنید ، ممکن است منطق default سیستم را override کنید. در نتیجه اگر هدف شما فقط این است که manual page های معمول سیستم درست پیدا شوند ، بهتر است به مکانیزم پیش‌ فرض اعتماد کنید. اگر به directory های اضافی برای man page ها نیاز دارید ، باید دقیقاً بدانید که چگونه آن‌ ها را به configuration سیستم اضافه می‌ کنید و چرا.
 
-در PATH یعنی shell می‌تواند executableهای directory فعلی را بدون نوشتن ./ پیدا کند.
+#### 🔹 The Prompt
 
-مثلاً اگر فایل اجرایی:
-
-```
-ls
-```
-
-در directory فعلی باشد، shell ممکن است آن را پیدا کند.
-
-در ظاهر این ویژگی راحت است، اما مشکل امنیتی جدی ایجاد می‌کند.
-
-فرض کنید یک archive از اینترنت دریافت کرده‌اید و داخل آن فایلی با نام:
-
-```
-ls
-```
-
-وجود دارد.
-
-اگر . در PATH باشد و shell در آن directory باشد، ممکن است به‌جای /bin/ls فایل موجود در directory فعلی اجرا شود.
-
-حتی قرار دادن . در انتهای PATH نیز کاملاً بی‌خطر نیست.
-
-چرا؟
-
-چون کاربر ممکن است command را اشتباه تایپ کند.
-
-مثلاً به‌جای:
-
-```
-ls
-```
-
-بنویسد:
-
-```
-sl
-```
-
-اگر فایل maliciousای با همین نام در directory فعلی وجود داشته باشد، shell ممکن است آن را پیدا کند.
-
-بنابراین قاعده‌ی عملی این است:
-
-> . را در PATH قرار ندهید.
-
-برای اجرای برنامه‌ای از directory فعلی، صراحتاً بنویسید:
-
-```
-./program
-```
-
-این کار باعث می‌شود تصمیم اجرای executable از directory فعلی کاملاً آشکار باشد.
-
-کتاب دو مشکل را برای . مطرح می‌کند:
-
-- Security
-- Inconsistency
-
-چون وجود . باعث می‌شود معنی یک command وابسته به directory فعلی تغییر کند.
-
-#### 13.3.2 The Manual Page Path
-
-دومین path مهم در محیط shell مربوط به manual pageهاست:
-
-```
-MANPATH
-```
-
-در سیستم‌های Unix سنتی، MANPATH برای مشخص کردن محل manual pageها استفاده می‌شده است.
-
-اما در Linux مدرن معمولاً نباید بی‌دلیل آن را به‌صورت دستی تنظیم کنید.
-
-دلیل این است که سیستم می‌تواند defaultهای لازم را خودش از configurationهایی مانند:
-
-```
-/etc/manpath.config
-```
-
-به دست آورد.
-
-اگر MANPATH را به‌صورت دستی تنظیم کنید، ممکن است منطق default سیستم را override کنید.
-
-در نتیجه اگر هدف شما فقط این است که manual pageهای معمول سیستم درست پیدا شوند، بهتر است به مکانیزم پیش‌فرض اعتماد کنید.
-
-اگر به directoryهای اضافی برای man pageها نیاز دارید، باید دقیقاً بدانید که چگونه آن‌ها را به configuration سیستم اضافه می‌کنید و چرا.
-
-#### 13.3.3 The Prompt
-
-prompt چیزی است که قبل از هر command در shell می‌بینیم.
-
-در Bash این prompt معمولاً از:
-
-```
-PS1
-```
-
-می‌آید.
-
-یک prompt خوب الزاماً prompt بزرگی نیست.
-
-کتاب پیشنهاد می‌کند prompt تا جای ممکن ساده باشد.
-
-قرار دادن اطلاعاتی مانند:
-
-- username
-- hostname
-- current directory
-- history number
-
-گاهی مفید است، اما اضافه کردن همه‌چیز صرفاً برای اینکه prompt «پیشرفته‌تر» به نظر برسد، لزوماً کار مفیدی نیست.
-
-مثلاً prompt بسیار شلوغ می‌تواند:
+همچنین prompt چیزی است که قبل از هر command در shell می‌ بینیم. در Bash این prompt معمولاً از ```PS1``` می‌ آید. یک prompt خوب الزاماً prompt بزرگی نیست. کتاب پیشنهاد می‌ کند prompt تا جای ممکن ساده باشد و قرار دادن اطلاعاتی مانند username و hostname و current directory و history number گاهی مفید است ، اما اضافه کردن همه‌چیز صرفاً برای اینکه prompt پیشرفته‌ تر به نظر برسد ، لزوماً کار مفیدی نیست. مثلاً prompt بسیار شلوغ می‌ تواند :
 
 ```
 user@hostname:~/very/long/path/project [git:main] [python:3.12] [venv] $
 ```
 
-باشد، اما این اطلاعات اگر دائماً لازم نباشند فقط فضای terminal را مصرف می‌کنند.
+باشد ، اما این اطلاعات اگر دائماً لازم نباشند فقط  فضای terminal را مصرف می‌ کنند.
 
-##### Special Characters
+##### 🔹 Special Characters
 
-هنگام طراحی prompt باید مراقب characterهایی باشید که shell معنای خاصی برایشان دارد.
+هنگام طراحی prompt باید مراقب character هایی باشید که shell معنا ی خاصی برایشان دارد. کتاب به‌ خصوص درباره‌ ی این character ها هشدار می‌ دهد : ```{ } = & < >```. یکی از مهم‌ ترین آن‌ ها ```>``` است چون > در shell برای redirection استفاده می‌ شود. اگر کاربری بخشی از terminal را اشتباه copy/paste کند و این character به‌ شکل command وارد shell شود ، ممکن است فایل نا خواسته ایجاد یا truncate شود.
 
-کتاب به‌خصوص درباره‌ی این characterها هشدار می‌دهد:
+##### 🔹 Some Important Escapes in Bash
 
-```
-{ } = & < >
-```
-
-یکی از مهم‌ترین آن‌ها:
+در Shell ، متغیر PS1 مشخص می‌ کند Prompt چگونه نمایش داده شود. می‌ توان با استفاده از escape sequence های مختلف ، اطلاعاتی مانند نام کاربر، hostname و مسیر فعلی را در Prompt نمایش داد :
 
 ```
->
+- \u username
+- \h short hostname
+- \! history number
+- \w current working directory
+- \W last path component
+- \$ $ for user and # for root
 ```
 
-است.
+برای مثال :
 
-چون > در shell برای redirection استفاده می‌شود.
+```PS1='\u@\h:\W\$ '```
 
-اگر کاربری بخشی از terminal را اشتباه copy/paste کند و این character به‌شکل command وارد shell شود، ممکن است فایل ناخواسته ایجاد یا truncate شود.
+ممکن است Prompt به شکل زیر نمایش داده شود :
 
-##### A Simple Prompt in Bash
+```Alex@server:project$```
 
-نمونه‌ای که کتاب پیشنهاد می‌کند:
+در این مثال نام کاربر، hostname کوتاه ، آخرین بخش مسیر فعلی و نوع دسترسی کاربر در Prompt نمایش داده می‌ شود. این نوع Prompt اطلاعات مفیدی در اختیار کاربر قرار می‌ دهد ، اما همچنان نسبتاً ساده و خوانا باقی می‌ ماند.
 
-```
-PS1='\u\$ '
-```
+#### 🔹 Aliases
 
-در این expression:
+یک قابلیت shell است که اجازه می‌ دهد shell قبل از اجرای command یک string را با string دیگری جایگزین کند مثلاً : 
 
-```
-\u
-```
+```alias ll='ls -l'```
 
-نام کاربر فعلی را قرار می‌دهد.
+حالا ```ll``` به‌ صورت تقریبی به ```ls -l``` تبدیل می‌ شود. alias برای shortcut های ساده مفید است اما مشکلاتی نیز دارد.
 
-و:
+##### 🔹 Problem One: Arguments
 
-```
-\$
-```
+همچنین alias برای مدیریت پیچیده‌ی argument ها مناسب نیست. مثلاً اگر alias بخواهد رفتار command را بر اساس ورودی تغییر دهد ، خیلی زود از حالت ساده خارج می‌ شود در چنین شرایطی یک shell function گزینه‌ ی مناسب‌ تری است.
 
-برای user معمولی:
+##### 🔹 Problem Two: Finding Where It's Defined
 
-```
-$
-```
+ممکن است بدانید ```which ll``` چه چیزی است ، اما ابزارهایی مثل which همیشه به شما نمی‌ گویند alias دقیقاً در کدام startup file تعریف شده است. برای دیدن خود alias در Bash بهتر است از ```type ll``` یا ```alias ll``` استفاده کنید.
 
-و برای root:
+##### 🔹 Problem Three: Subshells and Noninteractive Shells
 
-```
-#
-```
+معمولا alias ها مثل environment variable ها به‌ صورت عمومی به child process ها export نمی‌ شوند. به همین دلیل نباید روی این فرض حساب کنید که alias های interactive شما در shell های دیگر یا shell script ها نیز وجود خواهند داشت مثلاً :
 
-نمایش می‌دهد.
+```alias rm='rm -i'```
 
-##### Some Important Escapes in Bash
+ممکن است در terminal شما کار کند ، اما نباید انتظار داشته باشید یک script مستقل نیز همین alias را ببیند.
 
-```
-\u    username
-\h    hostname کوتاه
-\!    history number
-\w    current working directory
-\W    آخرین component مسیر
-\$    $ برای user و # برای root
-```
+##### 🔹 Aliasing Standard Commands
 
-مثلاً:
+یکی از خطاهای کلاسیک این است که : 
 
-```
-PS1='\u@\h:\W\$ '
-```
+```alias ls='ls -F'```
 
-ممکن است چیزی شبیه این نشان دهد:
+این تغییر شاید کوچک به نظر برسد ، اما حالا کاربری که نمی‌ داند alias وجود دارد ، تصور می‌ کند دارد ls معمولی را اجرا می‌ کند. این مسئله زمانی بدتر می‌ شود که alias argument هایی را اضافه یا حذف کند و رفتار command را پنهان کند. به همین دلیل کتاب توصیه می‌ کند تا حد امکان برای رفتارهای پیچیده‌ تر از shell function یا script استفاده شود.
 
-```
-saeid@server:project$
-```
+##### 🔹 When Does an Alias Make Sense ?
 
-این نوع prompt معمولاً اطلاعات مفیدی دارد، اما هنوز نسبتاً ساده باقی می‌ماند.
-
-#### 13.3.4 Aliases
-
-alias یک قابلیت shell است که اجازه می‌دهد shell قبل از اجرای command یک string را با string دیگری جایگزین کند.
-
-مثلاً:
-
-```
-alias ll='ls -l'
-```
-
-حالا:
-
-```
-ll
-```
-
-به‌صورت تقریبی به:
-
-```
-ls -l
-```
-
-تبدیل می‌شود.
-
-alias برای shortcutهای ساده مفید است.
-
-اما مشکلاتی نیز دارد.
-
-##### Problem One: Arguments
-
-alias برای مدیریت پیچیده‌ی argumentها مناسب نیست.
-
-مثلاً اگر alias بخواهد رفتار command را بر اساس ورودی تغییر دهد، خیلی زود از حالت ساده خارج می‌شود.
-
-در چنین شرایطی یک shell function گزینه‌ی مناسب‌تری است.
-
-##### Problem Two: Finding Where It's Defined
-
-ممکن است بدانید:
-
-```
-which ll
-```
-
-اما ابزارهایی مثل which همیشه به شما نمی‌گویند alias دقیقاً در کدام startup file تعریف شده است.
-
-برای دیدن خود alias در Bash بهتر است از:
-
-```
-type ll
-```
-
-یا:
-
-```
-alias ll
-```
-
-استفاده کنید.
-
-##### Problem Three: Subshells and Noninteractive Shells
-
-aliasها مثل environment variableها به‌صورت عمومی به child processها export نمی‌شوند.
-
-به همین دلیل نباید روی این فرض حساب کنید که aliasهای interactive شما در shellهای دیگر یا shell scriptها نیز وجود خواهند داشت.
-
-مثلاً:
-
-```
-alias rm='rm -i'
-```
-
-ممکن است در terminal شما کار کند، اما نباید انتظار داشته باشید یک script مستقل نیز همین alias را ببیند.
-
-##### Aliasing Standard Commands
-
-یکی از خطاهای کلاسیک این است:
-
-```
-alias ls='ls -F'
-```
-
-این تغییر شاید کوچک به نظر برسد، اما حالا کاربری که نمی‌داند alias وجود دارد، تصور می‌کند دارد ls معمولی را اجرا می‌کند.
-
-این مسئله زمانی بدتر می‌شود که alias argumentهایی را اضافه یا حذف کند و رفتار command را پنهان کند.
-
-به همین دلیل کتاب توصیه می‌کند تا حد امکان برای رفتارهای پیچیده‌تر از:
-
-```
-shell function
-```
-
-یا:
-
-```
-script
-```
-
-استفاده شود.
-
-##### When Does an Alias Make Sense?
-
-alias هنوز برای shortcutهای خیلی ساده خوب است.
-
-مثلاً:
+همچنین alias هنوز برای shortcut های خیلی ساده خوب است مثلاً : 
 
 ```
 alias ll='ls -l'
 alias la='ls -la'
 ```
 
-چنین aliasهایی رفتار پیچیده‌ای ندارند.
-
-از طرف دیگر، اگر هدف تغییر environment variable باشد، shell script معمولی گزینه‌ی مناسبی نیست؛ چون script در shell جداگانه اجرا می‌شود و تغییرات environment آن به shell والد برنمی‌گردد.
-
-در چنین مواردی shell function بهتر است.
-
-مثلاً:
+از طرف دیگر، اگر هدف تغییر environment variable باشد ، shell script معمولی گزینه‌ ی مناسبی نیست چون script در shell جداگانه اجرا می‌ شود و تغییرات environment آن به shell والد برنمی‌ گردد در چنین مواردی shell function بهتر است مثلاً :
 
 ```
 set_project_env() {
@@ -677,172 +219,61 @@ set_project_env() {
 }
 ```
 
-#### 13.3.5 The Permissions Mask
+#### 🔹 The Permissions Mask
 
-یکی دیگر از اجزای مهم startup environment:
+یکی دیگر از اجزای مهم startup environment هم ```umask``` است. umask مشخص می‌ کند permission های پیش‌ فرضی که برنامه‌ ها هنگام ایجاد file و directory به کار می‌ برند چگونه محدود شوند. به زبان ساده ، umask به سیستم می‌ گوید ، چه permission هایی نباید به‌ صورت پیش‌ فرض داده شوند ؟ . دو مقدار مهمی که کتاب بررسی می‌ کند ، 077 و 022 هستند.
 
-```
-umask
-```
 
-است.
+##### 🔹 umask 077
 
-umask مشخص می‌کند permissionهای پیش‌فرضی که برنامه‌ها هنگام ایجاد file و directory به کار می‌برند چگونه محدود شوند.
+مقدار ```umask 077``` یک انتخاب بسیار restrictive است در نتیجه فایل‌ ها و directory های جدید به‌ طور پیش‌ فرض برای user های دیگر قابل دسترسی نخواهند بود. این برای سیستم چند کاربره‌ای که privacy فایل‌ های کاربران اهمیت دارد می‌ تواند انتخاب مناسبی باشد. مشکل اینجاست که بعضی user ها ممکن است بعداً بخواهند فایل‌ ها را با user دیگری share کنند و permission را درست تنظیم نکنند در نتیجه ممکن است به تغییرهای دستی نامناسب و حتی استفاده از permission های خطرناک مثل world-writable برسند.
 
-به زبان ساده، umask به سیستم می‌گوید:
+##### 🔹 umask 022
 
-> چه permissionهایی نباید به‌صورت پیش‌فرض داده شوند؟
-
-دو مقدار مهمی که کتاب بررسی می‌کند:
-
-- 077
-- 022
-
-هستند.
-
-##### umask 077
-
-```
-umask 077
-```
-
-یک انتخاب بسیار restrictive است.
-
-در نتیجه فایل‌ها و directoryهای جدید به‌طور پیش‌فرض برای userهای دیگر قابل دسترسی نخواهند بود.
-
-این برای سیستم چندکاربره‌ای که privacy فایل‌های کاربران اهمیت دارد می‌تواند انتخاب مناسبی باشد.
-
-مشکل اینجاست که بعضی userها ممکن است بعداً بخواهند فایل‌ها را با user دیگری share کنند و permission را درست تنظیم نکنند.
-
-در نتیجه ممکن است به تغییرهای دستی نامناسب و حتی استفاده از permissionهای خطرناک مثل world-writable برسند.
-
-##### umask 022
-
-مقدار:
-
-```
-umask 022
-```
-
-کمتر restrictive است.
-
-در نتیجه فایل‌های جدید معمولاً طوری ایجاد می‌شوند که دیگر کاربران بتوانند آن‌ها را بخوانند، البته permission نهایی به default mode خود برنامه نیز وابسته است.
-
-این حالت در بعضی محیط‌ها مفید است؛ مثلاً ممکن است daemonهایی که با pseudo-userهای مختلف اجرا می‌شوند بتوانند فایل‌های عمومی‌تر را ببینند.
-
-کتاب در اینجا یک نکته‌ی جالب هم می‌گوید:
-
-بعضی applicationها خودشان umask را override می‌کنند.
-
-مثلاً برنامه‌های mail ممکن است برای جلوگیری از افشای داده‌های خصوصی، خودشان به 077 تغییر کنند.
-
-بنابراین umask یک default است، نه تضمینی مطلق که هیچ برنامه‌ای آن را تغییر نمی‌دهد.
+مقدار ```umask 022``` کمتر restrictive است در نتیجه فایل‌ های جدید معمولاً طوری ایجاد می‌ شوند که دیگر کاربران بتوانند آن‌ ها را بخوانند ، البته permission نهایی به default mode خود برنامه نیز وابسته است. این حالت در بعضی محیط‌ ها مفید است. مثلاً ممکن است daemon هایی که با pseudo-user های مختلف اجرا می‌ شوند بتوانند فایل‌ های عمومی‌ تر را ببینند. کتاب در اینجا یک نکته‌ ی جالب هم می‌ گوید ، بعضی application ها خودشان umask را override می‌ کنند. مثلاً برنامه‌ های mail ممکن است برای جلوگیری از افشای داده‌ های خصوصی ، خودشان به 077 تغییر کنند بنابراین umask یک default است ، نه تضمینی مطلق که هیچ برنامه‌ ای آن را تغییر نمی‌ دهد.
 
 ---
 
-### 13.4 Startup File Order and Examples
+### Startup File Order and Examples
 
-تا اینجا فهمیدیم داخل startup file چه چیزهایی قرار می‌گیرند.
+تا اینجا فهمیدیم داخل startup file چه چیزهایی قرار می‌ گیرند اما سؤال مهم بعدی این است که کدام startup file را باید تغییر بدهیم ؟ ، این قسمت از سخت‌ ترین بخش‌ های موضوع است ، چون shell ها startup file های مختلفی دارند و نوع shell نیز مهم است. دو shell اصلی بررسی‌ شده در فصل bash و tcsh هستند.
 
-اما سؤال مهم بعدی این است:
+#### 🔹 The bash Shell
 
-> کدام startup file را باید تغییر بدهیم؟
-
-این قسمت از سخت‌ترین بخش‌های موضوع است، چون shellها startup fileهای مختلفی دارند و نوع shell نیز مهم است.
-
-دو shell اصلی بررسی‌شده در فصل:
-
-- bash
-- tcsh
-
-هستند.
-
-#### 13.4.1 The bash Shell
-
-Bash می‌تواند با فایل‌هایی مانند:
+با Bash می‌ توان با فایل‌ هایی کار کرد مانند :
 
 - .bash_profile
 - .profile
 - .bash_login
 - .bashrc
 
-کار کند.
 
-اما قبل از اینکه ترتیبشان را بررسی کنیم باید دو distinction مهم را بشناسیم:
+اما قبل از اینکه ترتیبشان را بررسی کنیم باید دو distinction مهم را بشناسیم :
 
 - interactive / noninteractive
 - login / non-login
 
 این دو مفهوم با هم یکی نیستند.
 
-##### Interactive Shell
+##### 🔹 Interactive Shell
 
-shellی که برای تعامل مستقیم با کاربر استفاده می‌شود interactive است.
-
-مثلاً:
+یک shell که برای تعامل مستقیم با کاربر استفاده می‌ شود interactive است ، در این shell معمولاً کاربر command تایپ می‌ کند مثلاً :
 
 - terminal
 - SSH session
 - console shell
 
-در این shell معمولاً کاربر command تایپ می‌کند.
+##### 🔹 Noninteractive Shell
 
-##### Noninteractive Shell
+معمولا shell هایی که برای اجرای script ها یا کارهای غیر تعاملی اجرا می‌ شوند noninteractive هستند مثلاً ```bash script.sh``` معمولاً به startup file های interactive وابسته نیست. این distinction مهم است ، چون اگر در bashrc. یک command خاص قرار دهید ، نباید فرض کنید آن command هنگام اجرای هر shell script نیز اجرا می‌ شود. کتاب نیز صراحتاً می‌گوید noninteractive shell ها معمولاً startup file های مورد بحث این فصل را نمی‌ خوانند.
 
-shellهایی که برای اجرای scriptها یا کارهای غیرتعاملی اجرا می‌شوند، معمولاً noninteractive هستند.
+##### 🔹 Login Shells
 
-برای مثال:
+معمولا login shell در اصل shell اولیه‌ ای است که هنگام login کاربر ایجاد می‌ شود مثلاً login from console و  SSH login می‌ تواند به login shell منتهی شود. برای تشخیص login shell در Bash می‌ توان ```echo "$0"``` را اجرا کرد. اگر اولین character خروجی - باشد ، Bash آن shell را login shell در نظر می‌ گیرد مثلاً ```bash-``` نشان‌ دهنده‌ ی login shell است.
 
-```
-bash script.sh
-```
+##### 🔹 Order of Reading the Files
 
-معمولاً به startup fileهای interactive وابسته نیست.
-
-این distinction مهم است، چون اگر در .bashrc یک command خاص قرار دهید، نباید فرض کنید آن command هنگام اجرای هر shell script نیز اجرا می‌شود.
-
-کتاب نیز صراحتاً می‌گوید noninteractive shellها معمولاً startup fileهای مورد بحث این فصل را نمی‌خوانند.
-
-##### Login Shells
-
-login shell در اصل shell اولیه‌ای است که هنگام login کاربر ایجاد می‌شود.
-
-مثلاً:
-
-- login from console
-- SSH login
-
-می‌تواند به login shell منتهی شود.
-
-برای تشخیص login shell در Bash می‌توان:
-
-```
-echo "$0"
-```
-
-را اجرا کرد.
-
-اگر اولین character خروجی - باشد، Bash آن shell را login shell در نظر می‌گیرد.
-
-مثلاً:
-
-```
--bash
-```
-
-نشان‌دهنده‌ی login shell است.
-
-##### Order of Reading the Files
-
-وقتی Bash به‌صورت login shell اجرا شود، ابتدا:
-
-```
-/etc/profile
-```
-
-را می‌خواند.
-
-سپس در home directory کاربر به‌ترتیب دنبال:
+وقتی Bash به‌ صورت login shell اجرا شود ، ابتدا ```etc/profile/``` را می‌ خواند سپس در home directory کاربر به‌ ترتیب دنبال :
 
 ```
 .bash_profile
@@ -850,63 +281,17 @@ echo "$0"
 .profile
 ```
 
-می‌گردد.
+می‌ گردد. نکته‌ ی مهم این است که Bash اولین فایلی را که وجود داشته باشد اجرا می‌ کند و به سراغ بقیه نمی‌ رود یعنی اگر ```bash_profile.```  وجود داشته باشد ، وجود هم‌ زمان ```bash_login.``` و ```profile.``` به این معنی نیست که هر سه اجرا می‌ شوند.
 
-نکته‌ی مهم این است که Bash اولین فایلی را که وجود داشته باشد اجرا می‌کند و به سراغ بقیه نمی‌رود.
+##### 🔹 Non-Login Shells
 
-یعنی اگر:
+یک non-login shell ، interactive shell است که login shell نیست ترمینال‌ هایی مانند xterm و GNOME Terminal ، معمولاً چنین shell هایی را ایجاد می‌ کنند ، مگر اینکه به‌ صورت login shell پیکربندی شده باشند. در Bash ،  non-login interactive shell معمولاً ابتدا تنظیمات global مربوط به Bash و سپس فایل bashrc/.~ را می‌ خواند.
 
-```
-.bash_profile
-```
+در سیستم‌ هایی که فایل global زیر وجود دارد ```etc/bash.bashrc/``` ممکن است این فایل نیز در startup یک non-login Bash خوانده شود اما باید توجه داشت که نام و وجود این فایل global می‌ تواند به distribution وابسته باشد.
 
-وجود داشته باشد، وجود هم‌زمان:
+##### 🔹 Why Are Login and Non-Login Separate?
 
-```
-.bash_login
-.profile
-```
-
-به این معنی نیست که هر سه اجرا می‌شوند.
-
-##### Non-Login Shells
-
-یک non-login shell، interactive shellای است که login shell نیست.
-
-ترمینال‌هایی مانند:
-
-- xterm
-- GNOME Terminal
-
-معمولاً چنین shellهایی را ایجاد می‌کنند، مگر اینکه به‌صورت login shell پیکربندی شده باشند.
-
-در Bash، non-login interactive shell معمولاً ابتدا تنظیمات global مربوط به Bash و سپس فایل:
-
-```
-~/.bashrc
-```
-
-را می‌خواند.
-
-در سیستم‌هایی که فایل global زیر وجود دارد:
-
-```
-/etc/bash.bashrc
-```
-
-ممکن است این فایل نیز در startup یک non-login Bash خوانده شود.
-
-اما باید توجه داشت که نام و وجود این فایل global می‌تواند به distribution وابسته باشد.
-
-##### Why Are Login and Non-Login Separate?
-
-این تفاوت ریشه‌ی تاریخی دارد.
-
-در Unix قدیمی، کاربر معمولاً ابتدا روی یک terminal واقعی login می‌کرد و سپس در همان session shellهای دیگری ایجاد می‌کرد.
-
-منطقی نبود هر بار که یک subshell باز می‌شود، تمام تنظیمات محیط دوباره محاسبه و commandهای سنگین اجرا شوند.
-
-به همین دلیل به‌تدریج یک الگوی رایج شکل گرفت:
+این تفاوت ریشه‌ ی تاریخی دارد در Unix قدیمی ، کاربر معمولاً ابتدا روی یک terminal واقعی login می‌ کرد و سپس در همان session shell های دیگری ایجاد می‌ کرد. منطقی نبود هر بار که یک subshell باز می‌ شود ، تمام تنظیمات محیط دوباره محاسبه و command های سنگین اجرا شوند. به همین دلیل به‌ تدریج یک الگوی رایج شکل گرفت :
 
 ```
 login shell
@@ -916,39 +301,23 @@ non-login shell
 → interactive settings
 ```
 
-برای همین بعضی کاربران:
+برای همین بعضی کاربران :
 
 ```
 .bash_profile
 ```
 
-را محل setup اولیه و:
+را محل setup اولیه و :
 
 ```
 .bashrc
 ```
 
-را محل alias و تنظیمات interactive قرار می‌دادند.
+را محل alias و تنظیمات interactive قرار می‌ دادند اما desktop های مدرن همیشه دقیقاً با مدل قدیمی login console کار نمی‌ کنند. display manager ممکن است login گرافیکی را انجام دهد و سپس session و terminal ها را به‌ شکل متفاوتی آغاز کند. به همین دلیل یک environment ممکن است در SSH وجود داشته باشد ولی داخل terminal desktop وجود نداشته باشد ، یا برعکس ، اگر startup file ها درست به هم متصل نشده باشند. کتاب دقیقاً به همین مسئله اشاره می‌ کند و می‌ گوید در بعضی desktop environment ها ممکن است لازم باشد setup های اصلی environment در bashrc. نیز در دسترس باشند ، در حالی که برای console یا remote login وجود یک bash_profile. همچنان مهم است.
 
-اما desktopهای مدرن همیشه دقیقاً با مدل قدیمی login console کار نمی‌کنند.
+##### 🔹 Building a Shared .bashrc
 
-Display manager ممکن است login گرافیکی را انجام دهد و سپس session و terminalها را به‌شکل متفاوتی آغاز کند.
-
-به همین دلیل یک environment ممکن است در SSH وجود داشته باشد ولی داخل terminal desktop وجود نداشته باشد، یا برعکس، اگر startup fileها درست به هم متصل نشده باشند.
-
-کتاب دقیقاً به همین مسئله اشاره می‌کند و می‌گوید در بعضی desktop environmentها ممکن است لازم باشد setupهای اصلی environment در .bashrc نیز در دسترس باشند، در حالی که برای console یا remote login وجود یک .bash_profile همچنان مهم است.
-
-##### Building a Shared .bashrc
-
-یکی از روش‌های تمیز این است که configuration اصلی را در:
-
-```
-.bashrc
-```
-
-قرار دهید.
-
-مثلاً:
+یکی از روش‌ های تمیز این است که configuration اصلی را در ```bashrc.``` قرار دهید مثلاً : 
 
 ```
 # Command path
@@ -974,7 +343,7 @@ export PATH EDITOR VISUAL PAGER LESS
 umask 022
 ```
 
-در این مدل، .bash_profile می‌تواند فقط .bashrc را source کند:
+در این مدل ، bash_profile. می‌ تواند فقط bashrc. را source کند :
 
 ```
 . "$HOME/.bashrc"
@@ -986,9 +355,10 @@ umask 022
 source "$HOME/.bashrc"
 ```
 
-این کار باعث می‌شود configuration مشترک فقط در یک محل نگهداری شود.
+این کار باعث می‌ شود configuration مشترک فقط در یک محل نگهداری شود.
 
-##### Why Does Sourcing Matter?
+##### 🔹 Why Does Sourcing Matter?
+
 
 وقتی می‌نویسیم:
 
@@ -1008,7 +378,8 @@ source "$HOME/.bashrc"
 
 در حالت source، تغییر environment به shell فعلی برمی‌گردد.
 
-##### Checking Whether a Shell Is Interactive
+
+##### 🔹 Checking Whether a Shell Is Interactive
 
 گاهی می‌خواهید بخشی از startup فقط در interactive shell اجرا شود.
 
@@ -1041,7 +412,7 @@ esac
 
 این روش به شما اجازه می‌دهد commandهایی که مخصوص terminal هستند، در shell scriptهای غیرinteractive اجرا نشوند.
 
-##### A Practical Pattern for .bash_profile
+##### 🔹 A Practical Pattern for .bash_profile
 
 می‌توان .bash_profile را بسیار کوچک نگه داشت:
 
@@ -1067,7 +438,7 @@ shared interactive environment
 
 این روش از duplicate کردن PATH، EDITOR، PAGER، umask و prompt در چند فایل جلوگیری می‌کند.
 
-#### 13.4.2 The tcsh Shell
+#### 🔹 The tcsh Shell
 
 دومین shell بررسی‌شده در کتاب:
 
@@ -1109,7 +480,7 @@ tcsh یک نسخه‌ی توسعه‌یافته از csh است و قابلیت�
 
 نکته‌ی دیگر این است که distinction پیچیده‌ی login و non-login در tcsh به همان شکل Bash وجود ندارد و startup اصلی از .tcshrc یا .cshrc انجام می‌شود.
 
-##### An Example .cshrc
+##### 🔹 An Example .cshrc
 
 ساختار یک configuration ساده می‌تواند چیزی شبیه این باشد:
 
