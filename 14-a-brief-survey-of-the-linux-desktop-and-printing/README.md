@@ -1,11 +1,6 @@
 ## نگاهی سریع به دسکتاپ لینوکس و چاپگر
 ### 🐧 فصل چهاردهم کتاب How Linux Works
 
-
-
-## A Brief Survey of the Linux Desktop and Printing
-### 🌐 Chapter Fourteen of How Linux Works
-
 فصل چهاردهم وارد بخشی از لینوکس می‌شود که نسبت به مباحثی مثل storage یا networking ساختار لایه‌ای و خطی کمتری دارد. در دسکتاپ لینوکس، معمولاً با مجموعه‌ای از componentهای مستقل روبه‌رو هستیم که هرکدام مسئولیت مشخصی دارند و با استفاده از protocolها، libraryها و IPC با یکدیگر ارتباط برقرار می‌کنند.
 
 تمرکز اصلی این فصل روی شناخت اجزای اصلی یک desktop system است، نه آموزش کار با یک desktop environment خاص. فصل ابتدا مفهوم کلی نمایش گرافیکی و اجزای desktop را بررسی می‌کند، سپس وارد Wayland و X Window System می‌شود، ابزارهای تشخیصی ساده‌ای برای بررسی آن‌ها معرفی می‌کند، D-Bus را به‌عنوان یک مکانیزم مهم IPC بررسی می‌کند و در پایان معماری چاپ در Linux و CUPS را توضیح می‌دهد.
@@ -13,49 +8,13 @@
 ---
 📚 Table of Contents
 
-- [14.1 Desktop Components](#141-desktop-components)
-  - [14.1.1 Framebuffers](#1411-framebuffers)
-  - [14.1.2 The X Window System](#1412-the-x-window-system)
-  - [14.1.3 Wayland](#1413-wayland)
-  - [14.1.4 Window Managers](#1414-window-managers)
-  - [14.1.5 Toolkits](#1415-toolkits)
-  - [14.1.6 Desktop Environments](#1416-desktop-environments)
-  - [14.1.7 Applications](#1417-applications)
-- [14.2 Are You Running Wayland or X?](#142-are-you-running-wayland-or-x)
-- [14.3 A Closer Look at Wayland](#143-a-closer-look-at-wayland)
-  - [14.3.1 The Compositing Window Manager](#1431-the-compositing-window-manager)
-    - [Window Decorations in Wayland](#window-decorations-in-wayland)
-    - [Displays and Multiple Compositors](#displays-and-multiple-compositors)
-  - [14.3.2 libinput](#1432-libinput)
-  - [14.3.3 X Compatibility in Wayland](#1433-x-compatibility-in-wayland)
-    - [Native Wayland Applications](#native-wayland-applications)
-    - [Xwayland](#xwayland)
-    - [Running Wayland Inside X](#running-wayland-inside-x)
-- [14.4 A Closer Look at the X Window System](#144-a-closer-look-at-the-x-window-system)
-  - [Identifying the X Server](#identifying-the-x-server)
-  - [14.4.1 Display Managers](#1441-display-managers)
-  - [14.4.2 Network Transparency](#1442-network-transparency)
-  - [14.4.3 Ways of Exploring X Clients](#1443-ways-of-exploring-x-clients)
-    - [xwininfo](#xwininfo)
-  - [14.4.4 X Events](#1444-x-events)
-  - [14.4.5 X Input and Preference Settings](#1445-x-input-and-preference-settings)
-    - [Input Devices (General)](#input-devices-general)
-    - [Device Properties](#device-properties)
-    - [Mouse](#mouse)
-    - [Keyboard and XKB](#keyboard-and-xkb)
-    - [Desktop Background](#desktop-background)
-    - [xset](#xset)
-- [14.5 D-Bus](#145-d-bus)
-  - [14.5.1 System and Session Instances](#1451-system-and-session-instances)
-    - [System Instance](#system-instance)
-    - [Session Instance](#session-instance)
-  - [14.5.2 D-Bus Message Monitoring](#1452-d-bus-message-monitoring)
-- [14.6 Printing](#146-printing)
-  - [PostScript](#postscript)
-  - [14.6.1 CUPS](#1461-cups)
-  - [14.6.2 Format Conversion and Print Filters](#1462-format-conversion-and-print-filters)
-- [14.7 Other Desktop Topics](#147-other-desktop-topics)
-  - [Chromium OS and Chrome OS](#chromium-os-and-chrome-os)
+- [Desktop Components](#desktop-components)
+- [Are You Running Wayland or X?](#are-you-running-wayland-or-x)
+- [A Closer Look at Wayland](#a-closer-look-at-wayland)
+- [A Closer Look at the X Window System](#a-closer-look-at-the-x-window-system)
+- [D-Bus](#d-bus)
+- [Printing](#printing)
+- [Other Desktop Topics](#other-desktop-topics)
 - [Desktop Architecture and Summary](#desktop-architecture-and-summary)
 
 ---
@@ -68,7 +27,7 @@
 
 در نسخه‌های جدیدتر Linux، این حوزه در وضعیت گذار میان X Window System و Wayland قرار گرفته است. X برای سال‌های طولانی پایه‌ی اصلی desktopهای Linux بود، ولی بسیاری از distributionها به سمت سیستم‌های مبتنی بر Wayland حرکت کرده‌اند.
 
-#### 14.1.1 Framebuffers
+#### 🔹 Framebuffers
 
 در پایین‌ترین سطح یک سیستم نمایش گرافیکی، چیزی به نام framebuffer قرار دارد.
 
@@ -85,7 +44,7 @@ Framebuffer را می‌توان بخشی از حافظه در نظر گرفت �
 
 بنابراین یکی از مسئولیت‌های اصلی هر windowing system این است که بین bufferهای مربوط به برنامه‌های مختلف هماهنگی ایجاد کند و مشخص کند چه چیزی در نهایت باید روی framebuffer نمایش داده شود.
 
-#### 14.1.2 The X Window System
+#### 🔹 The X Window System
 
 مدل X Window System برای حل این مسئله یک X server مرکزی دارد.
 
@@ -104,7 +63,7 @@ X server در پاسخ، مسئولیت بخشی از کارهای مربوط ب
 
 این architecture در زمان خودش بسیار انعطاف‌پذیر بود، اما از آنجا که X واسطه‌ی بسیار زیادی از کارهاست، می‌تواند یک bottleneck ایجاد کند. علاوه بر این، X سیستم بسیار قدیمی‌ای است که ریشه‌ی آن به دهه‌ی ۱۹۸۰ برمی‌گردد و طی سال‌ها قابلیت‌های زیادی به آن اضافه شده است؛ در نتیجه بخش‌هایی از آن شامل functionalityهایی است که دیگر در desktopهای مدرن اهمیت گذشته را ندارند.
 
-#### 14.1.3 Wayland
+#### 🔹 Wayland
 
 Wayland برای حل همین مسائل با architecture متفاوتی طراحی شده است.
 
@@ -120,7 +79,7 @@ Wayland برای حل همین مسائل با architecture متفاوتی طر�
 
 برای مسیر input نیز بسیاری از سیستم‌های Wayland و حتی بسیاری از پیاده‌سازی‌های X از libinput استفاده می‌کنند تا eventهای deviceهای ورودی به شکلی استاندارد به بخش مناسب سیستم منتقل شوند. libinput جزئی اجباری از protocol خود Wayland نیست، ولی در desktopهای امروزی بسیار رایج است.
 
-#### 14.1.4 Window Managers
+#### 🔹 Window Managers
 
 Window manager مسئول بخش مهمی از تجربه‌ی کاربر در desktop است، زیرا مشخص می‌کند پنجره‌ها چگونه روی صفحه قرار بگیرند و چه رفتاری داشته باشند.
 
@@ -143,7 +102,7 @@ Window manager مسئول بخش مهمی از تجربه‌ی کاربر در d
 
 با وجود این تنوع، انتظار وجود یک استاندارد واحد برای window manager در Linux منطقی نیست، چون انتخاب window manager تا حد زیادی به نیاز و سلیقه‌ی کاربر بستگی دارد.
 
-#### 14.1.5 Toolkits
+#### 🔹 Toolkits
 
 برنامه‌های desktop معمولاً elementهای مشترکی مانند:
 
@@ -165,7 +124,7 @@ Window manager مسئول بخش مهمی از تجربه‌ی کاربر در d
 
 Toolkitها معمولاً فقط مجموعه‌ای از libraryهای کدنویسی نیستند و می‌توانند شامل فایل‌های کمکی مانند imageها و اطلاعات مربوط به themeها نیز باشند.
 
-#### 14.1.6 Desktop Environments
+#### 🔹 Desktop Environments
 
 Toolkit به‌تنهایی همه‌ی نیازهای یک desktop را پوشش نمی‌دهد.
 
@@ -195,7 +154,7 @@ Desktop environment فقط toolkit نیست. معمولاً مجموعه‌ای 
 
 به این ترتیب desktop environment تلاش می‌کند مجموعه‌ای از برنامه‌ها را از نظر تجربه‌ی کاربری تا حد ممکن یکپارچه کند.
 
-#### 14.1.7 Applications
+#### 🔹 Applications
 
 در بالاترین سطح desktop، خود applicationها قرار دارند.
 
