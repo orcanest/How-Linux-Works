@@ -359,45 +359,19 @@ source "$HOME/.bashrc"
 
 ##### 🔹 Why Does Sourcing Matter?
 
+وقتی می‌ نویسیم :
 
-وقتی می‌نویسیم:
+``` . "$HOME/.bashrc" ```
 
-```
-. "$HOME/.bashrc"
-```
+محتوای bashrc. در همان shell اجرا می‌ شود. این با اجرای :
 
-محتوای .bashrc در همان shell اجرا می‌شود.
+``` "$HOME/.bashrc" ```
 
-این با اجرای:
-
-```
-"$HOME/.bashrc"
-```
-
-به‌عنوان یک executable مستقل یکسان نیست.
-
-در حالت source، تغییر environment به shell فعلی برمی‌گردد.
-
+به‌ عنوان یک executable مستقل یکسان نیست در حالت source ، تغییر environment به shell فعلی برمی‌ گردد.
 
 ##### 🔹 Checking Whether a Shell Is Interactive
 
-گاهی می‌خواهید بخشی از startup فقط در interactive shell اجرا شود.
-
-Bash variable ویژه‌ای دارد:
-
-```
-$-
-```
-
-اگر character:
-
-```
-i
-```
-
-در آن وجود داشته باشد، shell interactive است.
-
-یک الگوی کلاسیک:
+گاهی می‌ خواهید بخشی از startup فقط در interactive shell اجرا شود و Bash variable ویژه‌ ای دارد ```-$``` ، اگر کاراکتر ```i``` در آن وجود داشته باشد، shell interactive است ، یک الگوی کلاسیک :
 
 ```
 case $- in
@@ -409,12 +383,11 @@ case $- in
         ;;
 esac
 ```
-
-این روش به شما اجازه می‌دهد commandهایی که مخصوص terminal هستند، در shell scriptهای غیرinteractive اجرا نشوند.
+این روش به شما اجازه می‌ دهد command هایی که مخصوص terminal هستند ، در shell script های غیر interactive  اجرا نشوند.
 
 ##### 🔹 A Practical Pattern for .bash_profile
 
-می‌توان .bash_profile را بسیار کوچک نگه داشت:
+می‌ توان bash_profile. را بسیار کوچک نگه داشت :
 
 ```
 if [ -f "$HOME/.bashrc" ]; then
@@ -422,7 +395,7 @@ if [ -f "$HOME/.bashrc" ]; then
 fi
 ```
 
-هدف این است که:
+هدف این است که :
 
 ```
 login shell
@@ -433,56 +406,16 @@ login shell
    ↓
 shared interactive environment
 ```
-
-ایجاد شود.
-
-این روش از duplicate کردن PATH، EDITOR، PAGER، umask و prompt در چند فایل جلوگیری می‌کند.
+ایجاد شود. این روش از duplicate کردن PATH ، EDITOR ، PAGER ، umask و prompt در چند فایل جلوگیری می‌ کند.
 
 #### 🔹 The tcsh Shell
 
-دومین shell بررسی‌شده در کتاب:
-
-```
-tcsh
-```
-
-است.
-
-tcsh یک نسخه‌ی توسعه‌یافته از csh است و قابلیت‌هایی مانند:
-
-- command-line editing
-- filename completion
-- command completion
-
-را ارائه می‌کند.
-
-ساختار startup آن با Bash متفاوت است.
-
-در tcsh، فایل اصلی:
-
-```
-.tcshrc
-```
-
-است.
-
-اگر این فایل وجود نداشته باشد، shell می‌تواند سراغ:
-
-```
-.cshrc
-```
-
-برود.
-
-ترتیب این fallback به این دلیل است که .tcshrc می‌تواند قابلیت‌های خاص tcsh را در خود داشته باشد که ممکن است در csh وجود نداشته باشند.
-
-با این حال، کتاب توصیه می‌کند برای configuration عمومی ترجیحاً .cshrc سنتی حفظ شود، چون احتمال اینکه فایل در یک سیستم دیگر با csh نیز استفاده شود وجود دارد.
-
-نکته‌ی دیگر این است که distinction پیچیده‌ی login و non-login در tcsh به همان شکل Bash وجود ندارد و startup اصلی از .tcshrc یا .cshrc انجام می‌شود.
+دومین shell بررسی‌ شده در کتاب  ```tcsh``` است. tcsh یک نسخه‌ ی توسعه‌ یافته از csh است و قابلیت‌ هایی مانند command-line editing و filename completion و command completion را ارائه می‌ کند. ساختار startup آن با Bash متفاوت است. در tcsh ، فایل اصلی ```tcshrc.``` است. اگر این فایل وجود نداشته باشد ، shell می‌ تواند سراغ ```cshrc.``` برود.
+ترتیب این fallback به این دلیل است که tcshrc. می‌ تواند قابلیت‌های خاص tcsh را در خود داشته باشد که ممکن است در csh وجود نداشته باشند. با این حال ، کتاب توصیه می‌ کند برای configuration عمومی ترجیحاً cshrc. حفظ شود ، چون احتمال اینکه فایل در یک سیستم دیگر با csh نیز استفاده شود وجود دارد. نکته‌ ی دیگر این است که distinction پیچیده‌ی login و non-login در tcsh به همان شکل Bash وجود ندارد و startup اصلی از tcshrc. یا cshrc. انجام می‌ شود.
 
 ##### 🔹 An Example .cshrc
 
-ساختار یک configuration ساده می‌تواند چیزی شبیه این باشد:
+ساختار یک configuration ساده می‌ تواند چیزی شبیه این باشد :
 
 ```
 setenv PATH $HOME/bin:/usr/local/bin:/usr/bin:/bin
@@ -497,9 +430,7 @@ umask 022
 set prompt="%m%% "
 ```
 
-در tcsh/csh syntax با Bash فرق می‌کند.
-
-مثلاً به‌جای:
+در tcsh/csh syntax با Bash فرق می‌ کند مثلاً به‌ جای :
 
 ```
 export EDITOR=vi
@@ -511,9 +442,7 @@ export EDITOR=vi
 setenv EDITOR vi
 ```
 
-استفاده می‌شود.
-
-همچنین prompt escapeها نیز متفاوت‌اند؛ از جمله:
+استفاده می‌ شود ، همچنین prompt escape ها نیز متفاوت‌اند از جمله :
 
 ```
 %n    username
@@ -524,43 +453,25 @@ setenv EDITOR vi
 %%    %
 ```
 
-مثلاً:
+مثلاً :
 
 ```
 set prompt="%m%% "
 ```
 
-می‌تواند hostname را همراه % نمایش دهد.
+می‌ تواند hostname را همراه % نمایش دهد.
 
 ---
 
-### 13.5 Default User Settings
+### Default User Settings
 
-وقتی administrator می‌خواهد startup fileهای default را برای userهای جدید طراحی کند، تست کردن مستقیم روی account واقعی خودش روش خوبی نیست.
+وقتی administrator می‌ خواهد startup file های default را برای user های جدید طراحی کند ، تست کردن مستقیم روی account واقعی خودش روش خوبی نیست. دلیل واضح است چون home directory واقعی معمولاً پر از configuration های قبلی است برای همین کتاب یک روش بسیار بهتر پیشنهاد می‌ کند :
 
-دلیل واضح است:
+``` ایجاد یک test user + خالی home directory + ساخت startup file از صفر ```
 
-home directory واقعی معمولاً پر از configurationهای قبلی است.
+#### 🔹 The Right Way to Test
 
-برای همین کتاب یک روش بسیار بهتر پیشنهاد می‌کند:
-
-```
-ایجاد یک test user
-+
-home directory خالی
-+
-ساخت startup file از صفر
-```
-
-#### The Right Way to Test
-
-ابتدا یک user آزمایشی با home خالی ایجاد کنید.
-
-سپس startup fileهای شخصی خودتان را به او copy نکنید.
-
-به‌جای آن، configuration را از ابتدا بسازید.
-
-بعد تست کنید:
+ابتدا یک user آزمایشی با home خالی ایجاد کنید سپس startup file های شخصی خودتان را به او copy نکنید به‌ جای آن ، configuration را از ابتدا بسازید بعد تست کنید :
 
 - console login
 - SSH login
@@ -570,140 +481,38 @@ home directory خالی
 - manual pages
 - graphical environment
 
-وقتی configuration در همه‌ی این حالت‌ها درست کار کرد، می‌توان یک test user دوم ساخت و startup fileهای test user اول را روی آن آزمایش کرد.
+وقتی configuration در همه‌ ی این حالت‌ ها درست کار کرد ، می‌ توان یک test user دوم ساخت و startup file های test user اول را روی آن آزمایش کرد. این مرحله کمک می‌کند مطمئن شوید configuration فقط به environment شخصی user اول وابسته نیست. کتاب دقیقاً پیشنهاد می‌ کند setup را روی یک user تازه آزمایش کنید و سپس با user دوم نیز copy و test کنید تا configuration برای توزیع به کاربران دیگر آماده‌ تر شود.
 
-این مرحله کمک می‌کند مطمئن شوید configuration فقط به environment شخصی user اول وابسته نیست.
+#### 🔹 Shell Defaults
 
-کتاب دقیقاً پیشنهاد می‌کند setup را روی یک user تازه آزمایش کنید و سپس با user دوم نیز copy و test کنید تا configuration برای توزیع به کاربران دیگر آماده‌تر شود.
+کتاب Bash را به‌ عنوان default shell پیشنهادی برای user های جدید در Linux مطرح می‌ کند ، معمولاً Bash روی بیشتر Linux distribution ها default است و Bash همان shell است که بسیاری از user ها برای script ها نیز استفاده می‌ کنند و از GNU readline استفاده می‌ کند همچنین امکانات مناسب و قابل‌ فهمی برای redirection و file descriptors دارد.
 
-#### 13.5.1 Shell Defaults
+استفاده از یک shell یکسان برای interactive work و shell scripting یک مزیت آموزشی و عملی محسوب می‌شود. البته  user های باتجربه ممکن است از csh یا tcsh یا ksh یا zsh یا fish یا shell های دیگر استفاده کنند. اما اگر user preference خاصی ندارد ، کتاب پیشنهاد می‌ کند Bash default باشد. این به معنای ممنوع بودن shell های دیگر نیست بلکه user می‌ تواند shell مورد علاقه‌ ی خود را انتخاب کند. برای تغییر shell login نیز می‌ توان از ```chsh``` استفاده کرد ، البته بسته به policy سیستم. کتاب همچنین اشاره می‌ کند که shell هایی مانند zsh و fish در میان بعضی کاربران محبوب‌ اند و انتخاب shell ultimately به نیاز و ترجیح کاربر بستگی دارد.
 
-کتاب Bash را به‌عنوان default shell پیشنهادی برای userهای جدید در Linux مطرح می‌کند.
+#### 🔹 Editor
 
-دلایلی که ارائه می‌شود شامل این موارد است:
+یکی دیگر از اجزای user environment هم default editor است. در سیستم‌ های Unix قدیمی ، دو نام بسیار شناخته‌ شده vi و emacs بودند. دلیل اهمیت آن‌ ها این است که احتمال وجود داشتنشان در سیستم‌ های Unix بسیار زیاد بوده است. از طرف دیگر، در بسیاری از Linux distribution ها ```nano``` ، برای user های تازه‌ کار انتخاب ساده‌ تری است. در اینجا هم همان اصل قبلی برقرار است پس default configuration را بیش از حد شخصی و پیچیده نکنید. اگر قرار است startup یا editor configuration را برای user های زیادی تهیه کنید ، نباید editor را با تنظیمات سنگین و عجیب تغییر دهید. مثلاً تغییرهای کوچک قابل‌ قبول‌ اند ، اما تغییر قابل‌ توجه رفتار editor ممکن است user را غافلگیر کند. پس بهتر است ترکیبی از default editor و Minimal configuration داشته باشیم. کتاب حتی درباره‌ ی تنظیمات editor نیز تأکید می‌ کند که default configuration باید تا حد امکان سبک باشد و تغییر هایی که رفتار یا ظاهر editor را به‌ شدت عوض می‌ کنند برای default user environment مناسب نیستند.
 
-- Bash روی بیشتر Linux distributionها default است
-- Bash همان shellای است که بسیاری از userها برای scriptها نیز استفاده می‌کنند
-- Bash از GNU readline استفاده می‌کند
-- Bash امکانات مناسب و قابل‌فهمی برای redirection و file descriptors دارد
+#### 🔹 Pager
 
-استفاده از یک shell یکسان برای interactive work و shell scripting یک مزیت آموزشی و عملی محسوب می‌شود.
-
-البته userهای باتجربه ممکن است از:
-
-- csh
-- tcsh
-- ksh
-- zsh
-- fish
-
-یا shellهای دیگر استفاده کنند.
-
-اما اگر user preference خاصی ندارد، کتاب پیشنهاد می‌کند Bash default باشد.
-
-این به معنای ممنوع بودن shellهای دیگر نیست؛ user می‌تواند shell مورد علاقه‌ی خود را انتخاب کند.
-
-برای تغییر shell login نیز می‌توان از:
-
-```
-chsh
-```
-
-استفاده کرد، البته بسته به policy سیستم.
-
-کتاب در نسخه‌ی سوم همچنین اشاره می‌کند که shellهایی مانند zsh و fish در میان بعضی کاربران محبوب‌اند و انتخاب shell ultimately به نیاز و ترجیح کاربر بستگی دارد.
-
-#### 13.5.2 Editor
-
-editor پیش‌فرض یکی دیگر از اجزای user environment است.
-
-در سیستم‌های Unix قدیمی، دو نام بسیار شناخته‌شده:
-
-- vi
-- emacs
-
-بودند.
-
-دلیل اهمیت آن‌ها این است که احتمال وجود داشتنشان در سیستم‌های Unix بسیار زیاد بوده است.
-
-از طرف دیگر، در بسیاری از Linux distributionها:
-
-```
-nano
-```
-
-برای userهای تازه‌کار انتخاب ساده‌تری است.
-
-در اینجا هم همان اصل قبلی برقرار است:
-
-> default configuration را بیش از حد شخصی و پیچیده نکنید.
-
-اگر قرار است startup یا editor configuration را برای userهای زیادی تهیه کنید، نباید editor را با تنظیمات سنگین و عجیب تغییر دهید.
-
-مثلاً تغییرهای کوچک قابل‌قبول‌اند، اما تغییر قابل‌توجه رفتار editor ممکن است user را غافلگیر کند.
-
-پس بهتر است:
-
-```
-Default editor
-+
-Minimal configuration
-```
-
-داشته باشیم.
-
-کتاب حتی درباره‌ی تنظیمات editor نیز تأکید می‌کند که configuration پیش‌فرض باید تا حد امکان سبک باشد و تغییرهایی که رفتار یا ظاهر editor را به‌شدت عوض می‌کنند برای default user environment مناسب نیستند.
-
-#### 13.5.3 Pager
-
-بعضی commandها output طولانی تولید می‌کنند.
-
-مثلاً:
-
-```
-man bash
-```
-
-یا commandهایی که log یا متن طولانی نمایش می‌دهند.
-
-برای این کار از pager استفاده می‌شود.
-
-یکی از معروف‌ترین pagerها:
-
-```
-less
-```
-
-است.
-
-می‌توان environment variable مربوط به pager را چنین تنظیم کرد:
+بعضی command ها output طولانی تولید می‌ کنند مثلاً ```man bash``` یا command هایی که log یا متن طولانی نمایش می‌ دهند برای این کار از pager استفاده می‌ شود ، یکی از معروف‌ ترین pager ها ```less``` است. می‌ توان environment variable مربوط به pager را چنین تنظیم کرد :
 
 ```
 PAGER=less
 export PAGER
 ```
 
-در این حالت برنامه‌هایی که از PAGER استفاده می‌کنند، می‌توانند خروجی طولانی خود را به less بسپارند.
-
-این یکی از defaultهای ساده و منطقی برای user environment است.
+در این حالت برنامه‌ هایی که از PAGER استفاده می‌ کنند ، می‌ توانند خروجی طولانی خود را به less بسپارند. این یکی از  default های ساده و منطقی برای user environment است.
 
 ---
 
-### 13.6 Startup File Pitfalls
+### Startup File Pitfalls
 
-این بخش یکی از مهم‌ترین قسمت‌های فصل است.
+این بخش یکی از مهم‌ ترین قسمت‌ های فصل است. startup file در محیط‌ های مختلف اجرا می‌ شود و بنابراین نباید فرض کنیم همیشه شرایط یکسانی وجود دارد کتاب چند اشتباه مهم را مشخص می‌ کند.
 
-startup file در محیط‌های مختلف اجرا می‌شود و بنابراین نباید فرض کنیم همیشه شرایط یکسانی وجود دارد.
+#### 🔹 Running Graphical Commands in Startup
 
-کتاب چند اشتباه مهم را مشخص می‌کند.
-
-#### Running Graphical Commands in Startup
-
-نباید commandهای graphical را به‌صورت عمومی در startup file یک shell قرار دهید.
-
-ممکن است shell در محیطی اجرا شود که اصلاً graphical session ندارد.
-
-مثلاً:
+نباید command های graphical را به‌ صورت عمومی در startup file یک shell قرار دهید. ممکن است shell در محیطی اجرا شود که اصلاً graphical session ندارد مثلاً :
 
 - SSH session
 - console
@@ -711,165 +520,67 @@ startup file در محیط‌های مختلف اجرا می‌شود و بنا�
 - script
 - container
 
-در چنین محیطی اجرای یک graphical command ممکن است fail شود یا startup را مختل کند.
+در چنین محیطی اجرای یک graphical command ممکن است fail شود یا startup را مختل کند بنابراین startup عمومی shell باید تا حد امکان مستقل از GUI باشد.
 
-بنابراین startup عمومی shell باید تا حد امکان مستقل از GUI باشد.
+#### 🔹 Manually Setting DISPLAY
 
-#### Manually Setting DISPLAY
+قرار دادن ```DISPLAY``` در startup file ایده‌ ی خوبی نیست. مقدار DISPLAY به graphical session وابسته است و display manager یا محیط گرافیکی ممکن است مقدار مناسب را خودش تعیین کند. اگر مقدار را به‌ صورت hard-code در startup file قرار دهید ، ممکن است session های گرافیکی مختلف با آن تداخل پیدا کنند. کتاب نیز صراحتاً می‌ گوید DISPLAY را در shell startup file تنظیم نکنید ، زیرا می‌ تواند graphical session را به‌ هم بزند.
 
-قرار دادن:
+#### 🔹 Manually Setting Terminal Type
 
-```
-DISPLAY=...
-```
+نباید فرض کنید ```terminal type``` همیشه یک مقدار ثابت دارد. تنظیمات مربوط به terminal باید با محیط واقعی session هماهنگ باشند. قرار دادن مقدار ثابت در startup file می‌ تواند باعث شود shell یک terminal را اشتباه تشخیص دهد این مسئله مخصوصاً در محیط‌ هایی مثل SSH یا console یا terminal emulator که ممکن است شرایط متفاوتی داشته باشند اهمیت دارد.
 
-در startup file ایده‌ی خوبی نیست.
+#### 🔹 Insufficient Comments
 
-مقدار DISPLAY به graphical session وابسته است و display manager یا محیط گرافیکی ممکن است مقدار مناسب را خودش تعیین کند.
-
-اگر مقدار را به‌صورت hard-code در startup file قرار دهید، ممکن است sessionهای گرافیکی مختلف با آن تداخل پیدا کنند.
-
-کتاب نیز صراحتاً می‌گوید DISPLAY را در shell startup file تنظیم نکنید، زیرا می‌تواند graphical session را به‌هم بزند.
-
-#### Manually Setting Terminal Type
-
-نباید به‌صورت عمومی فرض کنید:
-
-```
-terminal type
-```
-
-همیشه یک مقدار ثابت دارد.
-
-تنظیمات مربوط به terminal باید با محیط واقعی session هماهنگ باشند.
-
-قرار دادن مقدار ثابت در startup file می‌تواند باعث شود shell یک terminal را اشتباه تشخیص دهد.
-
-این مسئله مخصوصاً در محیط‌هایی مثل:
-
-- SSH
-- console
-- terminal emulator
-
-که ممکن است شرایط متفاوتی داشته باشند اهمیت دارد.
-
-#### Insufficient Comments
-
-یک startup file بدون comment مناسب بعدها بسیار سخت‌تر قابل نگهداری است.
-
-به‌خصوص اگر user جدید یا administrator دیگری بخواهد آن را اصلاح کند.
-
-مثلاً:
+یک startup file بدون comment مناسب بعد ها بسیار سخت‌ تر قابل نگهداری است. به‌ خصوص اگر user جدید یا administrator دیگری بخواهد آن را اصلاح کند مثلاً :
 
 ```
 PATH="$HOME/bin:$PATH"
 ```
-
-به‌تنهایی کاملاً واضح نیست که چرا $HOME/bin در ابتدای PATH قرار گرفته است.
-
-اما:
+به‌ تنهایی کاملاً واضح نیست که چرا HOME/bin$ در ابتدای PATH قرار گرفته است اما :
 
 ```
 # Prefer programs and scripts installed in the user's local bin directory.
 PATH="$HOME/bin:$PATH"
 ```
 
-هدف را مشخص می‌کند.
+هدف را مشخص می‌ کند کتاب روی comment های توصیفی در default startup file ها تأکید ویژه دارد.
 
-کتاب روی commentهای توصیفی در default startup fileها تأکید ویژه دارد.
+#### 🔹 Producing Output in Startup Files
 
-#### Producing Output in Startup Files
+معمولاً startup file نباید command هایی اجرا کند که به‌ صورت نا خواسته روی ```stdout``` خروجی تولید می‌ کنند مثلاً اگر در bashrc. چیزی مانند :
 
-startup file معمولاً نباید commandهایی اجرا کند که به‌صورت ناخواسته روی:
+``` echo "Welcome!" ```
 
-```
-stdout
-```
+قرار دهید ، ممکن است هنگام SSH هم script یا ابزارهایی که انتظار output تمیز دارند ، رفتار نامطلوب ایجاد کند. در یک interactive terminal شاید این message بد به نظر نرسد ، اما startup file ممکن است در context های دیگری نیز source شود بنابراین بهتر است command های startup فقط configuration مورد نیاز را انجام دهند و از output غیر ضروری خود داری شود.
 
-خروجی تولید می‌کنند.
+#### 🔹 LD_LIBRARY_PATH
 
-مثلاً اگر در .bashrc چیزی مانند:
-
-```
-echo "Welcome!"
-```
-
-قرار دهید، ممکن است هنگام SSH، script یا ابزارهایی که انتظار output تمیز دارند، رفتار نامطلوب ایجاد کند.
-
-در یک interactive terminal شاید این message بد به نظر نرسد، اما startup file ممکن است در contextهای دیگری نیز source شود.
-
-بنابراین بهتر است commandهای startup فقط configuration مورد نیاز را انجام دهند و از output غیرضروری خودداری شود.
-
-#### LD_LIBRARY_PATH
-
-کتاب هشدار بسیار مهمی درباره‌ی:
-
-```
-LD_LIBRARY_PATH
-```
-
-می‌دهد:
-
-> این variable را به‌صورت عمومی در shell startup file قرار ندهید.
-
-LD_LIBRARY_PATH روی نحوه‌ی پیدا کردن shared libraryها اثر می‌گذارد.
-
-در نتیجه اگر آن را به‌صورت global در environment کاربر قرار دهید، ممکن است تعداد زیادی از برنامه‌ها به‌جای libraryهای سیستم، libraryهای دیگری را بارگذاری کنند.
-
-این موضوع می‌تواند باعث:
+کتاب هشدار بسیار مهمی درباره‌ ی ```LD_LIBRARY_PATH``` می‌ دهد اینکه **این variable را به‌ صورت عمومی در shell startup file قرار ندهید**. LD_LIBRARY_PATH روی نحوه‌ ی پیدا کردن shared library ها اثر می‌گذارد در نتیجه اگر آن را به‌ صورت global در environment کاربر قرار دهید ، ممکن است تعداد زیادی از برنامه‌ ها به‌ جای library های سیستم ، library های دیگری را بارگذاری کنند این موضوع می‌ تواند باعث :
 
 - incompatibility
 - unexpected behavior
 - application failure
 - security problems
 
-شود.
-
-بنابراین اگر یک برنامه به library خاصی نیاز دارد، بهتر است configuration آن برنامه را در همان محدوده‌ی مورد نیازش نگه دارید، نه اینکه environment تمام shellهای کاربر را تغییر دهید.
-
-کتاب این مورد را در کنار اجرای graphical command، تنظیم DISPLAY، terminal type، نبودن comment و commandهای دارای stdout output به‌عنوان یکی از pitfalls اصلی startup file مطرح می‌کند.
+شود ، بنابراین اگر یک برنامه به library خاصی نیاز دارد بهتر است configuration آن برنامه را در همان محدود ه‌ی مورد نیازش نگه دارید ، نه اینکه environment تمام shell های کاربر را تغییر دهید. کتاب این مورد را در کنار اجرای graphical command ، تنظیم DISPLAY ، terminal type ، نبودن comment و command های دارای stdout output به‌ عنوان یکی از pitfalls اصلی startup file مطرح می‌ کند.
 
 ---
 
-### 13.7 Further Startup Topics
+### Further Startup Topics
 
-فصل سیزدهم عمدتاً روی shell startup تمرکز دارد و وارد جزئیات کامل startup محیط‌های graphical نمی‌شود.
-
-در Linux مدرن، login گرافیکی نیز خودش ممکن است مجموعه‌ای از startup mechanismها را داشته باشد.
-
-نمونه‌هایی که کتاب ذکر می‌کند:
+فصل سیزدهم عمدتاً روی shell startup تمرکز دارد و وارد جزئیات کامل startup محیط‌ های graphical نمی‌ شود. در Linux مدرن ، login گرافیکی نیز خودش ممکن است مجموعه‌ ای از startup mechanism ها را داشته باشد. نمونه‌ هایی که کتاب ذکر می‌ کند :
 
 - .xsession
 - .xinitrc
 
-و همچنین مجموعه‌ای از configurationهای مربوط به محیط‌هایی مانند:
-
-- GNOME
-- KDE
-
-این بخش بسیار بزرگ و وابسته به نوع desktop environment است.
-
-برخلاف shell startup، یک روش واحد که در تمام Linux desktopها برای graphical session startup استفاده شود وجود ندارد.
-
-بنابراین هدف این فصل بررسی کامل GUI startup نیست.
-
-اما اصل قبلی اینجا هم صادق است:
-
-- ساده
-- واضح
-- قابل پیش‌بینی
-
-بودن بهتر از این است که startup environment را با ده‌ها script و شرط مختلف پیچیده کنیم.
-
-به‌خصوص در مورد default userها، بهتر است تا جای ممکن configuration گرافیکی را نیز دستکاری نکنیم، مگر اینکه واقعاً ضرورتی وجود داشته باشد.
-
-کتاب در پایان فصل تأکید می‌کند که startup environment گرافیکی حوزه‌ی بزرگی است و روش راه‌اندازی آن در Linux یکدست نیست؛ بنابراین همان اصل سادگی که در shell startup اهمیت دارد، در GUI startup نیز مفید است.
+و همچنین مجموعه‌ ای از configuration های مربوط به محیط‌ هایی مانند GNOME و KDE این بخش بسیار بزرگ و وابسته به نوع desktop environment است. برخلاف shell startup ، یک روش واحد که در تمام Linux desktop ها برای graphical session startup استفاده شود وجود ندارد بنابراین هدف این فصل بررسی کامل GUI startup نیست. اما اصل قبلی اینجا هم درست است شامل ساده ، واضح و قابل پیش‌ بینی بودن بهتر از این است که startup environment را با ده‌ ها script و شرط مختلف پیچیده کنیم. به‌خصوص در مورد default user ها ، بهتر است تا جای ممکن configuration گرافیکی را نیز دستکاری نکنیم ، مگر اینکه واقعاً ضرورتی وجود داشته باشد. کتاب در پایان فصل تأکید می‌ کند که startup environment گرافیکی حوزه‌ ی بزرگی است و روش راه‌ اندازی آن در Linux یکدست نیست بنابراین همان اصل سادگی که در shell startup اهمیت دارد ، در GUI startup نیز مفید است.
 
 ---
 
 ### How the Pieces of the Startup Environment Fit Together
 
-اگر بخواهیم تمام فصل را کنار هم قرار دهیم، هنگام شروع یک Bash تعاملی، چیزی شبیه این اتفاق می‌افتد:
+اگر بخواهیم تمام فصل را کنار هم قرار دهیم ، هنگام شروع یک Bash تعاملی ، چیزی شبیه این اتفاق می‌ افتد :
 
 ```
 Login / Terminal
@@ -892,9 +603,7 @@ Interactive shell
 User commands
 ```
 
-اما بسته به نوع shell و نوع login، startup file متفاوت است.
-
-برای Bash:
+اما بسته به نوع shell و نوع login ، startup file متفاوت است ، برای Bash :
 
 ```
                  Bash
@@ -916,7 +625,7 @@ User commands
 
 ### A Simple, Clean Bash Environment Example
 
-یک configuration مینیمال می‌تواند به این صورت باشد:
+یک configuration مینیمال می‌ تواند به این صورت باشد :
 
 ```
 # User-local programs first.
@@ -942,7 +651,7 @@ export PATH EDITOR VISUAL PAGER LESS
 umask 022
 ```
 
-و .bash_profile می‌تواند فقط مسئول load کردن .bashrc باشد:
+و bash_profile. می‌ تواند فقط مسئول load کردن bashrc. باشد :
 
 ```
 if [ -f "$HOME/.bashrc" ]; then
@@ -950,11 +659,7 @@ if [ -f "$HOME/.bashrc" ]; then
 fi
 ```
 
-این مثال عمداً ساده است.
-
-قرار نیست همه‌ی امکانات Bash را وارد startup کنیم.
-
-هدف این است که environment مشخص باشد و بدانیم هر خط چرا وجود دارد.
+این مثال عمداً ساده است قرار نیست همه‌ ی امکانات Bash را وارد startup کنیم. هدف این است که environment مشخص باشد و بدانیم هر خط چرا وجود دارد.
 
 ---
 
@@ -962,7 +667,7 @@ fi
 
 #### 🔹 Don't Make PATH Unnecessarily Long
 
-به‌جای اینکه برای هر software یک directory جدید اضافه کنید، از ساختارهایی مثل:
+به‌ جای اینکه برای هر software یک directory جدید اضافه کنید ، از ساختارهایی مثل :
 
 ```
 $HOME/.local/bin
@@ -970,70 +675,33 @@ $HOME/bin
 /usr/local/bin
 ```
 
-به‌صورت منطقی استفاده کنید.
+به‌ صورت منطقی استفاده کنید.
 
 #### 🔹 Don't Put . in PATH
 
-برای اجرای executable از directory فعلی صریحاً بنویسید:
-
-```
-./program
-```
-
-نه:
-
-```
-program
-```
-
-با فرض اینکه . در PATH قرار دارد.
+برای اجرای executable از directory فعلی صریحاً بنویسید ```program/.``` نه ```program``` ، با فرض اینکه '.' در PATH قرار دارد.
 
 #### 🔹 Don't Mix Up .bashrc and .bash_profile
 
-login و non-login shell رفتار یکسانی ندارند.
-
-اگر configuration مشترکی دارید، یک محل مشخص برای آن تعیین کنید و فایل دیگر را به آن source کنید.
+همچنین login و non-login shell رفتار یکسانی ندارند. اگر configuration مشترکی دارید ، یک محل مشخص برای آن تعیین کنید و فایل دیگر را به آن source کنید.
 
 #### 🔹 Keep Startup Files Scoped to the Real Environment
 
-SSH، terminal، console و GUI ممکن است شرایط متفاوتی داشته باشند.
-
-به همین دلیل مواردی مثل:
-
-- DISPLAY
-- terminal type
-- graphical commands
-
-نباید بی‌دلیل در startup عمومی shell قرار بگیرند.
+ممکن است SSH ، terminal ، console و GUI شرایط متفاوتی داشته باشند. به همین دلیل مواردی مثل DISPLAY و terminal type و graphical commands ، نباید بی‌ دلیل در startup عمومی shell قرار بگیرند.
 
 #### 🔹 Keep Aliases for Simple Tasks
 
-برای logic پیچیده:
-
-- function
-- script
-- wrapper
-
-معمولاً انتخاب بهتری است.
+برای logic پیچیده معمولاً function و script و wrapper انتخاب بهتری است.
 
 #### 🔹 Set umask According to System Needs
 
-077 و 022 هرکدام کاربرد متفاوتی دارند و انتخاب آن‌ها باید بر اساس نیاز اشتراک فایل و حریم خصوصی سیستم انجام شود.
+077 و 022 هرکدام کاربرد متفاوتی دارند و انتخاب آن‌ ها باید بر اساس نیاز اشتراک فایل و حریم خصوصی سیستم انجام شود.
 
 #### 🔹 Startup Files Are Not the Place for System-Wide Configuration
 
-هر خطی که در startup قرار می‌دهید روی processهای بیشتری اثر می‌گذارد.
-
-بنابراین بهتر است configuration برنامه را در خود برنامه، wrapper یا مکان مناسب دیگری قرار دهید، نه اینکه همه‌چیز را وارد .bashrc کنید.
-
+هر خطی که در startup قرار می‌ دهید روی process های بیشتری اثر می‌ گذارد. بنابراین بهتر است configuration برنامه را در خود برنامه ، wrapper یا مکان مناسب دیگری قرار دهید ، نه اینکه همه‌چیز را وارد bashrc. کنید.
 ---
 
 ### Summary
 
-فصل سیزدهم توضیح می‌دهد که startup fileها محیط کاری shell را می‌سازند. PATH، prompt، aliasها، umask و variableهایی مثل EDITOR و PAGER از مهم‌ترین اجزای این محیط هستند.
-
-در Bash باید تفاوت login، non-login، interactive و noninteractive را بشناسیم و startup file مناسب هرکدام را درست مدیریت کنیم.
-
-اصل کلیدی فصل این است:
-
-> startup environment را ساده، خوانا و قابل پیش‌بینی نگه دارید و فقط تنظیماتی را وارد آن کنید که واقعاً لازم‌اند.
+فصل سیزدهم توضیح می‌ دهد که startup file ها محیط کاری shell را می‌ سازند. PATH ، prompt ، alias ها ، umask و variable هایی مثل EDITOR و PAGER از مهم‌ ترین اجزای این محیط هستند. در Bash باید تفاوت login ، non-login ، interactive و noninteractive را بشناسیم و startup file مناسب هر کدام را درست مدیریت کنیم. اصل کلیدی فصل این است که **startup environment را ساده ، خوانا و قابل پیش‌ بینی نگه دارید و فقط  تنظیماتی را وارد آن کنید که واقعاً لازم‌ اند**.
