@@ -681,6 +681,7 @@ $HOME/bin
 
 برای اجرای executable از directory فعلی صریحاً بنویسید ```program/.``` نه ```program``` ، با فرض اینکه '.' در PATH قرار دارد.
 
+
 #### 🔹 Don't Mix Up .bashrc and .bash_profile
 
 همچنین login و non-login shell رفتار یکسانی ندارند. اگر configuration مشترکی دارید ، یک محل مشخص برای آن تعیین کنید و فایل دیگر را به آن source کنید.
@@ -689,17 +690,22 @@ $HOME/bin
 
 ممکن است SSH ، terminal ، console و GUI شرایط متفاوتی داشته باشند. به همین دلیل مواردی مثل DISPLAY و terminal type و graphical commands ، نباید بی‌ دلیل در startup عمومی shell قرار بگیرند.
 
+
 #### 🔹 Keep Aliases for Simple Tasks
 
 برای logic پیچیده معمولاً function و script و wrapper انتخاب بهتری است.
+
 
 #### 🔹 Set umask According to System Needs
 
 077 و 022 هرکدام کاربرد متفاوتی دارند و انتخاب آن‌ ها باید بر اساس نیاز اشتراک فایل و حریم خصوصی سیستم انجام شود.
 
+
 #### 🔹 Startup Files Are Not the Place for System-Wide Configuration
 
 هر خطی که در startup قرار می‌ دهید روی process های بیشتری اثر می‌ گذارد. بنابراین بهتر است configuration برنامه را در خود برنامه ، wrapper یا مکان مناسب دیگری قرار دهید ، نه اینکه همه‌چیز را وارد bashrc. کنید.
+
+
 ---
 
 ### Summary
