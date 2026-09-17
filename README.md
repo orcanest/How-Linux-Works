@@ -22,7 +22,7 @@
 - 10 [Network applications and services](https://github.com/orcanest/How-Linux-Works/tree/main/10-network-applications-and-services)
 - 11 [Introduction to Shellscripts](https://github.com/orcanest/How-Linux-Works/tree/main/11-introduction-to-shell-scripts)
 - 12 [Network file transfer and sharing](https://github.com/orcanest/How-Linux-Works/tree/main/12-network-file-transfer-and-sharing)
-- 13
+- 13 [User Environments](https://github.com/orcanest/How-Linux-Works/tree/main/13-user-environments)
 - 14
 - 15
 - 16
