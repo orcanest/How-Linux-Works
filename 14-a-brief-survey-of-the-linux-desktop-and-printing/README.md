@@ -19,312 +19,114 @@
 
 ---
 
-### 14.1 Desktop Components
+###  Desktop Components
 
-یکی از ویژگی‌های مهم Linux desktop انعطاف‌پذیری آن است. آنچه کاربر در نهایت به‌عنوان ظاهر و رفتار desktop می‌بیند، حاصل همکاری چندین component مختلف است و الزاماً یک نرم‌افزار واحد مسئول همه چیز نیست.
-
-برخلاف بعضی قسمت‌های سیستم‌عامل که می‌توان آن‌ها را به‌صورت یک زنجیره نسبتاً مشخص از لایه‌ها تصور کرد، desktop بیشتر مجموعه‌ای از اجزای مستقل است. بعضی از این اجزا libraryهای مشترکی دارند و از طریق همین building blockهای مشترک با هم هماهنگ می‌شوند، اما architecture کلی بسیار آزادتر است.
-
-در نسخه‌های جدیدتر Linux، این حوزه در وضعیت گذار میان X Window System و Wayland قرار گرفته است. X برای سال‌های طولانی پایه‌ی اصلی desktopهای Linux بود، ولی بسیاری از distributionها به سمت سیستم‌های مبتنی بر Wayland حرکت کرده‌اند.
+یکی از ویژگی‌های مهم Linux desktop انعطاف‌ پذیری آن است. آنچه کاربر در نهایت به‌ عنوان ظاهر و رفتار desktop می‌ بیند ، حاصل همکاری چندین component مختلف است و الزاماً یک نرم‌افزار واحد مسئول همه چیز نیست. برخلاف بعضی قسمت‌ های سیستم‌ عامل که می‌ توان آن‌ ها را به‌ صورت یک زنجیره نسبتاً مشخص از لایه‌ ها تصور کرد ، desktop بیشتر مجموعه‌ ای از اجزای مستقل است. بعضی از این اجزا library های مشترکی دارند و از طریق همین building block های مشترک با هم هماهنگ می‌ شوند ، اما architecture کلی بسیار آزاد تر است. در نسخه‌ های جدید تر Linux ، این حوزه در وضعیت گذار میان X Window System و Wayland قرار گرفته است. X برای سال‌ های طولانی پایه‌ ی اصلی desktop های Linux بود ، ولی بسیاری از distribution ها به سمت سیستم‌ های مبتنی بر Wayland حرکت کرده‌ اند.
 
 #### 🔹 Framebuffers
 
-در پایین‌ترین سطح یک سیستم نمایش گرافیکی، چیزی به نام framebuffer قرار دارد.
-
-Framebuffer را می‌توان بخشی از حافظه در نظر گرفت که اطلاعات مربوط به تصویر در آن ذخیره می‌شود و سخت‌افزار گرافیکی آن اطلاعات را می‌خواند و برای نمایش روی صفحه استفاده می‌کند. در ساده‌ترین مدل ذهنی، هر قسمت از حافظه‌ی framebuffer متناظر با اطلاعات مربوط به یک یا چند pixel است. بنابراین اگر قرار باشد ظاهر تصویر تغییر کند، در نهایت باید مقادیر مناسب در framebuffer تغییر کنند.
-
-اما همین‌جا یکی از مسائل اصلی windowing systemها مطرح می‌شود.
-
-فرض کنید چند process مختلف داریم و هر process صاحب یک یا چند window است. هر برنامه به‌صورت مستقل بخش گرافیکی خودش را تولید می‌کند. کاربر هم باید بتواند پنجره‌ها را حرکت دهد، آن‌ها را روی هم بیندازد، بعضی را جلوتر از بقیه بیاورد و بخشی از صفحه را پوشش دهد.
-
-در این شرایط دو مسئله اساسی وجود دارد:
+در پایین‌ ترین سطح یک سیستم نمایش گرافیکی، چیزی به نام framebuffer قرار دارد. Framebuffer را می‌ توان بخشی از حافظه در نظر گرفت که اطلاعات مربوط به تصویر در آن ذخیره می‌ شود و سخت‌ افزار گرافیکی آن اطلاعات را می‌ خواند و برای نمایش روی صفحه استفاده می‌ کند. در ساده‌ ترین مدل ذهنی ، هر قسمت از حافظه‌ ی framebuffer متناظر با اطلاعات مربوط به یک یا چند pixel است. بنابراین اگر قرار باشد ظاهر تصویر تغییر کند ، در نهایت باید مقادیر مناسب در framebuffer تغییر کنند. اما همین‌ جا یکی از مسائل اصلی windowing system ها مطرح می‌ شود. فرض کنید چند process مختلف داریم و هر process صاحب یک یا چند window است. هر برنامه به‌ صورت مستقل بخش گرافیکی خودش را تولید می‌ کند. کاربر هم باید بتواند پنجره‌ ها را حرکت دهد ، آن‌ ها را روی هم بیندازد ، بعضی را جلوتر از بقیه بیاورد و بخشی از صفحه را پوشش دهد. در این شرایط دو مسئله اساسی وجود دارد:
 
 - هر برنامه باید بداند دقیقاً کجا باید محتوای window خودش را رسم کند.
-- یک برنامه نباید بتواند محتوای گرافیکی متعلق به window برنامه‌ی دیگر را خراب یا overwrite کند.
+- یک برنامه نباید بتواند محتوای گرافیکی متعلق به window برنامه‌ ی دیگر را خراب یا overwrite کند.
 
-بنابراین یکی از مسئولیت‌های اصلی هر windowing system این است که بین bufferهای مربوط به برنامه‌های مختلف هماهنگی ایجاد کند و مشخص کند چه چیزی در نهایت باید روی framebuffer نمایش داده شود.
+بنابراین یکی از مسئولیت‌ های اصلی هر windowing system این است که بین buffer های مربوط به برنامه‌ های مختلف هماهنگی ایجاد کند و مشخص کند چه چیزی در نهایت باید روی framebuffer نمایش داده شود.
 
 #### 🔹 The X Window System
 
-مدل X Window System برای حل این مسئله یک X server مرکزی دارد.
+مدل X Window System برای حل این مسئله یک X server مرکزی دارد. X server را می‌ توان تقریباً به‌ عنوان هسته‌ ی قدیمی desktop در نظر گرفت. این server مسئول کارهایی مانند مدیریت نمایش ، rendering ، تنظیم display و دریافت input از device هایی مثل keyboard و mouse است. برنامه‌ هایی مثل terminal window یا web browser در این مدل X client هستند. client به X server متصل می‌ شود و درخواست‌ هایی برای ساخت و نمایش window ارسال می‌ کند. X server در پاسخ ، مسئولیت بخشی از کارهای مربوط به نمایش را بر عهده می‌ گیرد :
 
-X server را می‌توان تقریباً به‌عنوان هسته‌ی قدیمی desktop در نظر گرفت. این server مسئول کارهایی مانند مدیریت نمایش، rendering، تنظیم display و دریافت input از deviceهایی مثل keyboard و mouse است.
+- مشخص می‌ کند window ها در کجا قرار بگیرند.
+- مشخص می‌ کند خروجی client در چه بخشی از نمایش render شود.
+- داده‌ ی گرافیکی را در مسیر رسیدن به framebuffer مدیریت می‌ کند.
+- همچنین event های input را به client مناسب می‌ رساند.
 
-برنامه‌هایی مثل terminal window یا web browser در این مدل X client هستند. client به X server متصل می‌شود و درخواست‌هایی برای ساخت و نمایش window ارسال می‌کند.
+> نکته‌ ی مهم این است که X server به‌ تنهایی ظاهر یک برنامه را تعیین نمی‌ کند. این خود X client ها هستند که UI برنامه را می‌ سازند. بنابراین X server بیشتر زیرساختی است که client ها روی آن کار می‌ کنند.
 
-X server در پاسخ، مسئولیت بخشی از کارهای مربوط به نمایش را بر عهده می‌گیرد:
-
-- مشخص می‌کند windowها در کجا قرار بگیرند.
-- مشخص می‌کند خروجی client در چه بخشی از نمایش render شود.
-- داده‌ی گرافیکی را در مسیر رسیدن به framebuffer مدیریت می‌کند.
-- eventهای input را به client مناسب می‌رساند.
-
-نکته‌ی مهم این است که X server به‌تنهایی ظاهر یک برنامه را تعیین نمی‌کند. این خود X clientها هستند که UI برنامه را می‌سازند. بنابراین X server بیشتر زیرساختی است که clientها روی آن کار می‌کنند.
-
-این architecture در زمان خودش بسیار انعطاف‌پذیر بود، اما از آنجا که X واسطه‌ی بسیار زیادی از کارهاست، می‌تواند یک bottleneck ایجاد کند. علاوه بر این، X سیستم بسیار قدیمی‌ای است که ریشه‌ی آن به دهه‌ی ۱۹۸۰ برمی‌گردد و طی سال‌ها قابلیت‌های زیادی به آن اضافه شده است؛ در نتیجه بخش‌هایی از آن شامل functionalityهایی است که دیگر در desktopهای مدرن اهمیت گذشته را ندارند.
+این architecture در زمان خودش بسیار انعطاف‌پذیر بود ، اما از آنجا که X واسطه‌ ی بسیار زیادی از کارهاست ، می‌ تواند یک bottleneck ایجاد کند. علاوه بر این ، X سیستم بسیار قدیمی‌ ای است که ریشه‌ ی آن به دهه‌ ی ۱۹۸۰ برمی‌ گردد و طی سال‌ ها قابلیت‌ های زیادی به آن اضافه شده است ؛ در نتیجه بخش‌هایی از آن شامل functionality هایی است که دیگر در desktop های مدرن اهمیت گذشته را ندارند.
 
 #### 🔹 Wayland
 
-Wayland برای حل همین مسائل با architecture متفاوتی طراحی شده است.
-
-در Wayland یک display server مرکزی مشابه مدل X وجود ندارد که همه‌ی framebuffer operations را برای تمام clientها انجام دهد. در عوض، هر graphical client معمولاً buffer خودش را برای window خودش در اختیار دارد.
-
-سپس یک component به نام compositor bufferهای مختلف clientها را با یکدیگر ترکیب می‌کند و نتیجه‌ی نهایی را برای نمایش روی framebuffer آماده می‌کند.
-
-از آنجا که بسیاری از سیستم‌های گرافیکی امروزی از hardware acceleration استفاده می‌کنند، این مرحله می‌تواند بسیار کارآمد انجام شود.
-
-از یک دید دیگر، بخشی از این ایده کاملاً جدید نیست. بسیاری از X clientهای مدرن سال‌هاست که بخش زیادی از تصویر خودشان را به‌صورت bitmap تولید می‌کنند و سپس آن را در اختیار X قرار می‌دهند. X نیز برای همین مدل، extensionهای compositing را در طول زمان اضافه کرده است.
-
-بنابراین یکی از تفاوت‌های اصلی این است که در Wayland compositing از ابتدا بخشی اساسی از architecture محسوب می‌شود، در حالی که X این قابلیت را در طول زمان به سیستم خود اضافه کرده است.
-
-برای مسیر input نیز بسیاری از سیستم‌های Wayland و حتی بسیاری از پیاده‌سازی‌های X از libinput استفاده می‌کنند تا eventهای deviceهای ورودی به شکلی استاندارد به بخش مناسب سیستم منتقل شوند. libinput جزئی اجباری از protocol خود Wayland نیست، ولی در desktopهای امروزی بسیار رایج است.
+برای حل همین مسائل Wayland با architecture متفاوتی طراحی شده است. در Wayland یک display server مرکزی مشابه مدل X وجود ندارد که همه‌ ی framebuffer operations را برای تمام client ها انجام دهد. در عوض ، هر graphical client معمولاً buffer خودش را برای window خودش در اختیار دارد سپس یک component به نام compositor buffer های مختلف client ها را با یکدیگر ترکیب می‌ کند و نتیجه‌ ی نهایی را برای نمایش روی framebuffer آماده می‌ کند. از آنجا که بسیاری از سیستم‌ های گرافیکی امروزی از hardware acceleration استفاده می‌ کنند ، این مرحله می‌ تواند بسیار کارآمد انجام شود. از یک دید دیگر، بخشی از این ایده کاملاً جدید نیست. بسیاری از X client های مدرن سال‌ هاست که بخش زیادی از تصویر خودشان را به‌ صورت bitmap تولید می‌ کنند و سپس آن را در اختیار X قرار می‌ دهند. X نیز برای همین مدل ، extension های compositing را در طول زمان اضافه کرده است. بنابراین یکی از تفاوت‌ های اصلی این است که در Wayland compositing از ابتدا بخشی اساسی از architecture محسوب می‌ شود ، در حالی که X این قابلیت را در طول زمان به سیستم خود اضافه کرده است. برای مسیر input نیز بسیاری از سیستم‌ های Wayland و حتی بسیاری از پیاده‌ سازی‌های X از libinput استفاده می‌ کنند تا event های device های ورودی به شکلی استاندارد به بخش مناسب سیستم منتقل شوند. libinput جزئی اجباری از protocol خود Wayland نیست ، ولی در desktop های امروزی بسیار رایج است.
 
 #### 🔹 Window Managers
 
-Window manager مسئول بخش مهمی از تجربه‌ی کاربر در desktop است، زیرا مشخص می‌کند پنجره‌ها چگونه روی صفحه قرار بگیرند و چه رفتاری داشته باشند.
+مسئول بخش مهمی از تجربه‌ی کاربر در دسکتاپ Window manager است ، زیرا مشخص می‌ کند پنجره‌ ها چگونه روی صفحه قرار بگیرند و چه رفتاری داشته باشند. در X هم window manager خودش یک client است که به X server متصل می‌شود. وظایفی مثل این‌ ها را انجام می‌ دهد :
 
-در X، window manager خودش یک client است که به X server متصل می‌شود. وظایفی مثل این‌ها را انجام می‌دهد:
-
-- تنظیم position پنجره‌ها
-- جابه‌جا کردن پنجره‌ها
+- تنظیم position پنجره‌ ها
+- جا به‌ جا کردن پنجره‌ ها
 - مدیریت title bar
-- مدیریت دکمه‌هایی مثل close
-- واکنش به eventهای مربوط به decoration
-- درخواست از X server برای جابه‌جایی windowها
+- مدیریت دکمه‌ هایی مثل close
+- واکنش به event های مربوط به decoration
+- درخواست از X server برای جا به‌ جایی window ها
 
-به عبارت دیگر، X server و window manager دو component جدا هستند.
-
-در Wayland، این تفکیک تا حد زیادی از بین می‌رود. compositor عملاً همان بخش مرکزی‌ای است که نقش window manager را هم بر عهده دارد. compositor bufferهای clientها را ترکیب می‌کند، آن‌ها را در framebuffer نهایی قرار می‌دهد و eventهای input را نیز به مقصد مناسب هدایت می‌کند.
-
-در نتیجه compositor در Wayland مسئولیت بیشتری نسبت به window manager سنتی X دارد.
-
-در هر دو سیستم window managerهای متعددی وجود دارند، ولی X به‌دلیل قدمت بسیار بیشتر، تنوع بسیار بیشتری پیدا کرده است. همچنین پروژه‌هایی مانند Mutter در GNOME و KWin در KDE به‌گونه‌ای توسعه داده شده‌اند که از compositing در Wayland هم پشتیبانی کنند.
-
-با وجود این تنوع، انتظار وجود یک استاندارد واحد برای window manager در Linux منطقی نیست، چون انتخاب window manager تا حد زیادی به نیاز و سلیقه‌ی کاربر بستگی دارد.
+به عبارت دیگر، X server و window manager دو component جدا هستند. در Wayland ، این تفکیک تا حد زیادی از بین می‌ رود. compositor عملاً همان بخش مرکزی‌ ای است که نقش window manager را هم بر عهده دارد. compositor buffer های client ها را ترکیب می‌ کند ، آن‌ ها را در framebuffer نهایی قرار می‌ دهد و event های input را نیز به مقصد مناسب هدایت می‌ کند. در نتیجه compositor در Wayland مسئولیت بیشتری نسبت به window manager سنتی X دارد. در هر دو سیستم window manager های متعددی وجود دارند ، ولی X به‌ دلیل قدمت بسیار بیشتر، تنوع بسیار بیشتری پیدا کرده است. همچنین پروژه‌ هایی مانند Mutter در GNOME و KWin در KDE به‌ گونه‌ای توسعه داده شده‌ اند که از compositing در Wayland هم پشتیبانی کنند. با وجود این تنوع ، انتظار وجود یک استاندارد واحد برای window manager در Linux منطقی نیست ، چون انتخاب window manager تا حد زیادی به نیاز و سلیقه‌ ی کاربر بستگی دارد.
 
 #### 🔹 Toolkits
 
-برنامه‌های desktop معمولاً elementهای مشترکی مانند:
-
-- button
-- menu
-- textbox
-- widget
-
-دارند.
-
-اگر هر برنامه بخواهد همه‌ی این اجزا را از صفر پیاده‌سازی کند، هم توسعه دشوار می‌شود و هم ظاهر برنامه‌ها یکدست نخواهد بود.
-
-به همین دلیل از graphical toolkit استفاده می‌شود. Toolkit مجموعه‌ای از componentها، libraryها و support fileها را فراهم می‌کند تا توسعه‌دهنده بتواند UI برنامه را سریع‌تر بسازد.
-
-در Linux دو toolkit بسیار مهم عبارت‌اند از:
-
-- GTK+
-- Qt
-
-Toolkitها معمولاً فقط مجموعه‌ای از libraryهای کدنویسی نیستند و می‌توانند شامل فایل‌های کمکی مانند imageها و اطلاعات مربوط به themeها نیز باشند.
+برنامه‌ های desktop معمولاً element های مشترکی مانند button و menu و textbox و widget دارند. اگر هر برنامه بخواهد همه‌ ی این اجزا را از صفر پیاده‌ سازی کند ، هم توسعه دشوار می‌ شود و هم ظاهر برنامه‌ ها یکدست نخواهد بود. به همین دلیل از graphical toolkit استفاده می‌ شود. Toolkit مجموعه‌ ای از component ها ، library ها و support file ها را فراهم می‌ کند تا توسعه‌ دهنده بتواند UI برنامه را سریع‌ تر بسازد. در Linux دو toolkit بسیار مهم عبارت‌ اند از GTK+ و Qt . معمولاً Toolkit ها فقط مجموعه‌ ای از library های کدنویسی نیستند و می‌ توانند شامل فایل‌ های کمکی مانند image ها و اطلاعات مربوط به theme ها نیز باشند.
 
 #### 🔹 Desktop Environments
 
-Toolkit به‌تنهایی همه‌ی نیازهای یک desktop را پوشش نمی‌دهد.
+همچنین Toolkit به‌ تنهایی همه‌ ی نیازهای یک desktop را پوشش نمی‌ دهد. گاهی چند برنامه باید با هم همکاری کنند. مثلاً :
 
-گاهی چند برنامه باید با هم همکاری کنند. مثلاً:
+- یک برنامه بخواهد اطلاعاتی را با برنامه‌ ی دیگری به اشتراک بگذارد.
+- برنامه‌ ها باید با notification های desktop هماهنگ شوند.
+- منوها و title ها باید بر اساس convention های مشترک ظاهر شوند.
+- برنامه‌ ها باید رفتار مشخصی نسبت به event های سیستم داشته باشند.
 
-- یک برنامه بخواهد اطلاعاتی را با برنامه‌ی دیگری به اشتراک بگذارد.
-- برنامه‌ها باید با notificationهای desktop هماهنگ شوند.
-- منوها و titleها باید بر اساس conventionهای مشترک ظاهر شوند.
-- برنامه‌ها باید رفتار مشخصی نسبت به eventهای سیستم داشته باشند.
-
-برای ایجاد این هماهنگی، toolkitها و libraryهای دیگر در مجموعه‌های بزرگ‌تری به نام desktop environment قرار می‌گیرند.
-
-نمونه‌های رایج desktop environment عبارت‌اند از:
-
-- GNOME
-- KDE
-- Xfce
-
-Desktop environment فقط toolkit نیست. معمولاً مجموعه‌ای از موارد زیر را نیز شامل می‌شود:
-
-- iconها
-- configurationها
-- themeها
-- design conventionها
-- قوانین مربوط به ظاهر applicationها
-- رفتار مشترک applicationها در برابر eventهای سیستم
-
-به این ترتیب desktop environment تلاش می‌کند مجموعه‌ای از برنامه‌ها را از نظر تجربه‌ی کاربری تا حد ممکن یکپارچه کند.
+برای ایجاد این هماهنگی ، toolkit ها و library های دیگر در مجموعه‌ های بزرگ‌ تری به نام desktop environment قرار می‌ گیرند. نمونه‌ های رایج desktop environment عبارت‌اند از GNOME و KDE و Xfce . همچنین Desktop environment فقط toolkit نیست. معمولاً مجموعه‌ ای از موارد زیر را نیز شامل می‌ شود مثل icon ها ، configuration ها ، theme ها ، design convention ها ، قوانین مربوط به ظاهر application ها و رفتار مشترک application ها در برابر event های سیستم. به این ترتیب desktop environment تلاش م ی‌کند مجموعه‌ ای از برنامه‌ ها را از نظر تجربه‌ ی کاربری تا حد ممکن یکپارچه کند.
 
 #### 🔹 Applications
 
-در بالاترین سطح desktop، خود applicationها قرار دارند.
-
-نمونه‌ها:
-
-- web browser
-- terminal emulator
-- file manager
-- office suite
-- utilityهای مختلف
-
-این applicationها معمولاً برنامه‌های مستقلی هستند، اما در عمل باید نسبت به eventهای مهم سیستم و desktop آگاه باشند.
-
-مثلاً یک application ممکن است بخواهد هنگام وقوع یکی از این eventها واکنش نشان دهد:
+در بالا ترین سطح desktop ، خود application ها قرار دارند مثل web browser و terminal emulator و file  manager و office suite و utility های مختلف. این application ها معمولاً برنامه‌ های مستقلی هستند ، اما در عمل باید نسبت به event های مهم سیستم و desktop آگاه باشند. مثلاً یک application ممکن است بخواهد هنگام وقوع یکی از این event ها واکنش نشان دهد :
 
 - اتصال یک storage device جدید
 - دریافت email
 - دریافت instant message
 - تغییر وضعیت یک سرویس
 
-برای این نوع ارتباط، applicationها معمولاً از interprocess communication استفاده می‌کنند و یکی از مهم‌ترین مکانیزم‌ها در این حوزه D-Bus است.
+برای این نوع ارتباط ، application ها معمولاً از interprocess communication استفاده می‌ کنند و یکی از مهم‌ ترین مکانیزم‌ ها در این حوزه D-Bus است.
 
 ---
 
-### 14.2 Are You Running Wayland or X?
+### Are You Running Wayland or X ?
 
-برای بررسی اینکه session گرافیکی شما با Wayland اجرا می‌شود یا X، کتاب یک روش بسیار ساده ارائه می‌کند: مقدار environment variable مربوط به Wayland را بررسی کنید.
+برای بررسی اینکه session گرافیکی شما با Wayland اجرا می‌ شود یا X ، کتاب یک روش بسیار ساده ارائه می‌ کند و باید مقدار environment variable مربوط به Wayland را بررسی کنید.
 
-```
-echo $WAYLAND_DISPLAY
-```
+```echo $WAYLAND_DISPLAY```
 
-اگر چیزی شبیه این ببینید:
+اگر چیزی شبیه wayland-0 ببینید ، احتمالاً session شما روی Wayland قرار دارد. اگر این variable تنظیم نشده باشد ، در محیط مورد بحث کتاب معمولاً می‌ توان نتیجه گرفت که session شما X است البته این آزمایش استثناهایی دارد و یک تشخیص مطلق نیست. 
 
-```
-wayland-0
-```
+> نکته‌ ی مهم این است که Wayland و X الزاماً دو سیستم کاملاً مجزا و mutually exclusive نیستند.
 
-احتمالاً session شما روی Wayland قرار دارد.
-
-اگر این variable تنظیم نشده باشد، در محیط مورد بحث کتاب معمولاً می‌توان نتیجه گرفت که session شما X است؛ البته این آزمایش استثناهایی دارد و یک تشخیص مطلق نیست.
-
-نکته‌ی مهم این است که Wayland و X الزاماً دو سیستم کاملاً مجزا و mutually exclusive نیستند.
-
-اگر سیستم شما از Wayland استفاده کند، بسیار محتمل است که در کنار آن یک X compatibility server نیز در حال اجرا باشد تا applicationهای قدیمی X بتوانند همچنان کار کنند.
-
-از طرف دیگر حتی می‌توان یک Wayland compositor را داخل یک X window اجرا کرد. با این حال چنین ترکیبی ممکن است باعث رفتارهای گیج‌کننده شود، چون برنامه‌هایی که از هر دو protocol پشتیبانی می‌کنند ممکن است compositor موجود را پیدا کنند و به‌جای session اصلی X به آن متصل شوند.
+اگر سیستم شما از Wayland استفاده کند ، بسیار محتمل است که در کنار آن یک X compatibility server نیز در حال اجرا باشد تا application های قدیمی X بتوانند همچنان کار کنند. از طرف دیگر حتی می‌ توان یک Wayland compositor را داخل یک X window اجرا کرد. با این حال چنین ترکیبی ممکن است باعث رفتارهای گیج‌ کننده شود ، چون برنامه‌ هایی که از هر دو protocol پشتیبانی می‌ کنند ممکن است compositor موجود را پیدا کنند و به‌ جای session اصلی X به آن متصل شوند.
 
 ---
 
-### 14.3 A Closer Look at Wayland
+### A Closer Look at Wayland
 
-Wayland در زمان نگارش کتاب به‌عنوان فناوری در حال گسترش و جایگزینی تدریجی X معرفی می‌شود و در بسیاری از distributionها به‌صورت پیش‌فرض مورد استفاده قرار گرفته است.
+در زمان نگارش کتاب Wayland به‌ عنوان فناوری در حال گسترش و جایگزینی تدریجی X معرفی می‌ شود و در بسیاری از   distribution ها به‌ صورت پیش‌ فرض مورد استفاده قرار گرفته است. با این حال یکی از تفاوت‌ های مهم از نظر troubleshooting این است که در X ابزارهای بسیار بیشتری برای مشاهده و بررسی اجزای داخلی وجود دارد. Wayland طراحی جدید تری دارد و ابزارهای تشخیصی command-line آن به گستردگی ابزارهای X نیستند. اولین نکته‌ ای که باید درباره Wayland روشن شود این است که Wayland نام یک desktop environment یا یک server بزرگ به سبک X نیست. Wayland در اصل یک communications protocol میان یک graphical client و یک compositing window manager است بنابراین نباید انتظار داشته باشید با نصب چیزی به نام "Wayland core" یک desktop کامل در اختیار داشته باشید. آنچه معمولاً در سیستم پیدا می‌ کنید شامل library هایی برای صحبت کردن با protocol و مجموعه‌ ای از component های مرتبط است. در کنار آن Weston قرار دارد که یک reference compositing window manager برای Wayland است. Reference بودن Weston به این معنا نیست که قرار است مثل GNOME یا KDE یک desktop environment عمومی باشد. Weston interface بسیار ساده‌ ای دارد و بیشتر برای این منظور ساخته شده که توسعه‌ دهندگان بتوانند implementation های اصلی compositor را ببینند و از آن برای درک نحوه‌ ی پیاده‌ سازی بخش‌ های مهم Wayland استفاده کنند.
 
-با این حال یکی از تفاوت‌های مهم از نظر troubleshooting این است که در X ابزارهای بسیار بیشتری برای مشاهده و بررسی اجزای داخلی وجود دارد. Wayland طراحی جدیدتری دارد و ابزارهای تشخیصی command-line آن به گستردگی ابزارهای X نیستند.
+#### 🔹 The Compositing Window Manager
 
-اولین نکته‌ای که باید درباره Wayland روشن شود این است که Wayland نام یک desktop environment یا یک server بزرگ به سبک X نیست.
+در Wayland همیشه از ظاهر desktop نمی‌ توان فهمید دقیقاً چه compositor در حال اجراست. برخلاف برخی سیستم‌ های دیگر، یک محل استاندارد و ساده وجود ندارد که فقط با نگاه کردن به یک فایل مشخص بتوان نام compositor را پیدا کرد. یکی از روش‌ های قابل اتکاتر این است که Unix domain socket مربوط به Wayland را پیدا کنیم. نام این socket از مقدار environment variable زیر مشخص می‌ شود :
 
-Wayland در اصل یک communications protocol میان یک graphical client و یک compositing window manager است.
+```echo $WAYLAND_DISPLAY```
 
-بنابراین نباید انتظار داشته باشید با نصب چیزی به نام "Wayland core" یک desktop کامل در اختیار داشته باشید.
+مقدار معمول ```wayland-0``` است و این socket معمولاً در مسیری مشابه ```/run/user/<uid>/wayland-0``` قرار دارد و اگر محل runtime directory را ندانید ، می‌توانید مقدار ```echo $XDG_RUNTIME_DIR```  را بررسی کنید سپس از طریق ss می‌ توان process ای را که روی socket هم listen می‌ کند پیدا کرد ```ss -xlp | grep wayland```. در یک نمونه‌ ی مطرح‌ شده در کتاب ، خروجی نشان می‌ دهد که process با نام gnome-shell و یک PID مشخص روی socket مربوط به Wayland در حال listening است. اما اینجا یک لایه‌ ی دیگر نیز وجود دارد. در GNOME هم gnome-shell خودش implementation مستقل کامل compositor نیست بلکه از Mutter به‌ عنوان compositing window manager استفاده می‌ کند. یعنی GNOME Shell در این معماری از Mutter به‌ صورت library بهره می‌ گیرد.
 
-آنچه معمولاً در سیستم پیدا می‌کنید شامل libraryهایی برای صحبت کردن با protocol و مجموعه‌ای از componentهای مرتبط است.
+#### 🔹 Window Decorations in Wayland
 
-در کنار آن Weston قرار دارد که یک reference compositing window manager برای Wayland است.
+یکی از تفاوت‌ های جالب X و Wayland در نحوه‌ ی مدیریت window decorations است. در X ، window manager به‌ طور سنتی decoration هایی مانند title bar را کنترل می‌ کند. در implementation های ابتدایی Wayland ، این مسئولیت بیشتر به خود application ها سپرده شده بود و این موضوع می‌ توانست باعث شود چند نوع متفاوت title bar و decoration روی یک desktop دیده شود. بعد ها protocol به نام XDG-Decoration اضافه شد تا client و window manager بتوانند درباره‌ ی این موضوع با یکدیگر مذاکره کنند. در نتیجه client می‌ تواند متوجه شود که آیا compositor حاضر است decoration مربوط به window را خودش رسم کند یا نه.
 
-Reference بودن Weston به این معنا نیست که قرار است مثل GNOME یا KDE یک desktop environment عمومی باشد. Weston interface بسیار ساده‌ای دارد و بیشتر برای این منظور ساخته شده که توسعه‌دهندگان بتوانند implementationهای اصلی compositor را ببینند و از آن برای درک نحوه‌ی پیاده‌سازی بخش‌های مهم Wayland استفاده کنند.
+#### 🔹 Displays and Multiple Compositors
 
-#### 14.3.1 The Compositing Window Manager
+در Wayland می‌ توان display را همان فضای قابل مشاهده‌ ای در نظر گرفت که در نهایت با framebuffer نمایش داده می‌ شود. یک display می‌ تواند چند monitor را شامل شود همچنین در موارد خاص می‌ توان بیش از یک compositor را هم‌ زمان اجرا کرد ، مثلاً اگر compositor ها روی virtual terminal های متفاوت قرار گرفته باشند. در چنین حالتی معمولاً نام display ها به‌ ترتیب چیزی شبیه wayland-0 و wayland-1 خواهد بود. برای به‌ دست آوردن اطلاعاتی درباره‌ ی interface هایی که compositor ارائه می‌ کند می‌ توان از ```weston-info``` استفاده کرد. با این حال نباید انتظار داشت این ابزار یک debugger کامل برای compositor باشد. اطلاعاتی که به‌ دست می‌آورید بیشتر مربوط به display و input  device هاست.
 
-در Wayland همیشه از ظاهر desktop نمی‌توان فهمید دقیقاً چه compositorی در حال اجراست.
+#### 🔹 libinput
 
-برخلاف برخی سیستم‌های دیگر، یک محل استاندارد و ساده وجود ندارد که فقط با نگاه کردن به یک فایل مشخص بتوان نام compositor را پیدا کرد.
-
-یکی از روش‌های قابل اتکاتر این است که Unix domain socket مربوط به Wayland را پیدا کنیم.
-
-نام این socket از مقدار environment variable زیر مشخص می‌شود:
-
-```
-echo $WAYLAND_DISPLAY
-```
-
-مقدار معمول:
-
-```
-wayland-0
-```
-
-این socket معمولاً در مسیری مشابه این قرار دارد:
-
-```
-/run/user/<uid>/wayland-0
-```
-
-و اگر محل runtime directory را ندانید، می‌توانید مقدار زیر را بررسی کنید:
-
-```
-echo $XDG_RUNTIME_DIR
-```
-
-سپس از طریق ss می‌توان processای را که روی socket گوش می‌دهد پیدا کرد:
-
-```
-ss -xlp | grep wayland
-```
-
-در یک نمونه‌ی مطرح‌شده در کتاب، خروجی نشان می‌دهد که processای با نام gnome-shell و یک PID مشخص روی socket مربوط به Wayland در حال listening است.
-
-اما اینجا یک لایه‌ی دیگر نیز وجود دارد. در GNOME، gnome-shell خودش implementation مستقل کامل compositor نیست؛ بلکه از Mutter به‌عنوان compositing window manager استفاده می‌کند. یعنی GNOME Shell در این معماری از Mutter به‌صورت library بهره می‌گیرد.
-
-##### Window Decorations in Wayland
-
-یکی از تفاوت‌های جالب X و Wayland در نحوه‌ی مدیریت window decorations است.
-
-در X، window manager به‌طور سنتی decorationهایی مانند title bar را کنترل می‌کند.
-
-در implementationهای ابتدایی Wayland، این مسئولیت بیشتر به خود applicationها سپرده شده بود و این موضوع می‌توانست باعث شود چند نوع متفاوت title bar و decoration روی یک desktop دیده شود.
-
-بعدها protocolای به نام XDG-Decoration اضافه شد تا client و window manager بتوانند درباره‌ی این موضوع با یکدیگر مذاکره کنند.
-
-در نتیجه client می‌تواند متوجه شود که آیا compositor حاضر است decoration مربوط به window را خودش رسم کند یا نه.
-
-##### Displays and Multiple Compositors
-
-در Wayland می‌توان display را همان فضای قابل مشاهده‌ای در نظر گرفت که در نهایت با framebuffer نمایش داده می‌شود.
-
-یک display می‌تواند چند monitor را شامل شود.
-
-همچنین در موارد خاص می‌توان بیش از یک compositor را هم‌زمان اجرا کرد، مثلاً اگر compositorها روی virtual terminalهای متفاوت قرار گرفته باشند. در چنین حالتی معمولاً نام displayها به‌ترتیب چیزی شبیه این خواهد بود:
-
-```
-wayland-0
-wayland-1
-```
-
-برای به‌دست آوردن اطلاعاتی درباره‌ی interfaceهایی که compositor ارائه می‌کند می‌توان از:
-
-```
-weston-info
-```
-
-استفاده کرد.
-
-با این حال نباید انتظار داشت این ابزار یک debugger کامل برای compositor باشد. اطلاعاتی که به‌دست می‌آورید بیشتر مربوط به display و input deviceهاست.
-
-#### 14.3.2 libinput
-
-برای آنکه input از deviceهای فیزیکی مثل keyboard یا mouse از kernel به graphical client برسد، compositor به مکانیزمی نیاز دارد که eventها را از device دریافت و استاندارد کند.
-
-این وظیفه را در بسیاری از سیستم‌های جدید libinput انجام می‌دهد.
-
-libinput به deviceهای ورودی kernel که در مسیرهایی مانند زیر دیده می‌شوند دسترسی دارد:
-
-```
-/dev/input/
-```
-
-و eventهای خام آن‌ها را پردازش می‌کند.
-
-در Wayland، compositor معمولاً event خام kernel را بدون تغییر مستقیماً به client نمی‌فرستد. بلکه event را دریافت می‌کند، آن را به شکل مناسب درمی‌آورد و سپس آن را از طریق Wayland protocol به client مربوطه منتقل می‌کند.
-
-یکی از مزیت‌های مهم libinput این است که فقط یک library نیست و utilityهای command-line نیز در اختیار کاربر قرار می‌دهد.
-
-برای دیدن deviceهای ورودی:
-
-```
-libinput list-devices
-```
-
-ممکن است خروجی شامل deviceهایی مثل:
+برای آنکه input از device های فیزیکی مثل keyboard یا mouse از kernel به graphical client برسد ، compositor به مکانیزمی نیاز دارد که event ها را از device دریافت و استاندارد کند. این وظیفه را در بسیاری از سیستم‌ های جدید libinput انجام می‌ دهد. libinput به device های ورودی kernel که در مسیرهایی مانند ```/dev/input/```  دیده می‌ شوند دسترسی دارد و event های خام آن‌ ها را پردازش می‌ کند. در Wayland هم compositor معمولاً event خام kernel را بدون تغییر مستقیماً به client نمی‌ فرستد. بلکه event را دریافت می‌ کند ، آن را به شکل مناسب درمی‌ آورد و سپس آن را از طریق Wayland protocol به client مربوطه منتقل می‌ کند. یکی از مزیت‌ های مهم libinput این است که فقط یک library نیست و utility های command-line نیز در اختیار کاربر قرار می‌ دهد. برای دیدن device های ورودی از ```libinput list-devices``` استفاده می شود و ممکن است خروجی شامل device هایی مثل :
 
 ```
 Device: Cypress USB Keyboard
@@ -334,233 +136,64 @@ Seat: seat0, default
 Capabilities: keyboard
 ```
 
-باشد.
+باشد و این خروجی نشان می‌ دهد که kernel device مثلاً یک keyboard را در مسیر /dev/input/event3 می‌ شناسد. برای مشاهده‌ ی event های نیز می‌ توان از```libinput debug-events --show-keycodes``` استفاده کرد. بعد از اجرای آن ، با حرکت دادن mouse یا فشردن کلید های keyboard ، event هایی مانند device addition ، press و release را خواهید دید. این ابزار فقط مخصوص Wayland نیست. libinput یک سیستم برای دریافت و پردازش kernel input event هاست و بنابراین در بسیاری از محیط‌ های X نیز مورد استفاده قرار می‌ گیرد.
 
-این خروجی نشان می‌دهد که kernel device مثلاً یک keyboard را در مسیر /dev/input/event3 می‌شناسد.
+#### 🔹 X Compatibility in Wayland
 
-برای مشاهده‌ی eventهای زنده نیز می‌توان از:
+یکی از موانع مهم مهاجرت از X به Wayland ، تعداد بسیار زیاد application های قدیمی X است. اگر قرار بود با ورود Wayland همه‌ ی این برنامه‌ ها کنار گذاشته شوند ، انتقال به سیستم جدید بسیار دشوار می‌ شد. برای همین دو رویکرد هم‌ زمان شکل گرفته است.
 
-```
-libinput debug-events --show-keycodes
-```
+#### 🔹 Native Wayland Applications
 
-استفاده کرد.
+روش اول این است که application مستقیماً از Wayland پشتیبانی کند. بسیاری از برنامه‌ های گرافیکی قدیمی X از toolkit هایی مثل toolkit های GNOME و KDE استفاده می‌ کنند. وقتی خود toolkit از Wayland پشتیبانی کند ، انتقال application به حالت native Wayland آسان‌ تر می‌ شود. در این حالت توسعه‌ دهنده باید بخش‌ هایی مثل window decoration و input configuration و وابستگی‌ های باقی‌ مانده به کتابخانه‌ های X را بررسی کند. بسیاری از application های مهم این مسیر را طی کرده‌ اند.
 
-بعد از اجرای آن، با حرکت دادن mouse یا فشردن کلیدهای keyboard، eventهایی مانند device addition، press و release را خواهید دید.
+#### 🔹 Xwayland
 
-این ابزار فقط مخصوص Wayland نیست. libinput یک سیستم برای دریافت و پردازش kernel input eventهاست و بنابراین در بسیاری از محیط‌های X نیز مورد استفاده قرار می‌گیرد.
+روش دوم اجرای application های X از طریق یک compatibility layer است. این لایه Xwayland نام دارد. Xwayland در واقع یک X server کامل است که به‌ عنوان Wayland client اجرا می‌ شود در نتیجه application های قدیمی X می‌ توانند همچنان تصور کنند که با یک X server کار می‌ کنند ، در حالی که خود X server در لایه‌ ی پایین‌ تر به compositor Wayland متصل شده است. Xwayland باید input event ها را ترجمه کند و buffer های مربوط به window های X را نیز به‌ شکل جداگانه مدیریت کند. وجود این لایه می‌ تواند کمی overhead ایجاد کند ، ولی برای بیشتر application ها این هزینه در عمل ناچیز است.
 
-#### 14.3.3 X Compatibility in Wayland
+#### 🔹 Running Wayland Inside X
 
-یکی از موانع مهم مهاجرت از X به Wayland، تعداد بسیار زیاد applicationهای قدیمی X است.
-
-اگر قرار بود با ورود Wayland همه‌ی این برنامه‌ها کنار گذاشته شوند، انتقال به سیستم جدید بسیار دشوار می‌شد. برای همین دو رویکرد هم‌زمان شکل گرفته است.
-
-##### Native Wayland Applications
-
-روش اول این است که application مستقیماً از Wayland پشتیبانی کند.
-
-بسیاری از برنامه‌های گرافیکی قدیمی X از toolkitهایی مثل toolkitهای GNOME و KDE استفاده می‌کنند. وقتی خود toolkit از Wayland پشتیبانی کند، انتقال application به حالت native Wayland آسان‌تر می‌شود.
-
-در این حالت توسعه‌دهنده باید بخش‌هایی مثل:
-
-- window decoration
-- input configuration
-- وابستگی‌های باقی‌مانده به کتابخانه‌های X
-
-را بررسی کند.
-
-بسیاری از applicationهای مهم این مسیر را طی کرده‌اند.
-
-##### Xwayland
-
-روش دوم اجرای applicationهای X از طریق یک compatibility layer است.
-
-این لایه Xwayland نام دارد.
-
-Xwayland در واقع یک X server کامل است که به‌عنوان Wayland client اجرا می‌شود.
-
-در نتیجه applicationهای قدیمی X می‌توانند همچنان تصور کنند که با یک X server کار می‌کنند، در حالی که خود X server در لایه‌ی پایین‌تر به compositor Wayland متصل شده است.
-
-Xwayland باید input eventها را ترجمه کند و bufferهای مربوط به windowهای X را نیز به‌شکل جداگانه مدیریت کند.
-
-وجود این لایه می‌تواند کمی overhead ایجاد کند، ولی برای بیشتر applicationها این هزینه در عمل ناچیز است.
-
-##### Running Wayland Inside X
-
-حرکت برعکس به این سادگی نیست. یک Wayland client را نمی‌توان دقیقاً به همان روش مستقیماً روی X اجرا کرد.
-
-با این حال می‌توان یک compositor مانند Weston را داخل یک X window اجرا کرد:
-
-```
-weston
-```
-
-در این حالت می‌توانید applicationهای Wayland را داخل compositor اجرا کنید و حتی با تنظیم درست Xwayland، applicationهای X را نیز داخل آن داشته باشید.
-
-مشکل زمانی ظاهر می‌شود که چنین compositorای را باز بگذارید و دوباره به session معمول X برگردید.
-
-Applicationهایی که هم X و هم Wayland را پشتیبانی می‌کنند ممکن است compositor Wayland را پیدا کنند و به آن متصل شوند.
-
-بنابراین ممکن است برنامه‌ای که انتظار دارید در X باز شود، داخل compositor دیگر نمایش داده شود.
-
-برای جلوگیری از این نوع رفتارهای عجیب، توصیه‌ی اصلی این است که به‌صورت هم‌زمان یک compositor داخلی Wayland را در کنار X session معمولی اجرا نکنید.
+حرکت برعکس به این سادگی نیست. یک Wayland client را نمی‌ توان دقیقاً به همان روش مستقیماً روی X اجرا کرد. با این حال می‌ توان یک compositor مانند ```weston``` را داخل یک X window اجرا کرد ، در این حالت می‌ توانید  application های Wayland را داخل compositor اجرا کنید و حتی با تنظیم درست Xwayland ، application های X را نیز داخل آن داشته باشید. مشکل زمانی ظاهر می‌ شود که چنین compositor  را باز بگذارید و دوباره به session معمول X برگردید. Application هایی که هم X و هم Wayland را پشتیبانی می‌ کنند ممکن است compositor Wayland را پیدا کنند و به آن متصل شوند بنابراین ممکن است برنامه‌ ای که انتظار دارید در X باز شود ، داخل compositor دیگر نمایش داده شود. برای جلوگیری از این نوع رفتارهای عجیب ، توصیه‌ ی اصلی این است که به‌ صورت هم‌ زمان یک compositor داخلی Wayland را در کنار X session معمولی اجرا نکنید.
 
 ---
 
-### 14.4 A Closer Look at the X Window System
+### A Closer Look at the X Window System
 
-در مقایسه با Wayland، X Window System از نظر تاریخی مجموعه‌ی بسیار بزرگ‌تری از componentها را شامل می‌شد.
+در مقایسه با Wayland هم ، X Window System از نظر تاریخی مجموعه‌ ی بسیار بزرگ‌ تری از component ها را شامل می‌ شد. در یک X system مجموعه‌ ای از این اجزا وجود داشت مثل X server و client libraries و X clients و ابزارهای جانبی و window manager ها. با ظهور desktop environment هایی مانند GNOME و KDE ، نقش X به‌ مرور محدود تر و مشخص‌ تر شد و تمرکز آن بیشتر روی بخش‌ های مرکزی مانند rendering و مدیریت input قرار گرفت.
 
-در یک X system سنتی، مجموعه‌ای از این اجزا وجود داشت:
+#### 🔹 Identifying the X Server
 
-- X server
-- client libraries
-- X clients
-- ابزارهای جانبی
-- window managerها
-
-با ظهور desktop environmentهایی مانند GNOME و KDE، نقش X به‌مرور محدودتر و مشخص‌تر شد و تمرکز آن بیشتر روی بخش‌های مرکزی مانند rendering و مدیریت input قرار گرفت.
-
-#### Identifying the X Server
-
-X server معمولاً با نام‌هایی مانند:
-
-- X
-- Xorg
-
-دیده می‌شود.
-
-با بررسی processها ممکن است command lineای شبیه این ببینید:
+معمولاً X server با نام‌ هایی مانند X یا Xorg دیده می‌ شود با بررسی process ها ممکن است command line  شبیه این ببینید : 
 
 ```
 Xorg -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 \
 -nolisten tcp vt7 -novtswitch
 ```
 
-در اینجا :0 یک X display identifier است.
-
-یک display می‌تواند یک یا چند monitor را نمایندگی کند؛ یعنی چند monitor می‌توانند در یک display مشترک قرار داشته باشند و از keyboard و mouse مشترک استفاده کنند.
-
-در processهای یک X session نیز variable زیر معمولاً به همین display identifier اشاره می‌کند:
-
-```
-echo $DISPLAY
-```
-
-مثلاً:
-
-```
-:0
-```
-
-از نظر تئوری display می‌تواند به screenهای جداگانه مانند این تقسیم شود:
+در اینجا 0: یک X display identifier است. یک display می‌ تواند یک یا چند monitor را نمایندگی کند یعنی چند monitor می‌ توانند در یک display مشترک قرار داشته باشند و از keyboard و mouse مشترک استفاده کنند. در process های یک X session نیز این variable هم```echo $DISPLAY``` معمولاً به همین display identifier اشاره می‌ کند مثلاً ```0:``` از نظر تئوری display می‌ تواند به screen های جداگانه مانند این تقسیم شود :
 
 ```
 :0.0
 :0.1
 ```
 
-ولی این مدل امروزه چندان متداول نیست، زیرا extensionهایی مثل RandR می‌توانند چند monitor را در قالب یک فضای مجازی بزرگ مدیریت کنند.
+ولی این مدل امروزه چندان متد اول نیست ، زیرا extension هایی مثل RandR می‌ توانند چند monitor را در قالب یک فضای مجازی بزرگ مدیریت کنند. در Linux ، یک X server روی virtual terminal اجرا می‌ شود. مثلاً اگر در process arguments عبارت vt7 را ببینید ، منظور virtual terminal مربوط به /dev/tty7 است همچنین می‌ توان بیش از یک X server داشت کافی است آن‌ ها روی virtual terminal های جداگانه اجرا شوند و هر کدام display identifier مخصوص خودشان را داشته باشند. برای جا به‌ جایی بین virtual terminal ها نیز می‌ توان از ترکیب کلید های CTRL-ALT-FN یا utility مثل chvt استفاده کرد.
 
-در Linux، یک X server روی virtual terminal اجرا می‌شود. مثلاً اگر در process arguments عبارت vt7 را ببینید، منظور virtual terminal مربوط به /dev/tty7 است.
+#### 🔹 Display Managers
 
-همچنین می‌توان بیش از یک X server داشت؛ کافی است آن‌ها روی virtual terminalهای جداگانه اجرا شوند و هرکدام display identifier مخصوص خودشان را داشته باشند.
+اگر X server را به‌ تنهایی اجرا کنید ، لزوماً desktop قابل استفاده‌ ای در اختیار نخواهید داشت. X server فقط زیرساخت display را فراهم می‌ کند و نمی‌ داند چه client هایی باید اجرا شوند بنابراین اگر X را بدون client های لازم بالا بیاورید ، ممکن است فقط یک صفحه‌ ی خالی ببینید. راه رایج‌ تر استفاده از display manager است. display manager معمولاً X server را راه‌ اندازی  و  صفحه‌ی login را نمایش می‌ دهد پس از login مجموعه‌ ای از client ها را شروع می‌ کند و session گرافیکی مورد نظر کاربر را راه‌ اندازی می‌ کند. از نمونه‌ های مطرح‌ شده در کتاب gdm و kdm و lightdm 
+هستند. مثلاً lightdm یک display manager عمومی‌ تر است که می‌ تواند session های مختلفی مثل GNOME یا KDE را راه‌ اندازی کند. اگر نخواهید از display manager استفاده کنید ، می‌ توانید از virtual console با ابزارهایی مانند ```startx``` یا ```xinit``` یک X session را شروع کنید. با این حال session حاصل معمولاً بسیار ساده‌ تر از session خواهد بود که از طریق display manager ایجاد می‌ شود ، چون startup mechanics و startup file های این دو روش یکسان نیستند.
 
-برای جابه‌جایی بین virtual terminalها نیز می‌توان از ترکیب کلیدهای CTRL-ALT-FN یا utilityای مثل chvt استفاده کرد.
+#### 🔹 Network Transparency
 
-#### 14.4.1 Display Managers
+یکی از ویژگی‌ های تاریخی و مهم X هم network transparency است. در X هم client و server از طریق یک protocol با یکد یگر صحبت می‌ کنند. بنابراین در این حالت می‌ توان client را روی یک machine و X server را روی machine دیگری اجرا کرد. در این مدل ، X server می‌ توانست به 6000 TCP port هم listen کند سپس client راه دور به آن متصل می‌ شد و window های خود را روی display آن machine نمایش می‌ داد. مشکل این روش امنیت است این ارتباط در شکل قدیمی معمولاً encryption مناسبی نداشت. به همین دلیل بسیاری از distribution ها listening مستقیم X روی شبکه را غیرفعال کرده‌ اند و X server را با option مانند ```nolisten -tcp``` اجرا می‌ کنند. با این حال remote X application همچنان می‌ تواند از طریق SSH tunneling مورد استفاده قرار گیرد. در این روش SSH مسیر امنی را برای اتصال فراهم می‌ کند و امکان اجرای client راه دور را بدون باز کردن مستقیم TCP port مربوط به X فراهم می‌ سازد. Wayland در این زمینه با X تفاوت مهمی دارد. در Wayland هر client buffer خودش را مدیریت می‌ کند و compositor باید به آن buffer ها دسترسی داشته باشد بنابراین model ساده‌ ی remote X را نمی‌ توان مستقیماً روی Wayland تکرار کرد. سیستم‌ های دیگری مثل RDP می‌ توانند با compositor همکاری کنند و remote desktop functionality ایجاد کنند ، ولی این مسئله از نظر معماری با network transparency قدیمی X متفاوت است.
 
-اگر X server را به‌تنهایی اجرا کنید، لزوماً desktop قابل استفاده‌ای در اختیار نخواهید داشت.
 
-X server فقط زیرساخت display را فراهم می‌کند و نمی‌داند چه clientهایی باید اجرا شوند.
+#### 🔹 Ways of Exploring X Clients
 
-بنابراین اگر X را بدون clientهای لازم بالا بیاورید، ممکن است فقط یک صفحه‌ی خالی ببینید.
+یکی از بخش‌ های جالب X این است که حتی از command line هم می‌ توانید وضعیت window ها و client ها را بررسی کنید.
+#### 🔹 xwininfo
 
-راه رایج‌تر استفاده از display manager است.
-
-Display manager معمولاً:
-
-- X server را راه‌اندازی می‌کند.
-- صفحه‌ی login را نمایش می‌دهد.
-- پس از login مجموعه‌ای از clientها را شروع می‌کند.
-- session گرافیکی موردنظر کاربر را راه‌اندازی می‌کند.
-
-از نمونه‌های مطرح‌شده در کتاب:
-
-- gdm
-- kdm
-- lightdm
-
-هستند.
-
-مثلاً lightdm یک display manager عمومی‌تر است که می‌تواند sessionهای مختلفی مثل GNOME یا KDE را راه‌اندازی کند.
-
-اگر نخواهید از display manager استفاده کنید، می‌توانید از virtual console با ابزارهایی مانند:
-
-```
-startx
-```
-
-یا:
-
-```
-xinit
-```
-
-یک X session را شروع کنید.
-
-با این حال session حاصل معمولاً بسیار ساده‌تر از sessionای خواهد بود که از طریق display manager ایجاد می‌شود، چون startup mechanics و startup fileهای این دو روش یکسان نیستند.
-
-#### 14.4.2 Network Transparency
-
-یکی از ویژگی‌های تاریخی و مهم X، network transparency است.
-
-در X، client و server از طریق یک protocol با یکدیگر صحبت می‌کنند. بنابراین در حالت سنتی می‌توان client را روی یک machine و X server را روی machine دیگری اجرا کرد.
-
-در این مدل، X server می‌توانست به TCP port زیر گوش دهد:
-
-```
-6000
-```
-
-سپس client راه دور به آن متصل می‌شد و windowهای خود را روی display آن machine نمایش می‌داد.
-
-مشکل این روش امنیت است.
-
-این ارتباط در شکل سنتی معمولاً encryption مناسبی نداشت. به همین دلیل بسیاری از distributionها listening مستقیم X روی شبکه را غیرفعال کرده‌اند و X server را با optionای مانند:
-
-```
--nolisten tcp
-```
-
-اجرا می‌کنند.
-
-با این حال remote X application همچنان می‌تواند از طریق SSH tunneling مورد استفاده قرار گیرد. در این روش SSH مسیر امنی را برای اتصال فراهم می‌کند و امکان اجرای client راه دور را بدون باز کردن مستقیم TCP port مربوط به X فراهم می‌سازد.
-
-Wayland در این زمینه با X تفاوت مهمی دارد. در Wayland هر client buffer خودش را مدیریت می‌کند و compositor باید به آن bufferها دسترسی داشته باشد؛ بنابراین model ساده‌ی remote X را نمی‌توان مستقیماً روی Wayland تکرار کرد.
-
-سیستم‌های دیگری مثل RDP می‌توانند با compositor همکاری کنند و remote desktop functionality ایجاد کنند، ولی این مسئله از نظر معماری با network transparency سنتی X متفاوت است.
-
-#### 14.4.3 Ways of Exploring X Clients
-
-یکی از بخش‌های جالب X این است که حتی از command line هم می‌توانید وضعیت windowها و clientها را بررسی کنید.
-
-##### xwininfo
-
-یکی از ساده‌ترین utilityها:
-
-```
-xwininfo
-```
-
-است.
-
-اگر آن را بدون argument اجرا کنید، از شما می‌خواهد یک window را با mouse انتخاب کنید.
-
-بعد از انتخاب window اطلاعاتی مانند position و size آن نمایش داده می‌شود.
-
-نمونه‌ای از اطلاعات مهم:
+یکی از ساده‌ ترین utility ها ```xwininfo``` است. اگر آن را بدون argument اجرا کنید ، از شما می‌ خواهد یک window را با mouse انتخاب کنید. بعد از انتخاب window اطلاعاتی مانند position و size آن نمایش داده می‌ شود. نمونه‌ ای از اطلاعات مهم :
 
 ```
 xwininfo: Window id: 0x5400024 "xterm"
@@ -568,98 +201,38 @@ Absolute upper-left X: 1075
 Absolute upper-left Y: 594
 ```
 
-در اینجا window ID اهمیت زیادی دارد.
+در اینجا window ID اهمیت زیادی دارد. X server و window manager از این شناسه برای شناسایی windowها استفاده می‌ کنند. برای دریافت فهرستی از X client ها و window های موجود می‌ توانید از ```xlsclients -l``` استفاده کنید.
 
-X server و window manager از این شناسه برای شناسایی windowها استفاده می‌کنند.
+#### 🔹 X Events
 
-برای دریافت فهرستی از X clientها و windowهای موجود می‌توانید از:
-
-```
-xlsclients -l
-```
-
-استفاده کنید.
-
-#### 14.4.4 X Events
-
-X clientها برای دریافت input و اطلاع از تغییر وضعیت server از eventها استفاده می‌کنند.
-
-این eventها asynchronous هستند؛ یعنی client لازم نیست دائماً وضعیت input device را poll کند. X server event را از source دریافت می‌کند و آن را برای clientهایی که به آن علاقه‌مند هستند ارسال می‌کند.
-
-این مدل شباهت مفهومی زیادی با event systemهایی مانند:
-
-- udev events
-- D-Bus events
-
-دارد.
-
-برای مشاهده‌ی eventهای X می‌توانید از:
-
-```
-xev
-```
-
-استفاده کنید.
-
-اجرای xev یک window باز می‌کند. اگر mouse را داخل آن حرکت دهید، click کنید یا key بزنید، خروجی command line شامل eventهای دریافتی نمایش داده می‌شود.
-
-برای مثال event مربوط به حرکت mouse اطلاعاتی درباره‌ی coordinateها دارد:
-
-```
-MotionNotify event ...
-```
-
-دو جفت مختصات در این خروجی مهم هستند:
-
-- مختصات pointer در داخل window
-- مختصات pointer نسبت به کل display
-
-برای مثال:
+معمولاً X client ها برای دریافت input و اطلاع از تغییر وضعیت server از event ها استفاده می‌ کنند. این event ها  synchronous هستند یعنی client لازم نیست دائماً وضعیت input device را poll کند. X server event را از source دریافت می‌ کند و آن را برای client هایی که به آن علاقه‌ مند هستند ارسال می‌ کند. این مدل شباهت مفهومی زیادی با event   system هایی مانند udev events و D-Bus events دارد. برای مشاهده‌ ی event های X می‌ توانید از ```xev``` استفاده کنید. اجرای xev یک window باز می‌ کند. اگر mouse را داخل آن حرکت دهید ، click کنید یا key بزنید ، خروجی command line شامل event های دریافتی نمایش داده می‌ شود. برای مثال event مربوط به حرکت mouse اطلاعاتی درباره‌ ی coordinate ها دارد ```MotionNotify event``` . دو جفت مختصات در این خروجی مهم هستند که مختصات pointer در داخل window و مختصات pointer نسبت به کل display . برای مثال :
 
 ```
 (47,174)
 root:(1692,486)
 ```
 
-مختصات اول مربوط به window و مختصات دوم مربوط به کل display است.
-
-X eventها فقط حرکت mouse نیستند. eventهایی مثل:
+مختصات اول مربوط به window و مختصات دوم مربوط به کل display است. X event ها فقط حرکت mouse نیستند. event هایی مثل :
 
 - key press
 - button click
-- ورود mouse به window
-- خروج mouse از window
-- focus گرفتن window
-- focus از دست دادن window
+- mouse entering window
+- mouse leaving window
+- window gaining focus
+- window losing focus
 
-نیز وجود دارند.
-
-یکی از کاربردهای مهم xev استخراج اطلاعات keyboard است.
-
-مثلاً با فشردن یک کلید می‌توانید چیزی شبیه این ببینید:
+نیز وجود دارند. یکی از کاربرد های مهم xev استخراج اطلاعات keyboard است مثلاً با فشردن یک کلید می‌ توانید چیزی شبیه این ببینید :
 
 ```
 KeyPress event ...
 keycode 46 (keysym 0x6c, l)
 ```
 
-در اینجا keycode شناسه‌ی مربوط به کلید در X است و keysym مشخص می‌کند آن کلید از نظر معنایی چه کاراکتر یا symbolای را نشان می‌دهد.
+در اینجا keycode شناسه‌ ی مربوط به کلید در X است و keysym مشخص می‌ کند آن کلید از نظر معنایی چه کاراکتر یا symbol را نشان می‌ دهد همچنین می‌ توانید یک window موجود را با id- هدف بگیرید مانند ```xev -id 0x5400024``` شناسه‌ ی 0x را می‌ توانید از xwininfo به‌ دست آورید.
 
-همچنین می‌توانید یک window موجود را با -id هدف بگیرید:
+#### 🔹 X Input and Preference Settings
 
-```
-xev -id 0x5400024
-```
-
-شناسه‌ی 0x... را می‌توانید از xwininfo به‌دست آورید.
-
-#### 14.4.5 X Input and Preference Settings
-
-یکی از گیج‌کننده‌ترین بخش‌های X این است که برای یک تنظیم مشخص ممکن است چند روش مختلف وجود داشته باشد و همه‌ی این روش‌ها لزوماً در هر desktop environment به یک شکل کار نکنند.
-
-مثلاً برای تغییر رفتار CAPS LOCK و تبدیل آن به CTRL، روش‌های مختلفی وجود دارد.
-
-علت این پیچیدگی این است که چند لایه‌ی مختلف ممکن است در تنظیمات input دخالت داشته باشند:
+یکی از گیج‌ کننده‌ ترین بخش‌ های X این است که برای یک تنظیم مشخص ممکن است چند روش مختلف وجود داشته باشد و همه‌ ی این روش‌ها لزوماً در هر desktop environment به یک شکل کار نکنند. مثلاً برای تغییر رفتار CAPS LOCK و تبدیل آن به CTRL ، روش‌ های مختلفی وجود دارد. علت این پیچیدگی این است که چند لایه‌ ی مختلف ممکن است در تنظیمات input دخالت داشته باشند :
 
 - X server
 - X Input Extension
@@ -667,28 +240,11 @@ xev -id 0x5400024
 - xmodmap
 - desktop environment
 
-پس قبل از تغییر تنظیم باید بدانید دقیقاً کدام component مسئول آن feature است، چون desktop environment ممکن است تنظیمات خودش را اعمال یا override کند.
+پس قبل از تغییر تنظیم باید بدانید دقیقاً کدام component مسئول آن feature است ، چون desktop environment ممکن است تنظیمات خودش را اعمال یا override کند.
 
-##### Input Devices (General)
+#### 🔹 Input Devices (General)
 
-X از X Input Extension برای مدیریت input deviceهای مختلف استفاده می‌کند.
-
-در سطح پایه، دو نوع device اصلی مطرح می‌شوند:
-
-- keyboard
-- pointer
-
-می‌توانید چند device از یک نوع به سیستم متصل کنید.
-
-برای هماهنگ کردن چند keyboard یا چند pointer، X مفهوم virtual core device را ارائه می‌کند.
-
-برای مشاهده‌ی deviceها:
-
-```
-xinput --list
-```
-
-خروجی ممکن است چیزی شبیه این باشد:
+برای مدیریت input device های مختلف ، X از X Input Extension استفاده می‌ کند. در سطح پایه ، دو نوع device اصلی مطرح می‌ شوند مانند keyboard و pointer . می‌ توانید چند device از یک نوع به سیستم متصل کنید و برای هماهنگ کردن چند keyboard یا چند pointer هم ، X مفهوم virtual core device را ارائه می‌ کند. برای مشاهده‌ ی device ها ```xinput --list``` خروجی ممکن است چیزی شبیه این باشد :
 
 ```
 Virtual core pointer id=2 [master pointer (3)]
@@ -702,30 +258,11 @@ Virtual core keyboard id=3 [master keyboard (2)]
   ↳ Cypress USB Keyboard id=9 [slave keyboard (3)]
 ```
 
-در این مدل:
+در این مدل master device نقش virtual core device را دارد و slave device های واقعی هستند که input را تولید می‌ کنند. مثلاً ID های 2 و 3 در این نمونه device های core هستند و device هایی مانند keyboard واقعی ID های دیگر دارند. نکته‌ ی مهم این است که power button خود machine نیز از دید X می‌ تواند یک input device محسوب شود. بیشتر X client ها فقط به core device هم listen می‌ دهند و لازم نیست بدانند event دقیقاً از کدام keyboard یا mouse فیزیکی آمده است ولی یک application می‌ تواند از X Input Extension استفاده کند تا یک device خاص را انتخاب کند.
 
-- master device نقش virtual core device را دارد.
-- slave deviceهای واقعی هستند که input را تولید می‌کنند.
+#### 🔹 Device Properties
 
-مثلاً IDهای 2 و 3 در این نمونه deviceهای core هستند و deviceهایی مانند keyboard واقعی IDهای دیگر دارند.
-
-نکته‌ی مهم این است که power button خود machine نیز از دید X می‌تواند یک input device محسوب شود.
-
-بیشتر X clientها فقط به core device گوش می‌دهند و لازم نیست بدانند event دقیقاً از کدام keyboard یا mouse فیزیکی آمده است.
-
-ولی یک application می‌تواند از X Input Extension استفاده کند تا یک device خاص را انتخاب کند.
-
-##### Device Properties
-
-هر input device مجموعه‌ای از propertyها دارد.
-
-برای مشاهده‌ی propertyهای یک device:
-
-```
-xinput --list-props 8
-```
-
-می‌توانید propertyهایی مثل این را مشاهده کنید:
+هر input device مجموعه‌ ای از property ها دارد. برای مشاهده‌ ی property های یک device از ```xinput --list-props 8 ``` می‌توانید property هایی مثل این را مشاهده کنید :
 
 ```
 Device Enabled
@@ -736,193 +273,40 @@ Device Accel Adaptive Deceleration
 Device Accel Velocity Scaling
 ```
 
-برخی از این propertyها را می‌توان با:
+برخی از این property ها را می‌ توان با ```xinput --set-prop``` تغییر داد در نتیجه xinput فقط ابزار نمایش device ها نیست و برای تغییر بعضی تنظیمات runtime نیز استفاده می‌ شود.
 
-```
-xinput --set-prop
-```
+#### 🔹 Mouse
 
-تغییر داد.
+برای mouse و pointer option های مختلفی وجود دارد. می‌ توان بعضی property ها را مستقیماً تغییر داد ، اما برای بعضی کارهای متداول ، option های اختصاصی‌ تر راحت‌ تر هستند. مثلاً برای تغییر mapping دکمه‌ های mouse :
 
-در نتیجه xinput فقط ابزار نمایش deviceها نیست و برای تغییر بعضی تنظیمات runtime نیز استفاده می‌شود.
+```xinput --set-button-map dev 3 2 1```
 
-##### Mouse
+در نمونه‌ ی کتاب این کار ترتیب سه دکمه‌ ی mouse را معکوس می‌ کند و می‌ تواند برای استفاده‌ ی left-handed ها مفید باشد.
 
-برای mouse و pointer optionهای مختلفی وجود دارد.
+#### 🔹 Keyboard and XKB
 
-می‌توان بعضی propertyها را مستقیماً تغییر داد، اما برای بعضی کارهای متداول، optionهای اختصاصی‌تر راحت‌تر هستند.
+معمولاًKeyboard configuration در X پیچیده‌ تر است ، مخصوصاً چون layout های بین‌المللی بسیار متنوع‌ اند. X از ابتدا قابلیت mapping داخلی برای keyboard داشت و utility قدیمی‌ تر ```xmodmap``` برای تغییر mapping استفاده می‌ شد. 
+اما در سیستم‌ های نسبتاً جدید تر، XKB (X Keyboard Extension) روش اصلی و قدرتمند تر برای مدیریت keyboard mapping است. XKB از نظر ساختاری پیچیده است ، به همین دلیل حتی در سیستم‌ های جدید نیز بعضی کاربران برای تغییرات سریع هنوز سراغ xmodmap می‌ روند. ایده‌ ی اصلی XKB این است که یک keyboard map تعریف کنید ، آن را با ```xkbcomp``` هم compile کنید و سپس با ```setxkbmap``` آن را در X server فعال کنید. یکی از ویژگی‌ های جالب XKB این است که لازم نیست همیشه کل keyboard map را از صفر تعریف کنید. می‌ توانید یک partial map بسازید که روی mapping موجود اعمال شود. این قابلیت برای تغییراتی مثل تبدیل CAPS LOCK به CTRL مفید است و بسیاری از graphical keyboard preference utility ها در desktop environment ها از همین ایده استفاده می‌ کنند. ویژگی دیگر این است که می‌ توانید برای keyboard های مختلف mapping های جداگانه داشته باشید.
 
-مثلاً برای تغییر mapping دکمه‌های mouse:
+#### 🔹 Desktop Background
 
-```
-xinput --set-button-map dev 3 2 1
-```
+در X هم root window در اصل background اصلی display محسوب می‌ شود. ابزار قدیمی ```xsetroot``` می‌ تواند ویژگی‌هایی مثل رنگ background مربوط به root window را تغییر دهد. اما در desktop های مدرن، root window معمولاً مستقیماً دیده نمی‌ شود. بسیاری از desktop environment ها یک window بزرگ در پشت سایر window ها قرار می‌دهند تا قابلیت‌هایی مثل wallpaper پویا و desktop file browsing و interaction های مربوط به desktop را پیاده کنند. به همین دلیل تغییر root window با xsetroot ممکن است روی ظاهر واقعی desktop تأثیر قابل‌ مشاهده‌ ای نداشته باشد. در بعضی محیط‌ ها می‌ توان از ابزارهایی مثل gsettings برای تغییر background استفاده کرد ، ولی این موضوع دیگر به زیرساخت قدیمی root window محدود نیست.
 
-در نمونه‌ی کتاب این کار ترتیب سه دکمه‌ی mouse را معکوس می‌کند و می‌تواند برای استفاده‌ی left-handedها مفید باشد.
+#### 🔹 xset
 
-##### Keyboard and XKB
+یکی از فناوری‌ های مهمی که در Linux desktop رشد کرده D-Bus یا Desktop Bus است. D-Bus یک message-passing system است که برای IPC استفاده می‌ شود. یعنی process ها می‌ توانند از طریق آن به یکدیگر پیام بدهند و application ها می‌ توانند از event های مربوط به سیستم یا برنامه‌ های دیگر مطلع شوند. برای مثال ، وقتی یک USB storage device متصل می‌ شود ، یک component می‌ تواند event مربوط به آن را تشخیص دهد و process های دیگری که به آن event علاقه دارند مطلع شوند. در نگاه ساده ، خود D-Bus شامل library و protocol است که ارتباط بین process ها را استاندارد می‌ کند. بدون بخش مرکزی D-Bus ، این قابلیت تقریباً چیزی شبیه یک IPC پیشرفته‌ تر بر پایه‌ ی mechanism هایی مثل Unix domain socket خواهد بود و قسمت مهم ماجرا dbus-daemon است. dbus-daemon مانند یک central hub عمل می‌ کند که process ها به آن متصل می‌ شوند و client ها مشخص می‌ کنند به چه نوع event هایی علاقه دارند سپس process های دیگر event ایجاد می‌ کنند و dbus-daemon پیام را به گیرنده‌ های مناسب منتقل می‌ کند. یک مثال مهم در کتاب udisks-daemon است. این process event های مربوط به disk را از udev دریافت می‌ کند و سپس آن‌ ها را از طریق D-Bus به application هایی که به چنین event هایی علاقه‌ مند هستند منتقل می‌ کند. به همین دلیل D-Bus فقط یک روش ساده برای اجرای remote procedure نیست بلکه به یک backbone مهم برای communication بین قسمت‌ های مختلف desktop و حتی بخش‌ هایی از system تبدیل شده است.
 
-Keyboard configuration در X پیچیده‌تر است، مخصوصاً چون layoutهای بین‌المللی بسیار متنوع‌اند.
+#### 🔹 System and Session Instances
 
-X از ابتدا قابلیت mapping داخلی برای keyboard داشت و utility قدیمی‌تر:
+در D-Bus دیگر فقط یک ابزار مربوط به desktop نیست و در بخش‌ های مختلف Linux system مورد استفاده قرار گرفته است. حتی service هایی مثل systemd و در نسخه‌ های قدیمی‌ تر Upstart نیز می‌ توانند از D-Bus برای ارتباط استفاده کنند اما یک design principle مهم مطرح می‌ شود که **اجزای core system نباید بدون دلیل به ابزارهای خاص desktop وابسته شوند** ، برای همین D-Bus معمولاً به دو نوع instance تقسیم می‌ شود.
 
-```
-xmodmap
-```
+#### 🔹 System Instance
 
-برای تغییر mapping استفاده می‌شد.
+معمولاً System bus در سطح کل سیستم فعالیت می‌ کند. این instance هنگام boot و توسط init system راه‌ اندازی می‌ شود و در کتاب با option معرفی شده است ```system--```. این instance معمولاً با یک user مخصوص D-Bus اجرا می‌شود و فایل configuration آن معمولاً در مسیر ```etc/dbus-1/system.conf``` قرار دارد و کتاب توصیه می‌ کند بدون دلیل آن را تغییر ندهید. ارتباط با system bus از طریق Unix domain socket مانند ```/var/run/dbus/system_bus_socket``` انجام می‌ شود. این bus مربوط به یک user خاص یا یک desktop session خاص نیست و برای سرویس‌ های system-wide کاربرد دارد.
 
-اما در سیستم‌های نسبتاً جدیدتر، XKB (X Keyboard Extension) روش اصلی و قدرتمندتر برای مدیریت keyboard mapping است.
+#### 🔹 Session Instance
 
-XKB از نظر ساختاری پیچیده است، به همین دلیل حتی در سیستم‌های جدید نیز بعضی کاربران برای تغییرات سریع هنوز سراغ xmodmap می‌روند.
-
-ایده‌ی اصلی XKB این است که یک keyboard map تعریف کنید، آن را با:
-
-```
-xkbcomp
-```
-
-compile کنید و سپس با:
-
-```
-setxkbmap
-```
-
-آن را در X server فعال کنید.
-
-یکی از ویژگی‌های جالب XKB این است که لازم نیست همیشه کل keyboard map را از صفر تعریف کنید. می‌توانید یک partial map بسازید که روی mapping موجود اعمال شود.
-
-این قابلیت برای تغییراتی مثل تبدیل CAPS LOCK به CTRL مفید است و بسیاری از graphical keyboard preference utilityها در desktop environmentها از همین ایده استفاده می‌کنند.
-
-ویژگی دیگر این است که می‌توانید برای keyboardهای مختلف mappingهای جداگانه داشته باشید.
-
-##### Desktop Background
-
-در X، root window در اصل background اصلی display محسوب می‌شود.
-
-ابزار قدیمی:
-
-```
-xsetroot
-```
-
-می‌تواند ویژگی‌هایی مثل رنگ background مربوط به root window را تغییر دهد.
-
-اما در desktopهای مدرن، root window معمولاً مستقیماً دیده نمی‌شود. بسیاری از desktop environmentها یک window بزرگ در پشت سایر windowها قرار می‌دهند تا قابلیت‌هایی مثل:
-
-- wallpaper پویا
-- desktop file browsing
-- interactionهای مربوط به desktop
-
-را پیاده کنند.
-
-به همین دلیل تغییر root window با xsetroot ممکن است روی ظاهر واقعی desktop تأثیر قابل‌مشاهده‌ای نداشته باشد.
-
-در بعضی محیط‌ها می‌توان از ابزارهایی مثل gsettings برای تغییر background استفاده کرد، ولی این موضوع دیگر به زیرساخت قدیمی root window محدود نیست.
-
-##### xset
-
-یکی دیگر از ابزارهای قدیمی X:
-
-```
-xset
-```
-
-است.
-
-این utility امروزه کمتر استفاده می‌شود، ولی می‌توانید برای دیدن وضعیت بعضی تنظیمات از:
-
-```
-xset q
-```
-
-استفاده کنید.
-
-یکی از بخش‌های مفید آن تنظیمات مربوط به:
-
-- screen saver
-- DPMS (Display Power Management Signaling)
-
-است.
-
----
-
-### 14.5 D-Bus
-
-یکی از فناوری‌های مهمی که در Linux desktop رشد کرده D-Bus یا Desktop Bus است.
-
-D-Bus یک message-passing system است که برای IPC استفاده می‌شود.
-
-یعنی processها می‌توانند از طریق آن به یکدیگر پیام بدهند و applicationها می‌توانند از eventهای مربوط به سیستم یا برنامه‌های دیگر مطلع شوند.
-
-برای مثال، وقتی یک USB storage device متصل می‌شود، یک component می‌تواند event مربوط به آن را تشخیص دهد و processهای دیگری که به آن event علاقه دارند مطلع شوند.
-
-در نگاه ساده، خود D-Bus شامل library و protocolای است که ارتباط بین processها را استاندارد می‌کند. بدون بخش مرکزی D-Bus، این قابلیت تقریباً چیزی شبیه یک IPC پیشرفته‌تر بر پایه‌ی mechanismهایی مثل Unix domain socket خواهد بود.
-
-قسمت مهم ماجرا dbus-daemon است.
-
-dbus-daemon مانند یک central hub عمل می‌کند:
-
-- processها به آن متصل می‌شوند.
-- clientها مشخص می‌کنند به چه نوع eventهایی علاقه دارند.
-- processهای دیگر event ایجاد می‌کنند.
-- dbus-daemon پیام را به گیرنده‌های مناسب منتقل می‌کند.
-
-یک مثال مهم در کتاب udisks-daemon است. این process eventهای مربوط به disk را از udev دریافت می‌کند و سپس آن‌ها را از طریق D-Bus به applicationهایی که به چنین eventهایی علاقه‌مند هستند منتقل می‌کند.
-
-به همین دلیل D-Bus فقط یک روش ساده برای اجرای remote procedure نیست، بلکه به یک backbone مهم برای communication بین قسمت‌های مختلف desktop و حتی بخش‌هایی از system تبدیل شده است.
-
-#### 14.5.1 System and Session Instances
-
-D-Bus دیگر فقط یک ابزار مربوط به desktop نیست و در بخش‌های مختلف Linux system مورد استفاده قرار گرفته است.
-
-حتی serviceهایی مثل systemd و در نسخه‌های قدیمی‌تر Upstart نیز می‌توانند از D-Bus برای ارتباط استفاده کنند.
-
-اما یک design principle مهم مطرح می‌شود:
-
-> اجزای core system نباید بدون دلیل به ابزارهای خاص desktop وابسته شوند.
-
-برای همین D-Bus معمولاً به دو نوع instance تقسیم می‌شود.
-
-##### System Instance
-
-System bus در سطح کل سیستم فعالیت می‌کند.
-
-این instance هنگام boot و توسط init system راه‌اندازی می‌شود و در کتاب با option زیر معرفی شده است:
-
-```
---system
-```
-
-این instance معمولاً با یک user مخصوص D-Bus اجرا می‌شود.
-
-فایل configuration آن معمولاً در این مسیر قرار دارد:
-
-```
-/etc/dbus-1/system.conf
-```
-
-و کتاب توصیه می‌کند بدون دلیل آن را تغییر ندهید.
-
-ارتباط با system bus از طریق Unix domain socketای مانند:
-
-```
-/var/run/dbus/system_bus_socket
-```
-
-انجام می‌شود.
-
-این bus مربوط به یک user خاص یا یک desktop session خاص نیست و برای سرویس‌های system-wide کاربرد دارد.
-
-##### Session Instance
-
-در کنار system bus، یک session bus نیز وجود دارد.
-
-Session bus مستقل از system instance است و هنگام شروع یک desktop session ایجاد می‌شود.
-
-Applicationهای desktop مربوط به یک session به این bus متصل می‌شوند.
-
-بنابراین به‌صورت مفهومی:
+در کنار system bus ، یک session bus نیز وجود دارد. Session bus مستقل از system instance است و هنگام شروع یک desktop session ایجاد می‌ شود. Application های desktop مربوط به یک session به این bus متصل می‌ شوند بنابراین به‌ صورت مفهومی :
 
 ```
 System Bus
@@ -939,20 +323,15 @@ Session Bus
     +-- Per-user desktop communication
 ```
 
-این جداسازی باعث می‌شود communication مربوط به desktop کاربر با communication سطح system یکی نشود.
+این جدا سازی باعث می‌ شود communication مربوط به desktop کاربر با communication سطح system یکی نشود.
 
-#### 14.5.2 D-Bus Message Monitoring
+#### 🔹 D-Bus Message Monitoring
 
-یکی از بهترین راه‌ها برای درک تفاوت system bus و session bus مشاهده‌ی eventهای واقعی روی آن‌هاست.
+یکی از بهترین راه‌ ها برای درک تفاوت system bus و session bus مشاهده‌ ی event های واقعی روی آن‌ هاست. برای  system bus :
 
-برای system bus:
+```dbus-monitor --system```
 
-```
-dbus-monitor --system
-```
-
-بعد از اجرای این command ممکن است پیام‌هایی شبیه این ببینید:
-
+بعد از اجرای این command ممکن است پیام‌ هایی شبیه این ببینید : 
 ```
 signal sender=org.freedesktop.DBus
 -> dest=:1.952
@@ -962,42 +341,29 @@ interface=org.freedesktop.DBus
 member=NameAcquired
 ```
 
-پیام ابتدایی بیشتر به خود monitor مربوط است که به bus متصل شده و یک name دریافت کرده است.
+پیام ابتدایی بیشتر به خود monitor مربوط است که به bus متصل شده و یک name دریافت کرده است. اگر فقط همین command را اجرا کنید ، ممکن است برای مدتی activity زیادی نبینید ، چون system bus معمولاً خیلی شلوغ نیست. برای تولید event واقعی می‌ توانید مثلاً یک USB storage device متصل کنید و فعالیت bus را مشاهده کنید در مقابل ، session bus معمولاً بسیار پرتحرک‌ تر است :
 
-اگر فقط همین command را اجرا کنید، ممکن است برای مدتی activity زیادی نبینید، چون system bus معمولاً خیلی شلوغ نیست.
+```dbus-monitor --session```
 
-برای تولید event واقعی می‌توانید مثلاً یک USB storage device متصل کنید و فعالیت bus را مشاهده کنید.
-
-در مقابل، session bus معمولاً بسیار پرتحرک‌تر است:
-
-```
-dbus-monitor --session
-```
-
-حالا اگر یک desktop application مثل file manager را باز یا استفاده کنید، در یک desktop D-Bus-aware احتمالاً مجموعه‌ی زیادی از پیام‌ها را خواهید دید.
-
-البته همه‌ی applicationها الزاماً برای هر نوع operation پیام D-Bus تولید نمی‌کنند.
+حالا اگر یک desktop application مثل file manager را باز یا استفاده کنید ، در یک desktop D-Bus-aware احتمالاً مجموعه‌ ی زیادی از پیام‌ ها را خواهید دید. البته همه‌ ی application ها الزاماً برای هر نوع operation پیام D-Bus تولید نمی‌ کنند.
 
 ---
 
 ### 14.6 Printing
 
-چاپ در Linux یک عملیات یک‌مرحله‌ای نیست.
+چاپ در Linux یک عملیات یک‌ مرحله‌ ای نیست. وقتی از یک application درخواست print می‌ کنید ، معمولاً document از چند مرحله عبور می‌ کند تا در نهایت به printer برسد. مسیر کلی که کتاب توضیح می‌ دهد شامل این مراحل است :
 
-وقتی از یک application درخواست print می‌کنید، معمولاً سند از چند مرحله عبور می‌کند تا در نهایت به printer برسد.
 
-مسیر کلی که کتاب توضیح می‌دهد شامل این مراحل است:
+1. اول application در صورت نیاز document را به PostScript تبدیل می‌ کند.
+2. بعد document به print server ارسال می‌ شود.
+3. بعد print server آن را داخل print queue قرار می‌ دهد.
+4. وقتی نوبت document برسد ، print server آن را به print filter می‌ فرستد.
+5. اگر document در قالب PostScript نباشد ، filter می‌ تواند آن را convert کند.
+6. اگر printer مستقیماً PostScript را پشتیبانی نکند ، printer driver document را به format مناسب printer تبدیل می‌ کند.
+7. سپس driver می‌ تواند instruction هایی مثل paper tray و duplexing را به job اضافه کند.
+8. در نهایت print server از یک backend برای ارسال document به printer استفاده می‌ کند.
 
-1. application در صورت نیاز document را به PostScript تبدیل می‌کند.
-2. document به print server ارسال می‌شود.
-3. print server آن را داخل print queue قرار می‌دهد.
-4. وقتی نوبت document برسد، print server آن را به print filter می‌فرستد.
-5. اگر document در قالب PostScript نباشد، filter می‌تواند آن را convert کند.
-6. اگر printer مستقیماً PostScript را پشتیبانی نکند، printer driver document را به format مناسب printer تبدیل می‌کند.
-7. driver می‌تواند instructionهایی مثل paper tray و duplexing را به job اضافه کند.
-8. در نهایت print server از یک backend برای ارسال document به printer استفاده می‌کند.
-
-بنابراین مسیر ساده‌شده چنین است:
+بنابراین مسیر ساده‌ شده چنین است :
 
 ```
 Application
@@ -1024,116 +390,21 @@ Backend
 Printer
 ```
 
-البته همه‌ی documentها الزاماً از تمام این مراحل عبور نمی‌کنند. مثلاً تبدیل به PostScript در مرحله‌ی اول اختیاری است و بسته به application و workflow می‌تواند متفاوت باشد.
+البته همه‌ ی document ها الزاماً از تمام این مراحل عبور نمی‌ کنند. مثلاً تبدیل به PostScript در مرحله‌ ی اول اختیاری است و بسته به application و workflow می‌ تواند متفاوت باشد.
 
-#### PostScript
+#### 🔹 PostScript
 
-یکی از قسمت‌های عجیب معماری سنتی چاپ این است که چرا PostScript تا این اندازه مهم است.
+یکی از قسمت‌ های عجیب معماری قدیمی چاپ این است که چرا PostScript تا این اندازه مهم است. PostScript فقط یک data format ساده نیست بلکه در واقع یک programming language است. یعنی وقتی یک document در قالب PostScript ارسال می‌ شود ، در اصل یک برنامه به مقصد ارسال شده که سیستم چاپ یا printer آن را پردازش می‌ کند تا تصویر نهایی صفحه تولید شود. PostScript در Unix-like systems نقش یک استاندارد تاریخی برای چاپ داشته است ، همان‌ طور که format هایی مثل tar. در زمینه‌ ی archive ها یک استاندارد رایج هستند. در سیستم‌ های جدید تر بعضی application ها از PDF به‌ عنوان خروجی استفاده می‌ کنند. با این حال تبدیل PDF به مسیرهای مناسب چاپ نسبتاً ساده است و به همین دلیل PDF نیز به‌ خوبی در این ecosystem قرار می‌ گیرد.
 
-PostScript فقط یک data format ساده نیست؛ در واقع یک programming language است.
+#### 🔹 CUPS
 
-یعنی وقتی یک document در قالب PostScript ارسال می‌شود، در اصل یک برنامه به مقصد ارسال شده که سیستم چاپ یا printer آن را پردازش می‌کند تا تصویر نهایی صفحه تولید شود.
+سرویس CUPS مخفف Common UNIX Printing System است و سیستم چاپ استاندارد در بسیاری از سیستم‌ های Linux و دیگر Unix-like ها محسوب می‌ شود. CUPS همچنین در macOS استفاده شده است و daemon اصلی CUPS هم ```cupsd``` نام دارد. برای ارسال ساده‌ ی فایل می‌ توان از client مثل ```lpr``` استفاده کرد. یکی از ویژگی‌ های مهم CUPS پشتیبانی از IPP (Internet Printing Protocol) است. IPP امکان انجام transaction های شبیه HTTP میان client و server را فراهم می‌ کند و در مدل مطرح‌ شده در کتاب روی این TCP port کار می‌ کند ```631``` . اگر CUPS روی سیستم شما در حال اجرا باشد، می‌ توانید معمولاً interface وب local آن را از طریق ```http://localhost:631```
+ببینید. این interface می‌ تواند برای مشاهده‌ ی configuration ، printer ها و job های چاپ مفید باشد. بسیاری از network printer ها و print server ها نیز از IPP پشتیبانی می‌ کنند و همین موضوع configuration printer های راه دور را آسان‌ تر می‌ کند. با این حال کتاب هشدار می‌ دهد که نباید فرض کنید interface وب CUPS همیشه برای administration مناسب است. configuration پیش‌ فرض لزوماً با این هدف طراحی نشده که remote administration امن و بدون تغییر در اختیار همه باشد. به‌همین دلیل distribution معمولاً یک graphical settings interface برای افزودن و تغییر printer ها ارائه می‌ کند. این ابزار ها configuration های CUPS را مدیریت می‌ کنند و فایل‌ های آن‌ ها معمولاً در
+```etc/cups``` قرار دارند. از آنجا که configuration چاپ می‌ تواند پیچیده باشد ، بهتر است حتی در صورت نیاز به configuration دستی ، ابتدا printer را از طریق ابزار گرافیکی distribution بسازید تا یک configuration پایه و قابل بررسی داشته باشید.
 
-PostScript در Unix-like systems نقش یک استاندارد تاریخی برای چاپ داشته است، همان‌طور که formatهایی مثل .tar در زمینه‌ی archiveها یک استاندارد رایج هستند.
+#### 🔹 Format Conversion and Print Filters
 
-در سیستم‌های جدیدتر بعضی applicationها از PDF به‌عنوان خروجی استفاده می‌کنند. با این حال تبدیل PDF به مسیرهای مناسب چاپ نسبتاً ساده است و به همین دلیل PDF نیز به‌خوبی در این ecosystem قرار می‌گیرد.
-
-#### 14.6.1 CUPS
-
-CUPS مخفف Common UNIX Printing System است و سیستم چاپ استاندارد در بسیاری از سیستم‌های Linux و دیگر Unix-likeها محسوب می‌شود.
-
-CUPS همچنین در macOS استفاده شده است.
-
-daemon اصلی CUPS:
-
-```
-cupsd
-```
-
-نام دارد.
-
-برای ارسال ساده‌ی فایل می‌توان از clientای مثل:
-
-```
-lpr
-```
-
-استفاده کرد.
-
-یکی از ویژگی‌های مهم CUPS پشتیبانی از IPP (Internet Printing Protocol) است.
-
-IPP امکان انجام transactionهای شبیه HTTP میان client و server را فراهم می‌کند و در مدل مطرح‌شده در کتاب روی این TCP port کار می‌کند:
-
-```
-631
-```
-
-اگر CUPS روی سیستم شما در حال اجرا باشد، می‌توانید معمولاً interface وب محلی آن را از طریق:
-
-```
-http://localhost:631/
-```
-
-ببینید.
-
-این interface می‌تواند برای مشاهده‌ی configuration، printerها و jobهای چاپ مفید باشد.
-
-بسیاری از network printerها و print serverها نیز از IPP پشتیبانی می‌کنند و همین موضوع configuration printerهای راه دور را آسان‌تر می‌کند.
-
-با این حال کتاب هشدار می‌دهد که نباید فرض کنید interface وب CUPS همیشه برای administration مناسب است. configuration پیش‌فرض لزوماً با این هدف طراحی نشده که remote administration امن و بدون تغییر در اختیار همه باشد.
-
-به‌همین دلیل distribution معمولاً یک graphical settings interface برای افزودن و تغییر printerها ارائه می‌کند.
-
-این ابزارها configurationهای CUPS را مدیریت می‌کنند و فایل‌های آن‌ها معمولاً در:
-
-```
-/etc/cups
-```
-
-قرار دارند.
-
-از آنجا که configuration چاپ می‌تواند پیچیده باشد، بهتر است حتی در صورت نیاز به configuration دستی، ابتدا printer را از طریق ابزار گرافیکی distribution بسازید تا یک configuration پایه و قابل بررسی داشته باشید.
-
-#### 14.6.2 Format Conversion and Print Filters
-
-همه‌ی printerها نمی‌توانند مستقیماً PostScript یا PDF را پردازش کنند.
-
-خصوصاً بسیاری از printerهای ارزان‌تر، format نهایی خاص خودشان را نیاز دارند.
-
-در چنین شرایطی سیستم چاپ Linux باید document را به formatی تبدیل کند که printer بتواند آن را بفهمد.
-
-CUPS در این مسیر از Raster Image Processor (RIP) استفاده می‌کند.
-
-RIP document را به شکل bitmap مناسب برای چاپ آماده می‌کند.
-
-در معماری توضیح‌داده‌شده در کتاب، RIP معمولاً از Ghostscript استفاده می‌کند:
-
-```
-gs
-```
-
-Ghostscript بخش قابل‌توجهی از conversion واقعی را انجام می‌دهد.
-
-اما ایجاد bitmap به‌تنهایی کافی نیست؛ bitmap نهایی باید مطابق قابلیت‌ها و محدودیت‌های printer باشد.
-
-اینجاست که PPD اهمیت پیدا می‌کند.
-
-PPD مخفف:
-
-```
-PostScript Printer Definition
-```
-
-است.
-
-PPD اطلاعات مربوط به ویژگی‌ها و قابلیت‌های printer را در اختیار driver قرار می‌دهد، از جمله مواردی مانند:
-
-- resolution
-- paper size
-- تنظیمات چاپ
-- قابلیت‌های خاص printer
-
-بنابراین workflow ساده‌شده این بخش می‌تواند چنین در نظر گرفته شود:
+همه‌ ی printer ها نمی‌ توانند مستقیماً PostScript یا PDF را پردازش کنند. خصوصاً بسیاری از printer های ارزان‌ تر، format نهایی خاص خودشان را نیاز دارند. در چنین شرایطی سیستم چاپ Linux باید document را به format تبدیل کند که printer بتواند آن را بفهمد. CUPS در این مسیر از Raster Image Processor (RIP) استفاده می‌ کند. RIP document را به شکل bitmap مناسب برای چاپ آماده می‌ کند. در معماری توضیح‌ داده‌ شده در کتاب ، RIP معمولاً از Ghostscript استفاده می‌ کند ```gs``` و بخش قابل‌ توجهی از conversion واقعی را انجام می‌ دهد. اما ایجاد bitmap به‌ تنهایی کافی نیست و bitmap نهایی باید مطابق قابلیت‌ ها و محدودیت‌ های printer باشد. اینجاست که PPD اهمیت پیدا می‌ کند. PPD مخفف ```PostScript Printer Definition``` است. PPD اطلاعات مربوط به ویژگی‌ ها و قابلیت‌ های printer را در اختیار driver قرار می‌ دهد ، از جمله مواردی مانند resolution و paper size و تنظیمات چاپ و قابلیت‌های خاص  printer ، بنابراین workflow ساده‌ شده این بخش می‌ تواند چنین در نظر گرفته شود :
 
 ```
 Document
@@ -1154,45 +425,23 @@ Printer Driver
 Printer Backend
 ```
 
-در این میان PPD نقش metadata مربوط به قابلیت‌های printer را دارد و به driver کمک می‌کند conversion را مطابق device مقصد انجام دهد.
+در این میان PPD نقش metadata مربوط به قابلیت‌ های printer را دارد و به driver کمک می‌ کند conversion را مطابق device مقصد انجام دهد.
 
 ---
 
-### 14.7 Other Desktop Topics
+### Other Desktop Topics
 
-یکی از خصوصیات جالب Linux desktop این است که مجبور نیستید همه‌ی اجزای desktop را به‌عنوان یک مجموعه‌ی غیرقابل‌تفکیک انتخاب کنید.
+یکی از خصوصیات جالب Linux desktop این است که مجبور نیستید همه‌ ی اجزای desktop را به‌ عنوان یک مجموعه‌ ی غیرقابل‌ تفکیک انتخاب کنید. می‌ توانید بخش‌ های مختلف را از پروژه‌ ها و component های گوناگون انتخاب کنید ، چیزهایی را که دوست دارید نگه دارید و اجزایی را که نمی‌ پسندید جایگزین کنید. این انعطاف‌ پذیری یکی از دلایل تنوع زیاد پروژه‌ های desktop در Linux است. کتاب برای آشنایی با پروژه‌ ها و ecosystem های مختلف desktop به منابع و جامعه‌ ی freedesktop.org اشاره می‌ کند. جایی که پروژه‌ های مرتبط با desktop Linux ، protocol ها و infrastructure های مشترک زیادی را می‌ توان دنبال کرد
 
-می‌توانید بخش‌های مختلف را از پروژه‌ها و componentهای گوناگون انتخاب کنید، چیزهایی را که دوست دارید نگه دارید و اجزایی را که نمی‌پسندید جایگزین کنید.
+#### 🔹 Chromium OS and Chrome OS
 
-این انعطاف‌پذیری یکی از دلایل تنوع زیاد پروژه‌های desktop در Linux است.
-
-کتاب برای آشنایی با پروژه‌ها و ecosystemهای مختلف desktop به منابع و جامعه‌ی freedesktop.org اشاره می‌کند؛ جایی که پروژه‌های مرتبط با desktop Linux، protocolها و infrastructureهای مشترک زیادی را می‌توان دنبال کرد.
-
-#### Chromium OS and Chrome OS
-
-یکی دیگر از تحولات مهمی که کتاب به آن اشاره می‌کند Chromium OS و نسخه‌ی تجاری آن یعنی Chrome OS است.
-
-این سیستم نیز یک Linux system است و بخش زیادی از technologyهای desktop Linux را استفاده می‌کند، اما تجربه‌ی کاربری آن به‌شکل متفاوتی سازمان‌دهی شده است.
-
-در این مدل، محور اصلی محیط کاربری:
-
-```
-Chromium / Chrome browser
-```
-
-است.
-
-بخش قابل‌توجهی از چیزهایی که در یک traditional desktop Linux می‌بینید در Chrome OS حذف یا ساده شده‌اند.
-
-در نتیجه می‌توان Chrome OS را نمونه‌ای از این دانست که چگونه همان زیرساخت Linux می‌تواند در قالب یک desktop بسیار متفاوت از GNOME یا KDE استفاده شود.
+یکی دیگر از تحولات مهمی که کتاب به آن اشاره می‌ کند Chromium OS و نسخه‌ ی تجاری آن یعنی Chrome OS است. این سیستم نیز یک Linux system است و بخش زیادی از technology های desktop Linux را استفاده می‌ کند ، اما تجربه‌ ی کاربری آن ب ه‌شکل متفاوتی سازمان‌ دهی شده است. در این مدل ، محور اصلی محیط کاربری Chromium / Chrome browser است. بخش قابل‌ توجهی از چیزهایی که در یک traditional desktop Linux می‌ بینید در Chrome OS حذف یا ساده شده‌ اند. در نتیجه می‌ توان Chrome OS را نمونه‌ ای از این دانست که چگونه همان زیرساخت Linux می‌ تواند در قالب یک desktop بسیار متفاوت از GNOME یا KDE استفاده شود.
 
 ---
 
 ### Desktop Architecture and Summary
 
-فصل چهاردهم در نهایت یک نکته‌ی معماری مهم را روشن می‌کند: Linux desktop یک برنامه‌ی واحد نیست، بلکه مجموعه‌ای از componentهای مستقل است که هرکدام مسئولیت مشخصی دارند و از طریق interfaceها، protocolها، libraryها و IPC با یکدیگر همکاری می‌کنند.
-
-در مسیر نمایش، می‌توان معماری را به‌شکل زیر در نظر گرفت:
+فصل چهاردهم در نهایت یک نکته‌ ی معماری مهم را روشن می‌ کند: Linux desktop یک برنامه‌ ی واحد نیست ، بلکه مجموعه‌ ای از component های مستقل است که هر کدام مسئولیت مشخصی دارند و از طریق interface ها ، protocol ها ، library ها و IPC با یکدیگر همکاری می‌ کنند ، در مسیر زیر می‌ توان معماری را به‌ شکل زیر در نظر گرفت : 
 
 ```
 Application
@@ -1213,11 +462,7 @@ Framebuffer
 Display Hardware
 ```
 
-در مدل X، یک X server مرکزی نقش اصلی را در مدیریت display، rendering و input دارد و applicationها به‌عنوان client با آن ارتباط برقرار می‌کنند.
-
-در مدل Wayland، خود protocol مسئول ایجاد یک desktop کامل نیست. graphical clientها bufferهای خودشان را دارند و compositor آن‌ها را ترکیب می‌کند و خروجی نهایی را برای display آماده می‌سازد. به همین دلیل در Wayland، compositor نقش بسیار مرکزی‌تری دارد.
-
-در مسیر input، تصویر متفاوتی داریم:
+در مدل X ، یک X server مرکزی نقش اصلی را در مدیریت display ، rendering و input دارد و application ها به‌ عنوان client با آن ارتباط برقرار می‌ کنند. در مدل Wayland ، خود protocol مسئول ایجاد یک desktop کامل نیست.  graphical client ها buffer های خودشان را دارند و compositor آن‌ ها را ترکیب می‌ کند و خروجی نهایی را برای display آماده می‌ سازد. به همین دلیل در Wayland ، compositor نقش بسیار مرکزی‌ تری دارد. در مسیر input ، تصویر متفاوتی داریم :
 
 ```
 Keyboard / Mouse
@@ -1235,11 +480,7 @@ Compositor / X Server
 Application
 ```
 
-در اینجا libinput می‌تواند eventهای input deviceهای kernel را جمع‌آوری و استاندارد کند، در حالی که در X ابزارهایی مانند X Input Extension، xinput، XKB و xmodmap برای مشاهده و تنظیم input مورد استفاده قرار می‌گیرند.
-
-در سطح application، toolkitهایی مانند GTK+ و Qt امکانات لازم برای ساخت widgetهای گرافیکی را فراهم می‌کنند. سپس desktop environmentهایی مانند GNOME، KDE و Xfce مجموعه‌ی بزرگ‌تری از toolkitها، libraryها، themeها، iconها و conventionها را در کنار هم قرار می‌دهند تا applicationها رفتار و ظاهر هماهنگ‌تری داشته باشند.
-
-برای ارتباط بین processها، D-Bus یک مسیر جداگانه فراهم می‌کند:
+در اینجا libinput می‌ تواند event های input device های kernel را جمع‌ آوری و استاندارد کند ، در حالی که در X ابزارهایی مانند X Input Extension ، xinput ، XKB و xmodmap برای مشاهده و تنظیم input مورد استفاده قرار می‌ گیرند. در سطح application ، toolkit هایی مانند GTK+ و Qt امکانات لازم برای ساخت widget های گرافیکی را فراهم می‌کنند. سپس desktop environment هایی مانند GNOME ، KDE و Xfce مجموعه‌ ی بزرگ‌ تری از toolkit ها ، library ها ، theme ها ، icon ها و convention ها را در کنار هم قرار می‌ دهند تا application ها رفتار و ظاهر هماهنگ‌ تری داشته باشند. برای ارتباط بین process ها و D-Bus یک مسیر جداگانه فراهم می‌ کند :
 
 ```
 Process
@@ -1251,9 +492,7 @@ D-Bus
 Process
 ```
 
-در این معماری dbus-daemon نقش hub را دارد و eventها و پیام‌ها را میان processهای علاقه‌مند جابه‌جا می‌کند. System bus برای communication سطح سیستم و session bus برای communication مربوط به desktop session استفاده می‌شوند.
-
-مسیر چاپ نیز یک pipeline جداگانه دارد:
+در این معماری dbus-daemon نقش hub را دارد و event ها و پیام‌ ها را میان process های علاقه‌ مند جا به‌ جا می‌ کند. System bus برای communication سطح سیستم و session bus برای communication مربوط به desktop session استفاده می‌ شوند ، مسیر چاپ نیز یک pipeline جداگانه دارد :
 
 ```
 Application
@@ -1277,21 +516,7 @@ Backend
 Printer
 ```
 
-در این مسیر CUPS زیرساخت اصلی چاپ است، cupsd daemon آن را اجرا می‌کند و IPP برای communication با clientها، printerها و print serverها کاربرد دارد. اگر printer مستقیماً format ورودی را پشتیبانی نکند، componentهایی مانند Ghostscript، RIP و PPD در تبدیل document و تطبیق آن با قابلیت‌های printer نقش پیدا می‌کنند.
-
-به همین دلیل هنگام troubleshooting بهتر است desktop را به‌عنوان یک component واحد در نظر نگیریم.
-
-اگر مشکل مربوط به window placement یا نحوه‌ی ترکیب windowها باشد، باید window manager یا compositor را بررسی کنیم.
-
-اگر مشکل مربوط به input باشد، مسیر device، kernel input، libinput یا X Input اهمیت پیدا می‌کند.
-
-اگر یک X application در محیط Wayland رفتار غیرمنتظره‌ای داشته باشد، باید وجود و عملکرد Xwayland را در نظر گرفت.
-
-اگر مشکل مربوط به ارتباط بین applicationها یا eventهای system باشد، D-Bus یکی از componentهای اصلی برای بررسی است.
-
-و اگر مشکل مربوط به printing باشد، باید queue، filter، RIP، driver و backend را به‌عنوان مرحله‌های جداگانه در نظر گرفت.
-
-بنابراین معماری کلی فصل را می‌توان بدون تکرار مطالب قبلی به این شکل خلاصه کرد:
+در این مسیر CUPS زیرساخت اصلی چاپ است ، cupsd daemon آن را اجرا می‌ کند و IPP برای communication با client ها ، printer ها و print server ها کاربرد دارد. اگر printer مستقیماً format ورودی را پشتیبانی نکند ، component هایی مانند Ghostscript ، RIP و PPD در تبدیل document و تطبیق آن با قابلیت‌ های printer نقش پیدا می‌ کنند. به همین دلیل هنگام troubleshooting بهتر است desktop را به‌ عنوان یک component واحد در نظر نگیریم. اگر مشکل مربوط به window placement یا نحوه‌ ی ترکیب window ها باشد ، باید window manager یا compositor را بررسی کنیم. اگر مشکل مربوط به input باشد ، مسیر device ، kernel input ، libinput یا X Input اهمیت پیدا می‌ کند. اگر یک X application در محیط Wayland رفتار غیرمنتظره‌ ای داشته باشد ، باید وجود و عملکرد Xwayland را در نظر گرفت. اگر مشکل مربوط به ارتباط بین application ها یا event های system باشد ، D-Bus یکی از component های اصلی برای بررسی است و اگر مشکل مربوط به printing باشد ، باید queue ، filter ، RIP ، driver و backend را به‌ عنوان مرحله‌ های جداگانه در نظر گرفت بنابراین معماری کلی فصل را می‌ توان بدون تکرار مطالب قبلی به این شکل خلاصه کرد :
 
 ```
                       Linux Desktop
@@ -1318,6 +543,4 @@ X Server  Compositor                         Filter
                                              Printer
 ```
 
-در نتیجه، چیزی که باید از این فصل در ذهن بماند این نیست که «Linux desktop یک سیستم بزرگ و یکپارچه است»، بلکه برعکس، باید آن را مجموعه‌ای از componentهای مستقل، قابل‌تعویض و قابل‌بررسی دید.
-
-همین نگاه معماری است که عیب‌یابی را ساده می‌کند: به‌جای جست‌وجو در کل desktop، ابتدا مسیر مربوط به مشکل را مشخص می‌کنیم و سپس component مسئول همان مرحله را بررسی می‌کنیم.
+در نتیجه ، چیزی که باید از این فصل در ذهن بماند این نیست که **Linux desktop یک سیستم بزرگ و یکپارچه است** بلکه برعکس ، باید آن را **مجموعه‌ ای از component های مستقل ، قابل‌ تعویض و قابل‌ بررسی دید**. همین نگاه معماری است که عیب‌یابی را ساده می‌ کند ، به‌جای جست‌ وجو در کل desktop ، ابتدا مسیر مربوط به مشکل را مشخص می‌ کنیم و سپس component مسئول همان مرحله را بررسی می‌ کنیم.
