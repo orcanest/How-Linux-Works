@@ -9,7 +9,7 @@
 📚 Table of Contents
 
 - [Desktop Components](#desktop-components)
-- [Are You Running Wayland or X?](#are-you-running-wayland-or-x)
+- [Are You Running Wayland or X ?](#are-you-running-wayland-or-x-?)
 - [A Closer Look at Wayland](#a-closer-look-at-wayland)
 - [A Closer Look at the X Window System](#a-closer-look-at-the-x-window-system)
 - [D-Bus](#d-bus)
@@ -86,7 +86,7 @@
 - دریافت instant message
 - تغییر وضعیت یک سرویس
 
-برای این نوع ارتباط ، application ها معمولاً از interprocess communication استفاده می‌ کنند و یکی از مهم‌ ترین مکانیزم‌ ها در این حوزه D-Bus است.
+برای این نوع ارتباط ، application ها معمولاً از interprocess communication استفاده می‌ کنند و یکی از مهم‌ ترین مکانیزم‌ ها در این حوزه  است.
 
 ---
 
@@ -325,7 +325,7 @@ Session Bus
 
 این جدا سازی باعث می‌ شود communication مربوط به desktop کاربر با communication سطح system یکی نشود.
 
-#### 🔹 D-Bus Message Monitoring
+#### 🔹 D-Bus
 
 یکی از بهترین راه‌ ها برای درک تفاوت system bus و session bus مشاهده‌ ی event های واقعی روی آن‌ هاست. برای  system bus :
 
@@ -349,7 +349,7 @@ member=NameAcquired
 
 ---
 
-### 14.6 Printing
+### Printing
 
 چاپ در Linux یک عملیات یک‌ مرحله‌ ای نیست. وقتی از یک application درخواست print می‌ کنید ، معمولاً document از چند مرحله عبور می‌ کند تا در نهایت به printer برسد. مسیر کلی که کتاب توضیح می‌ دهد شامل این مراحل است :
 
