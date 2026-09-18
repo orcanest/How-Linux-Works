@@ -23,7 +23,7 @@
 - 11 [Introduction to Shellscripts](https://github.com/orcanest/How-Linux-Works/tree/main/11-introduction-to-shell-scripts)
 - 12 [Network file transfer and sharing](https://github.com/orcanest/How-Linux-Works/tree/main/12-network-file-transfer-and-sharing)
 - 13 [User Environments](https://github.com/orcanest/How-Linux-Works/tree/main/13-user-environments)
-- 14
-- 15
+- 14 [A brief survey of the linux desktop and printing](https://github.com/orcanest/How-Linux-Works/tree/main/14-a-brief-survey-of-the-linux-desktop-and-printing)
+- 15 [Development tools](https://github.com/orcanest/How-Linux-Works/tree/main/15-development-tools)
 - 16
 - 17
