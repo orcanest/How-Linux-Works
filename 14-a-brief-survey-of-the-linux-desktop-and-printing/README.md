@@ -9,10 +9,10 @@
 📚 Table of Contents
 
 - [Desktop Components](#desktop-components)
-- [Are You Running Wayland or X ?](#are-you-running-wayland-or-x-?)
+- [Are You Running Wayland or X](#are-you-running-wayland-or-x)
 - [A Closer Look at Wayland](#a-closer-look-at-wayland)
 - [A Closer Look at the X Window System](#a-closer-look-at-the-x-window-system)
-- [D-Bus](#d-bus)
+- [D Bus](#d-bus)
 - [Printing](#printing)
 - [Other Desktop Topics](#other-desktop-topics)
 - [Desktop Architecture and Summary](#desktop-architecture-and-summary)
@@ -90,7 +90,7 @@
 
 ---
 
-### Are You Running Wayland or X ?
+### Are You Running Wayland or X
 
 برای بررسی اینکه session گرافیکی شما با Wayland اجرا می‌ شود یا X ، کتاب یک روش بسیار ساده ارائه می‌ کند و باید مقدار environment variable مربوط به Wayland را بررسی کنید.
 
@@ -325,7 +325,9 @@ Session Bus
 
 این جدا سازی باعث می‌ شود communication مربوط به desktop کاربر با communication سطح system یکی نشود.
 
-#### 🔹 D-Bus
+---
+
+### D Bus
 
 یکی از بهترین راه‌ ها برای درک تفاوت system bus و session bus مشاهده‌ ی event های واقعی روی آن‌ هاست. برای  system bus :
 
