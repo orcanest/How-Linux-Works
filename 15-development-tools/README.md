@@ -533,239 +533,54 @@ cc -o myprog aux.o main.o
 
 #### 🔹 Standard Macros and Variables
 
-در make اصطلاحات macro و variable گاهی شبیه یکدیگر به نظر می‌رسند.
-
-در توضیح کتاب، macro معمولاً مقداری است که در طول build تغییر چندانی نمی‌کند، در حالی که variable می‌تواند در هنگام اجرای ruleها مقدارهای مختلفی داشته باشد.
+در make اصطلاحات macro و variable گاهی شبیه یکدیگر به نظر می‌ رسند. در توضیح کتاب ، macro معمولاً مقداری است که در طول build تغییر چندانی نمی‌ کند ، در حالی که variable می‌ تواند در هنگام اجرای rule ها مقدارهای مختلفی داشته باشد.
 
 #### 🔹 Standard Macros
 
-**CC**
-مشخص می‌کند از چه C compilerای استفاده شود.
-مقدار پیش‌فرض معمول:
-
-```
-cc
-```
-
-است.
-
-مثلاً:
-
-```
-make CC=clang
-```
-
-**CFLAGS**
-گزینه‌های compiler برای ساخت object code هستند.
-مثلاً:
-
-```
-CFLAGS = -O2 -Wall
-```
-
-**CPPFLAGS**
-optionهای مربوط به C preprocessor هستند.
-مثلاً:
-
-```
-CPPFLAGS = -DDEBUG
-```
-
-**LDFLAGS**
-گزینه‌هایی هستند که در مرحله‌ی linking به linker مربوط می‌شوند.
-برای مثال:
-
-```
-LDFLAGS = -L/usr/local/lib
-```
-
-**LDLIBS**
-برای library optionهایی استفاده می‌شود که می‌خواهید جدا از search path مربوط به LDFLAGS نگهداری شوند:
-
-```
-LDLIBS = -lm -lpng
-```
-
-**CXXFLAGS**
-در GNU make برای compiler flagهای مربوط به C++ استفاده می‌شود.
+- استاندارد **CC** مشخص می‌ کند از چه C compiler استفاده شود مقدار پیش‌ فرض معمول ```cc```است مثلاً ```make CC=clang```.
+- استاندارد **CFLAGS** گزینه‌ های compiler برای ساخت object code هستند مثلاً ```CFLAGS = -O2 -Wall```.
+- استاندارد **CPPFLAGS** برای option های مربوط به C preprocessor هستند مثلاً ```CPPFLAGS = -DDEBUG```.
+- استاندارد **LDFLAGS** گزینه‌ هایی هستند که در مرحله‌ی linking به linker مربوط می‌ شوند برای مثال ```LDFLAGS = -L/usr/local/lib ```.
+- استاندارد **LDLIBS** برای library option هایی استفاده می‌ شود که می‌ خواهید جدا از search path مربوط به LDFLAGS نگهداری شوند مثلا ```LDLIBS = -lm -lpng```.
+- استاندارد **CXXFLAGS** در GNU make برای compiler flag های مربوط به C++ استفاده می‌ شود.
 
 #### 🔹 Automatic Variables
 
-make variableهای خاصی دارد که داخل ruleها به‌صورت خودکار مقدار می‌گیرند.
-
-**$@**
-target فعلی را نشان می‌دهد.
-مثلاً اگر rule این باشد:
+برخی make variable های خاص که داخل rule ها به‌ صورت خودکار مقدار می‌ گیرند مثلا **@$** target فعلی را نشان می‌ دهد اگر rule این باشد :
 
 ```makefile
 myprog: $(OBJS)
 	$(CC) -o $@ $(OBJS)
 ```
 
-در زمان ساخت myprog:
-
-```
-$@
-```
-
-به:
-
-```
-myprog
-```
-
-گسترش پیدا می‌کند.
-
-**$<**
-اولین dependency مربوط به target فعلی است.
-مثلاً اگر ruleای داشته باشیم:
-
-```
-target: source.c
-```
-
-آن‌وقت:
-
-```
-$<
-```
-
-به:
-
-```
-source.c
-```
-
-تبدیل می‌شود.
-
-**$***
-basename یا stem مربوط به target را نشان می‌دهد.
-مثلاً اگر target:
-
-```
-blah.o
-```
-
-باشد، مقدار:
-
-```
-$*
-```
-
-برابر:
-
-```
-blah
-```
-
-است.
-
-این variableها در patternها و ruleهای عمومی بسیار کاربرد دارند.
+در زمان ساخت myprog از ```@$``` به ```myprog``` گسترش پیدا می‌ کند. **<$** اولین dependency مربوط به target فعلی است مثلاً اگر rule داشته باشیم ```target: source.c``` آن‌ وقت ```<$``` به ```source.c``` تبدیل می‌ شود. **$** هم basename یا stem مربوط به target را نشان می‌ دهد مثلاً اگر target آن something.o باشد ، مقدار ```*$``` برابر ```something``` است این variable ها در pattern ها و rule های عمومی بسیار کاربرد دارند.
 
 #### 🔹 GNU make vs Other make Implementations
 
-باید توجه کرد که همه‌ی نسخه‌های make دقیقاً قابلیت‌های GNU make را ندارند.
+باید توجه کرد که همه‌ ی نسخه‌ های make دقیقاً قابلیت‌ های GNU make را ندارند. GNU make تعداد زیادی extension ، built-in rule و feature دارد. این مسئله وقتی روی Linux کار می‌ کنید معمولاً مشکلی ایجاد نمی‌ کند ، اما اگر همان Makefile را به سیستم‌ هایی مانند Solaris یا بعضی BSD ها ببرید ، ممکن است بعضی option ها یا قابلیت‌ ها در دسترس نباشند. کتاب اشاره می‌ کند که این یکی از مشکلاتی است که build system های چند سکویی مانند GNU autotools برای آن طراحی شده‌ اند.
 
-GNU make تعداد زیادی extension، built-in rule و feature دارد.
+#### 🔹 Conventional Targets
 
-این مسئله وقتی روی Linux کار می‌کنید معمولاً مشکلی ایجاد نمی‌کند، اما اگر همان Makefile را به سیستم‌هایی مانند Solaris یا بعضی BSDها ببرید، ممکن است بعضی optionها یا قابلیت‌ها در دسترس نباشند.
-
-کتاب اشاره می‌کند که این یکی از مشکلاتی است که build systemهای چندسکویی مانند GNU autotools برای آن طراحی شده‌اند.
-
-#### 15.2.7 Conventional Targets
-
-بسیاری از Makefileها علاوه بر targetهای اصلی، targetهای قراردادی و متداولی دارند که عملیات جانبی build را انجام می‌دهند.
-
-**clean**
-
-یکی از رایج‌ترین targetها:
-
-```
-make clean
-```
-
-است.
-
-معمولاً تمام object fileها و executableهای تولیدشده را حذف می‌کند.
-
-مثلاً:
+بسیاری از Makefile ها علاوه بر target های اصلی، target های قراردادی و متداولی دارند که عملیات جانبی build را انجام می‌ دهند. یکی از رایج‌ ترین target ها ```make clean``` است. معمولاً تمام object file ها و executable های تولید شده را حذف می‌ کند با این کار می‌توان build را از وضعیت تمیز شروع کرد مثلاً : 
 
 ```makefile
 clean:
 	rm -f $(OBJS) myprog
 ```
 
-با این کار می‌توان build را از وضعیت تمیز شروع کرد.
+در Makefile هایی که توسط GNU autotools ایجاد شده‌اند ، distclean معمولاً چیزهایی را که بخشی از source distribution اولیه نبوده‌اند حذف می‌ کند. این target می‌ تواند حتی فایل‌ هایی مانند Makefile تولید شده را نیز حذف کند. جزئیات آن در Chapter 16 بیشتر بررسی خواهد شد.
 
-**distclean**
+معمولاً target برای نصب program و فایل‌ های مرتبط در directory هایی است که Makefile به‌عنوان محل نصب در نظر گرفته است مثلاً ```make install```. می‌ تواند فایل‌ ها را در مسیرهایی مانند /usr/local/bin یا مکان‌ های مشابه قرار دهد. این target را نباید کورکورانه اجرا کرد ، چون ممکن است عملیات filesystem زیادی انجام دهد قبل از اجرای واقعی بهتر است دستور ```make -n install``` را اجرا کنید تا command هایی که قرار است اجرا شوند را ببینید.
 
-در Makefileهایی که توسط GNU autotools ایجاد شده‌اند، distclean معمولاً چیزهایی را که بخشی از source distribution اولیه نبوده‌اند حذف می‌کند.
+بعضی پروژه‌ ها این target ها را برای اجرای تست‌ های project در اختیار قرار می‌ دهند با ```make test``` یا ```make check``` انجام می شود.
 
-این target می‌تواند حتی فایل‌هایی مانند Makefile تولیدشده را نیز حذف کند.
+این target در Makefile های قدیمی‌ تر ممکن است برای تولید dependency مربوط به include file ها استفاده شده باشد. کتاب می‌ گوید چنین target هایی ممکن است compiler را با option هایی مانند ```M-``` اجرا کنند و حتی Makefile را تغییر دهند. امروزه این روش نسبت به گذشته متداول نیست ، ولی اگر در دستورالعمل یک پروژه‌ ی قدیمی با آن مواجه شدید ، باید بدانید هدف آن ایجاد dependency information برای source code بوده است.
 
-جزئیات آن در Chapter 16 بیشتر بررسی خواهد شد.
+همان‌ طور که قبلاً دیدیم ، all معمولاً target پیش‌ فرض Makefile است و به executable یا مجموعه‌ ی اصلی build وابسته می‌ شود.
 
-**install**
+#### 🔹 Makefile Organization
 
-targetی برای نصب program و فایل‌های مرتبط در directoryهایی است که Makefile به‌عنوان محل نصب در نظر گرفته است.
-
-مثلاً:
-
-```
-make install
-```
-
-می‌تواند فایل‌ها را در مسیرهایی مانند /usr/local/bin یا مکان‌های مشابه قرار دهد.
-
-این target را نباید کورکورانه اجرا کرد، چون ممکن است عملیات filesystemی زیادی انجام دهد.
-
-قبل از اجرای واقعی بهتر است:
-
-```
-make -n install
-```
-
-را اجرا کنید تا commandهایی که قرار است اجرا شوند را ببینید.
-
-**test یا check**
-
-بعضی پروژه‌ها این targetها را برای اجرای تست‌های project در اختیار قرار می‌دهند:
-
-```
-make test
-```
-
-یا:
-
-```
-make check
-```
-
-**depend**
-
-این target در Makefileهای قدیمی‌تر ممکن است برای تولید dependency مربوط به include fileها استفاده شده باشد.
-
-کتاب می‌گوید چنین targetهایی ممکن است compiler را با optionهایی مانند:
-
-```
--M
-```
-
-اجرا کنند و حتی Makefile را تغییر دهند.
-
-امروزه این روش نسبت به گذشته متداول نیست، ولی اگر در دستورالعمل یک پروژه‌ی قدیمی با آن مواجه شدید، باید بدانید هدف آن ایجاد dependency information برای source code بوده است.
-
-**all**
-
-همان‌طور که قبلاً دیدیم، all معمولاً target پیش‌فرض Makefile است و به executable یا مجموعه‌ی اصلی build وابسته می‌شود.
-
-#### 15.2.8 Makefile Organization
-
-Makefileهای مختلف ممکن است styleهای متفاوتی داشته باشند، اما در بسیاری از آن‌ها organization مشخصی مشاهده می‌شود.
-
-در قسمت ابتدایی Makefile معمولاً dependencyهای library و include directoryها به‌صورت گروه‌بندی‌شده تعریف می‌شوند.
-
-مثلاً:
+در Makefile های مختلف ممکن است style های متفاوتی وجود داشته باشد ، اما در بسیاری از آن‌ ها organization مشخصی مشاهده می‌ شود. در قسمت ابتدایی Makefile معمولاً dependency های library و include directory ها به‌ صورت گروه‌ بندی‌شده تعریف می‌ شوند مثلاً :
 
 ```makefile
 MYPACKAGE_INCLUDES = -I/usr/local/include/mypackage
@@ -775,27 +590,18 @@ PNG_INCLUDES = -I/usr/local/include
 PNG_LIB = -L/usr/local/lib -lpng
 ```
 
-بعد این مقادیر در macroهای اصلی compiler و linker استفاده می‌شوند:
+بعد این مقادیر در macro های اصلی compiler و linker استفاده می‌ شوند :
 
 ```makefile
 CFLAGS = $(CFLAGS) $(MYPACKAGE_INCLUDES) $(PNG_INCLUDES)
 LDFLAGS = $(LDFLAGS) $(MYPACKAGE_LIB) $(PNG_LIB)
 ```
 
-از نظر مفهومی، هدف این است که dependencyها در جای مشخصی تعریف شوند تا ruleهای اصلی شلوغ و تکراری نشوند.
+از نظر مفهومی ، هدف این است که dependency ها در جای مشخصی تعریف شوند تا rule های اصلی شلوغ و تکراری نشوند.
 
-##### Grouping Object Files
+#### 🔹 Grouping Object Files
 
-Object fileها معمولاً بر اساس executableای که به آن‌ها نیاز دارد گروه‌بندی می‌شوند.
-
-فرض کنید دو executable داریم:
-
-- boring
-- trite
-
-و هر دو از util.o استفاده می‌کنند.
-
-می‌توان چیزی شبیه این داشت:
+معمولاً Object file ها بر اساس executable که به آن‌ ها نیاز دارد گروه‌ بندی می‌ شوند. فرض کنید دو executable داریم boring و trite که هر دو از util.o استفاده می‌ کنند می‌ توان چیزی شبیه این داشت : 
 
 ```makefile
 UTIL_OBJS = util.o
@@ -806,8 +612,7 @@ TRITE_OBJS = $(UTIL_OBJS) trite.o
 PROGS = boring trite
 ```
 
-و ruleهای build:
-
+و rule های build :
 ```makefile
 all: $(PROGS)
 
@@ -818,101 +623,27 @@ trite: $(TRITE_OBJS)
 	$(CC) -o $@ $(TRITE_OBJS) $(LDFLAGS)
 ```
 
-مزیت این organization این است که dependencyهای هر executable دقیق باقی می‌مانند.
-
-نباید بدون دلیل دو executable کاملاً متفاوت را در یک rule ادغام کنیم:
+مزیت این organization این است که dependency های هر executable دقیق باقی می‌ مانند نباید بدون دلیل دو executable کاملاً متفاوت را در یک rule ادغام کنیم :
 
 ```makefile
 boring trite: ...
 ```
 
-چنین کاری می‌تواند dependency graph نادرستی ایجاد کند.
-
-مثلاً اگر boring فقط به boring.c و trite فقط به trite.c وابسته باشند، ترکیب کردن آن‌ها در یک rule ممکن است باعث شود make فکر کند هر executable به source file مربوط به دیگری هم وابستگی دارد.
-
-در نتیجه تغییر boring.c می‌تواند باعث rebuild شدن trite نیز شود.
-
-همچنین جدا نگه داشتن targetها باعث می‌شود:
-
-- جابه‌جا کردن ruleها ساده‌تر باشد.
-- حذف یک executable مستقل‌تر باشد.
-- grouping برنامه‌ها راحت‌تر تغییر کند.
-- dependency graph دقیق‌تر باقی بماند.
-
-اگر یک object file به rule خاصی نیاز دارد، کتاب توصیه می‌کند rule اختصاصی آن را نزدیک rule executable مربوطه قرار دهید.
-
-اگر چند executable از یک object file مشترک استفاده می‌کنند، rule مربوط به آن object بهتر است بالاتر از ruleهای executableها قرار گیرد.
+چنین کاری می‌ تواند dependency graph نادرستی ایجاد کند مثلاً اگر boring فقط به boring.c و trite فقط به trite.c وابسته باشند ، ترکیب کردن آن‌ ها در یک rule ممکن است باعث شود make فکر کند هر executable به source file مربوط به دیگری هم وابستگی دارد. در نتیجه تغییر boring.c می‌ تواند باعث rebuild شدن trite نیز شود همچنین جدا نگه داشتن target ها باعث می‌ شود که جا به‌ جا کردن rule ها ساده‌ تر باشد و حذف یک executable مستقل‌ تر باشد و grouping برنامه‌ ها راحت‌ تر تغییر کند و dependency graph دقیق‌ تر باقی بماند. اگر یک object file به rule خاصی نیاز دارد ، کتاب توصیه می‌ کند rule اختصاصی آن را نزدیک rule executable مربوطه قرار دهید  و اگر چند executable از یک object file مشترک استفاده می‌ کنند ، rule مربوط به آن object بهتر است بالاتر از rule های executable ها قرار گیرد.
 
 ---
 
-### 15.3 Lex and Yacc
+### Lex and Yacc
 
-ممکن است در هنگام compile کردن بعضی برنامه‌هایی که configuration file یا command language را پردازش می‌کنند با دو نام قدیمی ولی مهم مواجه شوید:
+ممکن است در هنگام compile کردن بعضی برنامه‌ هایی که configuration file یا command language را پردازش می‌ کنند با دو نام قدیمی ولی مهم مواجه شوید Lex و Yacc این دو ابزار از building block های مهم در ساخت parser ها و language processor ها هستند.
 
-- Lex
-- Yacc
+#### 🔹 Lex
 
-این دو ابزار از building blockهای مهم در ساخت parserها و language processorها هستند.
+ابزار Lex یک tokenizer یا lexical analyzer است. کار آن این است که ورودی متنی را بررسی کند و بخش‌ های مختلف آن را به token هایی تبدیل کند که parser بتواند با آن‌ ها کار کند در دنیای GNU/Linux نسخه‌ ی معروف آن ```flex``` است. هنگام link کردن بعضی برنامه‌ های تولید شده توسط Lex ممکن است به library option هایی مانند ```ll-``` یا ```lfl-``` نیاز داشته باشید.
 
-#### Lex
+#### 🔹 Yacc
 
-Lex یک tokenizer یا lexical analyzer است.
-
-کار آن این است که ورودی متنی را بررسی کند و بخش‌های مختلف آن را به tokenهایی تبدیل کند که parser بتواند با آن‌ها کار کند.
-
-در دنیای GNU/Linux نسخه‌ی معروف آن:
-
-```
-flex
-```
-
-است.
-
-هنگام link کردن بعضی برنامه‌های تولیدشده توسط Lex ممکن است به library optionهایی مانند:
-
-```
--ll
-```
-
-یا:
-
-```
--lfl
-```
-
-نیاز داشته باشید.
-
-#### Yacc
-
-Yacc نقش parser را دارد.
-
-ورودی tokenها را دریافت می‌کند و آن‌ها را مطابق یک grammar پردازش می‌کند تا structure موردنظر زبان را تشخیص دهد.
-
-نسخه‌ی GNU آن:
-
-```
-bison
-```
-
-است.
-
-برای compatibility با Yacc می‌توان:
-
-```
-bison -y
-```
-
-را استفاده کرد.
-
-بعضی برنامه‌های مبتنی بر Yacc ممکن است هنگام linking به:
-
-```
--ly
-```
-
-نیاز داشته باشند.
-
-به‌صورت ساده:
+ابزار Yacc نقش parser را دارد. ورودی token ها را دریافت می‌ کند و آن‌ ها را مطابق یک grammar پردازش می‌ کند تا structure مورد نظر زبان را تشخیص دهد نسخه‌ ی GNU آن ```bison``` است. برای compatibility با Yacc می‌ توان ```bison -y``` را استفاده کرد. بعضی برنامه‌ های مبتنی بر Yacc ممکن است هنگام linking به ```ly-``` نیاز داشته باشند به‌ صورت ساده :
 
 ```
 Text
@@ -930,19 +661,12 @@ Yacc / bison
 Parsed Structure
 ```
 
-بنابراین Lex و Yacc را می‌توان به‌ترتیب در نقش tokenizer و parser دید.
-
+بنابراین Lex و Yacc را می‌ توان به‌ ترتیب در نقش tokenizer و parser دید.
 ---
 
-### 15.4 Scripting Languages
+### Scripting Languages
 
-در گذشته مدیران Unix بیشتر با shell و ابزارهایی مانند awk سروکار داشتند، اما در طول زمان تعداد زیادی scripting language قدرتمند وارد ecosystem Unix/Linux شدند.
-
-بخشی از utilityهایی که در گذشته با C پیاده‌سازی می‌شدند، در برخی موارد با scripting languageها نوشته شدند؛ مخصوصاً جایی که کارهایی مانند text processing یا automation بخش اصلی برنامه بود.
-
-تفاوت مهم scripting languageها با C این است که معمولاً برای اجرای مستقیم source code به interpreter نیاز دارند.
-
-در نتیجه به‌جای این مدل:
+در گذشته مدیران Unix بیشتر با shell و ابزارهایی مانند awk سروکار داشتند ، اما در طول زمان تعداد زیادی scripting language قدرتمند وارد ecosystem Unix/Linux شدند. بخشی از utility هایی که در گذشته با C پیاده‌ سازی می‌ شدند ، در برخی موارد با  scripting language ها نوشته شدند مخصوصاً جایی که کارهایی مانند text processing یا automation بخش اصلی برنامه بود. تفاوت مهم scripting language ها با C این است که معمولاً برای اجرای مستقیم source code به interpreter نیاز دارند در نتیجه به‌ جای این مدل : 
 
 ```
 Source
@@ -954,7 +678,7 @@ Compiler
 Executable
 ```
 
-اغلب با این مدل روبه‌رو هستیم:
+اغلب با این مدل رو به‌ رو هستیم :
 
 ```
 Script
@@ -966,17 +690,9 @@ Interpreter
 Execution
 ```
 
-#### Shebang
+#### 🔹 Shebang
 
-یکی از مهم‌ترین نکات مربوط به scriptها، خط اول آن‌هاست که با:
-
-```
-#!
-```
-
-شروع می‌شود.
-
-مثلاً:
+یکی از مهم‌ ترین نکات مربوط به script ها ، خط اول آن‌ هاست که با ```!#``` شروع می‌ شود مثلاً :
 
 ```python
 #!/usr/bin/python
@@ -990,13 +706,7 @@ print("Hello")
 #!/usr/bin/env python
 ```
 
-در این حالت pathname بعد از #! به executable مربوط به interpreter اشاره می‌کند.
-
-هنگامی که Unix یک فایل executable را می‌بیند که با #! شروع شده است، program مشخص‌شده در همان خط را اجرا می‌کند و script را در اختیار آن قرار می‌دهد.
-
-پس حتی concept script بودن یک فایل فقط به shell محدود نیست.
-
-مثلاً کتاب یک مثال جالب با tail ارائه می‌کند:
+در این حالت pathname بعد از !# به executable مربوط به interpreter اشاره می‌ کند. هنگامی که Unix یک فایل executable را می‌بیند که با !# شروع شده است ، program مشخص‌ شده در همان خط را اجرا می‌ کند و script را در اختیار آن قرار می‌ دهد. پس حتی concept script بودن یک فایل فقط به shell محدود نیست. مثلاً کتاب یک مثال جالب با tail ارائه می‌ کند :
 
 ```
 #!/usr/bin/tail -2
@@ -1007,175 +717,57 @@ but it will print this line...
 and this line, too.
 ```
 
-در اینجا interpreter واقعی یک shell یا Python نیست؛ tail است.
+در اینجا interpreter واقعی یک shell یا Python نیست بلکه tail است. این نشان می‌ دهد که mechanism مربوط به shebang در سطح سیستم‌ عامل قرار دارد و می‌ تواند executable های متفاوتی را برای پردازش فایل text-based فراخوانی کند.
 
-این نشان می‌دهد که mechanism مربوط به shebang در سطح سیستم‌عامل قرار دارد و می‌تواند executableهای متفاوتی را برای پردازش فایل text-based فراخوانی کند.
+#### 🔹 Problems with Interpreter Paths
 
-#### Problems with Interpreter Paths
+یکی از رایج‌ ترین مشکلات script ها ، اشتباه بودن pathname مربوط به interpreter است مثلاً اگر script بگوید ```usr/bin/tail/!#``` ولی در سیستم شما tail در ```bin/tail/``` قرار داشته باشد ، اجرای script می‌ تواند با خطایی مانند ```bad interpreter: No such file or directory``` مواجه شود. در مورد !# همچنین نباید روی پشتیبانی یکسان همه‌ ی سیستم‌ ها از چند argument حساب کنید. خط shebang در برخی سیستم‌ ها ممکن است argument ها را به‌ شکلی متفاوت parse کند ، بنابراین استفاده‌ ی پیچیده از چند argument در shebang می‌ تواند portability را خراب کند برای همین اگر command line مربوط به interpreter پیچیده است ، wrapper script یا روش دیگری می‌ تواند مطمئن‌ تر باشد.
 
-یکی از رایج‌ترین مشکلات scriptها، اشتباه بودن pathname مربوط به interpreter است.
+#### 🔹 Python
 
-مثلاً اگر script بگوید:
 
-```
-#!/usr/bin/tail
-```
-
-ولی در سیستم شما tail در:
-
-```
-/bin/tail
-```
-
-قرار داشته باشد، اجرای script می‌تواند با خطایی مانند:
-
-```
-bad interpreter: No such file or directory
-```
-
-مواجه شود.
-
-در مورد #! همچنین نباید روی پشتیبانی یکسان همه‌ی سیستم‌ها از چند argument حساب کنید.
-
-خط shebang در برخی سیستم‌ها ممکن است argumentها را به‌شکلی متفاوت parse کند، بنابراین استفاده‌ی پیچیده از چند argument در shebang می‌تواند portability را خراب کند.
-
-برای همین اگر command line مربوط به interpreter پیچیده است، wrapper script یا روش دیگری می‌تواند مطمئن‌تر باشد.
-
-#### 15.4.1 Python
-
-Python یکی از scripting languageهای مهم و پرکاربرد است.
-
-کتاب چند ویژگی مهم Python را مطرح می‌کند، از جمله:
+زبان Python یکی از scripting language های مهم و پرکاربرد است کتاب چند ویژگی مهم Python را مطرح می‌ کند ، از جمله:
 
 - text processing
 - database access
 - networking
 - multithreading
 - interactive mode
-- object model منظم
+- Well organized object model
 
-در بسیاری از سیستم‌های مطرح‌شده در کتاب executable مربوط به Python:
+در بسیاری از سیستم‌ های مطرح‌ شده در کتاب executable مربوط به ```python``` است و معمولاً در مسیری مانند ```usr/bin/ ``` قرار دارد. Python فقط برای script های کوچک shell-like استفاده نمی‌ شود و در حوزه‌ های دیگری مانند data analysis و web applications و automation و software development نیز کاربرد دارد. این انعطاف‌ پذیری یکی از دلایل اصلی تبدیل شدن Python به یکی از زبان‌ های مهم در Linux ecosystem است.
 
-```
-python
-```
+#### 🔹 Perl
 
-است و معمولاً در مسیری مانند:
+زبان Perl یکی از زبان‌ های قدیمی مهم Unix است Perl در زمینه‌ هایی مثل text processing و text conversion و file manipulation قدرت زیادی دارد. اگرچه در گذر زمان بخشی از کاربرد های Perl به زبان‌ هایی مانند Python منتقل شده، هنوز ممکن است utility ها و script های قدیمی و حتی بعضی ابزارهای مهم سیستم را ببینید که با Perl نوشته شده‌ اند. به همین دلیل حتی اگر خودتان قصد نوشتن Perl نداشته باشید ، شناخت کلی آن برای مدیریت Linux system مفید است مخصوصاً وقتی با script های قدیمی سروکار دارید.
 
-```
-/usr/bin
-```
+#### 🔹 Other Scripting Languages
 
-قرار دارد.
+کتاب به چندین زبان دیگر نیز اشاره می‌ کند که ممکن است در Linux system با آن‌ ها برخورد کنید :
 
-Python فقط برای scriptهای کوچک shell-like استفاده نمی‌شود و در حوزه‌هایی از:
+زبان **PHP** : یک language برای پردازش hypertext است و historically در dynamic web applications بسیار رایج بوده است علاوه بر web ، بعضی افراد از PHP برای standalone script نیز استفاده می‌ کنند.
 
-- data analysis
-- web applications
-- automation
-- software development
+زبان **Ruby** : یک زبان object-oriented است که در میان بعضی web developer ها و programmer های علاقه‌ مند به object-oriented programming محبوب بوده است.
 
-نیز کاربرد دارد.
+زبان **JavaScript** : ابتدا بیش از همه به‌ عنوان زبان داخل web browser شناخته می‌ شد و برای مدیریت dynamic content صفحات وب استفاده می‌ شد اما بعد ها با runtime هایی مانند ```Node.js``` استفاده از JavaScript در server-side programming و scripting نیز گسترده‌ تر شد. Executable مربوط به Node.js معمولاً ```node``` نام  دارد.
 
-این انعطاف‌پذیری یکی از دلایل اصلی تبدیل شدن Python به یکی از زبان‌های مهم در Linux ecosystem است.
+زبان **Emacs Lisp** : نوعی از Lisp است که در محیط Emacs استفاده می‌ شود. برای توسعه و customization خود Emacs اهمیت ویژه‌ ای دارد.
 
-#### 15.4.2 Perl
+زبان **MATLAB and Octave** : یک محیط و زبان تجاری برای محاسبات ریاضی ، مخصوصاً matrix-oriented programming است. Octave یک پروژه‌ ی آزاد است که در بسیاری از زمینه‌ ها شباهت زیادی به MATLAB دارد.
 
-Perl یکی از زبان‌های قدیمی مهم Unix است.
+زبان **R** : یک زبان آزاد و بسیار مهم برای statistical analysis و پردازش داده‌ های آماری است.
 
-Perl در زمینه‌هایی مثل:
+محیط **Mathematica** : یک محیط و language تجاری برای محاسبات ریاضی و scientific computing است.
 
-- text processing
-- text conversion
-- file manipulation
+زبان **m4** : یک macro-processing language است که در ecosystem مربوط به GNU autotools کاربرد دارد. این زبان را معمولاً به‌ عنوان زبان عمومی برای script های روزمره نمی‌ بینید ، بلکه بیشتر در ابزارهای build و generation مورد استفاده قرار می‌ گیرد.
 
-قدرت زیادی دارد.
-
-اگرچه در گذر زمان بخشی از کاربردهای Perl به زبان‌هایی مانند Python منتقل شده، هنوز ممکن است utilityها و scriptهای قدیمی و حتی بعضی ابزارهای مهم سیستم را ببینید که با Perl نوشته شده‌اند.
-
-به همین دلیل حتی اگر خودتان قصد نوشتن Perl نداشته باشید، شناخت کلی آن برای مدیریت Linux system مفید است؛ مخصوصاً وقتی با scriptهای قدیمی سروکار دارید.
-
-#### 15.4.3 Other Scripting Languages
-
-کتاب به چندین زبان دیگر نیز اشاره می‌کند که ممکن است در Linux system با آن‌ها برخورد کنید.
-
-**PHP**
-
-PHP یک language برای پردازش hypertext است و historically در dynamic web applications بسیار رایج بوده است.
-
-علاوه بر web، بعضی افراد از PHP برای standalone script نیز استفاده می‌کنند.
-
-**Ruby**
-
-Ruby یک زبان object-oriented است که در میان بعضی web developerها و programmerهای علاقه‌مند به object-oriented programming محبوب بوده است.
-
-**JavaScript**
-
-JavaScript ابتدا بیش از همه به‌عنوان زبان داخل web browser شناخته می‌شد و برای مدیریت dynamic content صفحات وب استفاده می‌شد.
-
-اما بعدها با runtimeهایی مانند:
-
-```
-Node.js
-```
-
-استفاده از JavaScript در server-side programming و scripting نیز گسترده‌تر شد.
-
-Executable مربوط به Node.js معمولاً:
-
-```
-node
-```
-
-نام دارد.
-
-**Emacs Lisp**
-
-Emacs Lisp نوعی از Lisp است که در محیط Emacs استفاده می‌شود.
-
-برای توسعه و customization خود Emacs اهمیت ویژه‌ای دارد.
-
-**MATLAB and Octave**
-
-MATLAB یک محیط و زبان تجاری برای محاسبات ریاضی، مخصوصاً matrix-oriented programming است.
-
-Octave یک پروژه‌ی آزاد است که در بسیاری از زمینه‌ها شباهت زیادی به MATLAB دارد.
-
-**R**
-
-R یک زبان آزاد و بسیار مهم برای statistical analysis و پردازش داده‌های آماری است.
-
-**Mathematica**
-
-Mathematica یک محیط و language تجاری برای محاسبات ریاضی و scientific computing است.
-
-**m4**
-
-m4 یک macro-processing language است که در ecosystem مربوط به GNU autotools کاربرد دارد.
-
-این زبان را معمولاً به‌عنوان زبان عمومی برای scriptهای روزمره نمی‌بینید، بلکه بیشتر در ابزارهای build و generation مورد استفاده قرار می‌گیرد.
-
-**Tcl**
-
-Tcl مخفف Tool Command Language است.
-
-یک scripting language نسبتاً ساده است که historically با toolkit گرافیکی Tk و ابزار automationای مانند Expect ارتباط داشته است.
-
-اگرچه کاربرد Tcl نسبت به گذشته کمتر شده، اما هنوز ممکن است در بعضی softwareها، scriptهای قدیمی و پروژه‌های embedded با آن روبه‌رو شوید.
+زبان **Tcl** : مخفف Tool Command Language است. یک scripting language نسبتاً ساده است که historically با toolkit گرافیکی Tk و ابزار automation مانند Expect ارتباط داشته است. اگرچه کاربرد Tcl نسبت به گذشته کمتر شده ، اما هنوز ممکن است در بعضی software ها ، script های قدیمی و پروژه‌ های embedded با آن رو به‌ رو شوید.
 
 ---
 
-### 15.5 Java
+### Java
 
-Java از نظر مدل کلی یک زبان compiled است، اما شیوه‌ی اجرای آن با C تفاوت مهمی دارد.
-
-در مدل رایج Java، source code مستقیماً executable native نهایی نمی‌شود.
-
-ابتدا source code به bytecode تبدیل می‌شود.
-
-سپس bytecode در محیط اجرای Java توسط یک virtual machine اجرا می‌شود.
-
-مدل مفهومی:
+زبان Java از نظر مدل کلی یک زبان compiled است ، اما شیوه‌ ی اجرای آن با C تفاوت مهمی دارد. در مدل رایج Java ، source code مستقیماً executable native نهایی نمی‌ شود ابتدا source code به bytecode تبدیل می‌ شود سپس bytecode در محیط اجرای Java توسط یک virtual machine اجرا می‌ شود مدل مفهومی :
 
 ```
 Java Source
@@ -1193,193 +785,39 @@ Java Bytecode
 Execution
 ```
 
-این virtual machine را نباید با virtual machine مربوط به hypervisorها اشتباه گرفت.
+این virtual machine را نباید با virtual machine مربوط به hypervisor ها اشتباه گرفت در Linux معمولاً bytecode با پسوند ```class.``` ذخیره می‌ شود. کتاب دو نوع کلی Java compiler را از هم متمایز می‌ کند :
 
-در Linux معمولاً bytecode با پسوند:
+- اول compiler هایی که native machine code تولید می‌ کنند.
+- دوم compiler هایی که bytecode تولید می‌ کنند تا توسط virtual machine اجرا شود.
 
-```
-.class
-```
+آن چیزی که تقریباً همیشه در Linux با آن رو به‌ رو می‌ شوید ، مدل bytecode است.
 
-ذخیره می‌شود.
 
-کتاب دو نوع کلی Java compiler را از هم متمایز می‌کند:
+#### 🔹 Java Runtime Environment
 
-- compilerهایی که native machine code تولید می‌کنند.
-- compilerهایی که bytecode تولید می‌کنند تا توسط virtual machine اجرا شود.
+برای اجرای Java bytecode به runtime مناسب Java نیاز دارید. کتاب از Java Runtime Environment (JRE) به‌ عنوان محیطی نام می‌ برد که برنامه‌ های لازم برای اجرای Java bytecode را فراهم می‌ کند. در مدل ارائه‌ شده در کتاب ، فایل bytecode با command مانند ```java file.class``` اجرا می‌ شود. از نظر syntax عملی Java ، معمولاً class را با نام آن اجرا می‌ کنیم ، یعنی مثلاً اگر فایل ```Hello.class``` داشته باشیم ، command معمول چنین است ```java Hello``` نه ```java Hello.class``` ، پس باید بین مفهوم فایل class. و نام class در command اجرا تفاوت قائل شویم.
 
-آن چیزی که تقریباً همیشه در Linux با آن روبه‌رو می‌شوید، مدل bytecode است.
+#### 🔹 JAR Files
 
-#### Java Runtime Environment
+ممکن است برنامه‌ ی Java به‌ جای یک فایل class. منفرد ، مجموعه‌ ای از class ها و resource های مختلف داشته باشد. برای packaging این موارد از ```jar.``` استفاده می‌ شود. JAR را می‌ توان نوعی archive برای فایل‌ های Java در نظر گرفت. برای اجرای یک JAR executable از ```java -jar file.jar``` استفاده می‌ شود. از این نظر JAR تا حدی شبیه یک archive package است که فایل‌ های class. و resource های مرتبط را در خود نگه می‌ دارد.
 
-برای اجرای Java bytecode به runtime مناسب Java نیاز دارید.
+#### 🔹 JAVA_HOME
 
-کتاب از Java Runtime Environment (JRE) به‌عنوان محیطی نام می‌برد که برنامه‌های لازم برای اجرای Java bytecode را فراهم می‌کند.
+برخی محیط‌ ها نیاز دارند که location مربوط به Java installation مشخص باشد برای این کار ممکن است environment variable زیر تنظیم شود ```JAVA_HOME``` این variable معمولاً به prefix مربوط به installation Java اشاره می‌ کند مثلاً ```export JAVA_HOME=/opt/java``` مقدار دقیق بسته به محل نصب Java متفاوت است.
 
-در مدل ارائه‌شده در کتاب، فایل bytecode با commandی مانند:
+#### 🔹 CLASSPATH
 
-```
-java file.class
-```
+یکی دیگر از environment variable هایی که ممکن است در سیستم‌ های Java ببینید ```CLASSPATH``` است. این variable مجموعه‌ ای از directory هایی را مشخص می‌ کند که Java باید برای class های مورد نیاز program بررسی کند مانند PATH که separator معمول directory ها در آن ```:``` است مثلاً ```export CLASSPATH=/opt/myapp/classes:/opt/lib/classes``` اما استفاده‌ی بی‌ دلیل از CLASSPATH می‌ تواند configuration را پیچیده کند ، چون محیط global روی محل جست‌ وجوی class ها تأثیر می‌ گذارد.
 
-اجرا می‌شود.
+#### 🔹 The Java Development Kit
 
-از نظر syntax عملی Java، معمولاً class را با نام آن اجرا می‌کنیم، یعنی مثلاً اگر فایل:
-
-```
-Hello.class
-```
-
-داشته باشیم، command معمول چنین است:
-
-```
-java Hello
-```
-
-نه:
-
-```
-java Hello.class
-```
-
-پس باید بین مفهوم فایل .class و نام class در command اجرا تفاوت قائل شویم.
-
-#### JAR Files
-
-ممکن است برنامه‌ی Java به‌جای یک فایل .class منفرد، مجموعه‌ای از classها و resourceهای مختلف داشته باشد.
-
-برای بسته‌بندی این موارد از:
-
-```
-.jar
-```
-
-استفاده می‌شود.
-
-JAR را می‌توان نوعی archive برای فایل‌های Java در نظر گرفت.
-
-برای اجرای یک JAR executable:
-
-```
-java -jar file.jar
-```
-
-استفاده می‌شود.
-
-از این نظر JAR تا حدی شبیه یک archive package است که فایل‌های .class و resourceهای مرتبط را در خود نگه می‌دارد.
-
-#### JAVA_HOME
-
-برخی محیط‌ها نیاز دارند که location مربوط به Java installation مشخص باشد.
-
-برای این کار ممکن است environment variable زیر تنظیم شود:
-
-```
-JAVA_HOME
-```
-
-این variable معمولاً به prefix مربوط به installation Java اشاره می‌کند.
-
-مثلاً:
-
-```
-export JAVA_HOME=/opt/java
-```
-
-مقدار دقیق بسته به محل نصب Java متفاوت است.
-
-#### CLASSPATH
-
-یکی دیگر از environment variableهایی که ممکن است در سیستم‌های Java ببینید:
-
-```
-CLASSPATH
-```
-
-است.
-
-این variable مجموعه‌ای از directoryهایی را مشخص می‌کند که Java باید برای classهای موردنیاز program بررسی کند.
-
-مانند PATH، separator معمول directoryها در آن:
-
-```
-:
-```
-
-است.
-
-مثلاً:
-
-```
-export CLASSPATH=/opt/myapp/classes:/opt/lib/classes
-```
-
-اما استفاده‌ی بی‌دلیل از CLASSPATH می‌تواند configuration را پیچیده کند، چون محیط global روی محل جست‌وجوی classها تأثیر می‌گذارد.
-
-#### The Java Development Kit
-
-برای compile کردن source code جاوا به:
-
-```
-JDK
-```
-
-یعنی Java Development Kit نیاز دارید.
-
-compiler اصلی آن:
-
-```
-javac
-```
-
-است.
-
-مثلاً:
-
-```
-javac Hello.java
-```
-
-source code را به فایل‌های .class تبدیل می‌کند.
-
-JDK همچنین ابزار:
-
-```
-jar
-```
-
-را در اختیار شما قرار می‌دهد که برای ساختن و unpack کردن JAR fileها استفاده می‌شود.
-
-از نظر مفهومی jar تا حدی مشابه نقش tar برای archiveهای Unix است.
+برای compile کردن source code جاوا به ```JDK``` یعنی Java Development Kit نیاز دارید. compiler اصلی آن ``` javac``` است مثلاً ```javac Hello.java``` که source code را به فایل‌ های class. تبدیل می‌ کند. JDK همچنین ابزار ```jar``` را در اختیار شما قرار می‌ دهد که برای ساختن و unpack کردن JAR file ها استفاده می‌ شود از نظر مفهومی jar تا حدی مشابه نقش tar برای archive های Unix است.
 
 ---
 
-### 15.6 Looking Forward: Compiling Packages
+### Looking Forward: Compiling Packages
 
-دنیای compilerها و programming languageها بسیار گسترده‌تر از چیزهایی است که در این فصل بررسی شد.
-
-زبان‌های compiled جدیدتری به‌طور مداوم توسعه پیدا می‌کنند و کتاب در زمان نگارش خود به زبان‌هایی مانند:
-
-- Go
-- Rust
-
-اشاره می‌کند.
-
-همچنین infrastructureهایی مانند:
-
-```
-LLVM
-```
-
-فرآیند توسعه‌ی compilerها را ساده‌تر و قدرتمندتر کرده‌اند.
-
-LLVM فقط یک compiler برای یک language خاص نیست؛ مجموعه‌ای از infrastructureها و componentهایی است که توسعه‌دهندگان compiler و language implementation می‌توانند روی آن‌ها build کنند.
-
-اگر بخواهید خود compilerها، language processing و طراحی language را عمیق‌تر مطالعه کنید، این موضوع به حوزه‌ای بسیار بزرگ‌تر تبدیل می‌شود.
-
-اما برای یک Linux administrator مسئله‌ی عملی مهم‌تر این است که وقتی source code و ابزارهای build را در اختیار داریم، چطور یک software package را واقعاً از source بسازیم و نصب کنیم؟
-
-تا اینجا اجزای پایه را می‌شناسیم:
+دنیای compiler ها و programming language ها بسیار گسترده‌ تر از چیزهایی است که در این فصل بررسی شد. زبان‌ های compiled جدیدتری به‌ طور مداوم توسعه پیدا می‌ کنند و کتاب در زمان نگارش خود به زبان‌ هایی مانند Go و Rust اشاره می‌ کند همچنین infrastructure هایی مانند ```LLVM``` فرآیند توسعه‌ ی compiler ها را ساده‌ تر و قدرتمند تر کرده‌ اند. LLVM فقط یک compiler برای یک language خاص نیست بلکه مجموعه‌ ای از infrastructure ها و component هایی است که توسعه‌ دهندگان compiler و language implementation می‌ توانند روی آن‌ ها build کنند. اگر بخواهید خود compiler ها ، language processing و طراحی language را عمیق‌ تر مطالعه کنید ، این موضوع به حوزه‌ ای بسیار بزرگ‌ تر تبدیل می‌ شود. اما برای یک Linux administrator مسئله‌ ی عملی مهم‌ تر این است که وقتی source code و ابزارهای build را در اختیار داریم ، چطور یک software package را واقعاً از source بسازیم و نصب کنیم ؟ تا اینجا اجزا ی پایه را می‌ شناسیم :
 
 ```
 C Source
@@ -1404,7 +842,7 @@ Linker
           Dynamic Linker/Loader
 ```
 
-و برای پروژه‌های چندفایلی:
+و برای پروژه‌ های چند فایلی :
 
 ```
 Source Files
@@ -1419,13 +857,9 @@ Compiler / Linker
 Executable
 ```
 
-فصل بعدی وارد مرحله‌ی واقعی‌تر build نرم‌افزار از source می‌شود؛ یعنی packageهایی که معمولاً شامل source code، configuration، build system و installation step هستند.
+#### 🔹 Source-to-Execution Flow
 
-در آنجا با software build systems، Autoconf، configure، environment variables، pkg-config، installation، patching و troubleshooting سروکار خواهیم داشت.
-
-#### Source-to-Execution Flow
-
-در پایان این فصل، مسیر یک برنامه‌ی C را می‌توان با جزئیات بیشتری این‌طور دید:
+در پایان این فصل ، مسیر یک برنامه‌ ی C را می‌ توان با جزئیات بیشتری این‌ طور دید :
 
 ```
                     C Source Code
@@ -1472,9 +906,7 @@ Executable
                                   Running Process
 ```
 
-تفاوت static و shared library در این مسیر بسیار مهم است.
-
-در static linking:
+تفاوت static و shared library در این مسیر بسیار مهم است در static linking کد موردنیاز library هنگام link وارد executable می‌ شود. 
 
 ```
 Library Code
@@ -1483,9 +915,7 @@ Library Code
 Executable
 ```
 
-code موردنیاز library هنگام link وارد executable می‌شود.
-
-در shared linking:
+در shared linking :
 
 ```
 Executable
@@ -1503,29 +933,11 @@ Find libX.so
 Load into process
 ```
 
-به همین دلیل اگر یک executable در زمان اجرا با خطایی شبیه:
+به همین دلیل اگر یک executable در زمان اجرا با خطایی شبیه ```error while loading shared libraries``` روبرو شود ، مسئله دیگر مربوط به compiler نیست باید سراغ dependency های runtime ، loader ، search path ، cache ، rpath و در موارد خاص environment variable هایی مانند LD_LIBRARY_PATH برویم. این تفکیک build-time dependency و runtime dependency یکی از اصلی‌ ترین مفاهیم فصل پانزدهم است.
 
-```
-error while loading shared libraries
-```
+#### 🔹 Build Management with make
 
-روبرو شود، مسئله دیگر مربوط به compiler نیست.
-
-باید سراغ dependencyهای runtime، loader، search path، cache، rpath و در موارد خاص environment variableهایی مانند LD_LIBRARY_PATH برویم.
-
-این تفکیک build-time dependency و runtime dependency یکی از اصلی‌ترین مفاهیم فصل پانزدهم است.
-
-#### Build Management with make
-
-در پروژه‌های کوچک:
-
-```
-cc -o hello hello.c
-```
-
-کافی است.
-
-اما با افزایش تعداد source fileها، dependencyها نیز افزایش پیدا می‌کنند:
+در پروژه‌ های کوچک ```cc -o hello hello.c``` کافی است اما با افزایش تعداد source file ها ، dependency ها نیز افزایش پیدا می‌ کنند :
 
 ```
 main.c
@@ -1539,16 +951,7 @@ aux.c          |
 aux.o -------> myprog
 ```
 
-make این dependency graph را به‌شکل explicit یا با استفاده از built-in rules می‌شناسد و تلاش می‌کند فقط بخش‌های outdated را rebuild کند.
-
-مثلاً اگر فقط:
-
-```
-aux.c
-```
-
-تغییر کند:
-
+در make این dependency graph را به‌ شکل explicit یا با استفاده از built-in rules می‌ شناسد و تلاش می‌ کند فقط بخش‌ های outdated را rebuild کند مثلاً اگر فقط ```aux.c``` تغییر کند دوباره ساخته می‌ شود ، ولی main.o نیازی به rebuild ندارد به همین دلیل make بیشتر از اینکه یک compiler wrapper ساده باشد ،  یک dependency-driven build system است :
 ```
 aux.c
   |
@@ -1559,13 +962,9 @@ aux.o
 myprog
 ```
 
-دوباره ساخته می‌شود، ولی main.o نیازی به rebuild ندارد.
+#### 🔹 Tools to Remember
 
-به همین دلیل make بیشتر از اینکه یک compiler wrapper ساده باشد، یک dependency-driven build system است.
-
-#### Tools to Remember
-
-ابزارهای اصلی فصل را می‌توان این‌گونه دسته‌بندی کرد:
+ابزار های اصلی فصل را می‌ توان این‌ گونه دسته‌ بندی کرد :
 
 ```
 Compiler / Build
@@ -1607,356 +1006,19 @@ Java
     jar
 ```
 
-این commandها همگی یک نقش مشترک ندارند؛ بعضی برای build، بعضی برای linking، بعضی برای runtime، بعضی برای language processing و بعضی برای اجرای programها هستند.
-
-#### Important Distinctions
-
-چند تفاوت در این فصل باید کاملاً در ذهن باقی بماند.
-
-##### -I vs -L
-
-```
--I
- |
- +--> Include/Header Search Path
-
-
--L
- |
- +--> Library Search Path
-```
-
--I مربوط به header fileهاست و -L مربوط به libraryهای linker.
-
-##### -l vs -L
-
-```
--lfoo
- |
- +--> Link against libfoo
-
-
--L/path
- |
- +--> Search for libraries in /path
-```
-
-مثلاً:
-
-```
-cc -L/opt/lib -lfoo
-```
-
-یعنی libraryای با نام منطقی foo را پیدا کن و directory /opt/lib را نیز در search path خود قرار بده.
-
-##### CFLAGS vs CPPFLAGS vs LDFLAGS vs LDLIBS
-
-```
-CPPFLAGS
-    |
-    +--> Preprocessor
-
-
-CFLAGS
-    |
-    +--> C Compiler
-
-
-LDFLAGS
-    |
-    +--> Linker Options
-
-
-LDLIBS
-    |
-    +--> Library Link Options
-```
-
-این جداسازی در Makefileهای درست سازمان‌یافته بسیار مهم است.
-
-##### -L vs rpath
-
-```
--L
- |
- +--> Build time
-
-
-rpath
- |
- +--> Runtime
-```
-
--L کمک می‌کند linker هنگام ساخت executable library را پیدا کند؛ rpath مسیر runtime را در executable قرار می‌دهد.
-
-##### Static vs Shared
-
-```
-Static:
-Executable
-    |
-    +--> contains library code
-
-
-Shared:
-Executable
-    |
-    +--> refers to library
-             |
-             v
-        Runtime Loader
-```
-
-Static linking dependency runtime روی فایل .a را از بین می‌برد، اما executable را بزرگ‌تر می‌کند.
-
-Shared libraryها امکان sharing code در memory و update مستقل library را فراهم می‌کنند، ولی dependency management را پیچیده‌تر می‌کنند.
-
-##### make vs Compiler
-
-make خودش compiler نیست.
-
-مثلاً:
-
-```
-make
- |
- +--> cc
- |
- +--> ld
- |
- +--> other tools
-```
-
-make تصمیم می‌گیرد چه commandهایی و در چه ترتیبی اجرا شوند.
-
-Compiler کار تبدیل source به object code را انجام می‌دهد.
-
-Linker کار اتصال objectها و libraryها را انجام می‌دهد.
+این command ها همگی یک نقش مشترک ندارند بعضی برای build ، بعضی برای linking ، بعضی برای runtime ، بعضی برای language processing و بعضی برای اجرای program ها هستند.
 
 ---
 
-### Final Summary
+### Summary
 
-فصل پانزدهم مسیر یک program را از دنیای source code تا زمان اجرای واقعی آن بررسی می‌کند.
+فصل پانزدهم با معرفی Development Tools ، ابزارها و مراحل اصلی ساخت و اجرای program در Linux را بررسی می‌ کند. در بخش C هم source code ابتدا توسط preprocessor پردازش می‌ شود و سپس compiler آن را به object file تبدیل می‌ کند. در پروژه‌ های چند فایلی ، object file ها با linker و در صورت نیاز با library ها ترکیب می‌ شوند تا executable ساخته شود.
 
-در شروع، C compiler را دیدیم و فهمیدیم source code می‌تواند به object fileهای جداگانه تقسیم شود:
+در ادامه تفاوت static library و shared library بررسی می‌ شود. در shared linking ، executable به library وابسته می‌ ماند و dynamic linker/loader در زمان اجرا library مناسب را پیدا و load می‌ کند. مفاهیمی مانند ldd ، rpath ، /etc/ld.so.conf ، /etc/ld.so.cache ، ldconfig و LD_LIBRARY_PATH نیز برای درک runtime library dependencies معرفی می‌ شوند همچنین درباره‌ ی استفاده‌ ی محتاطانه از LD_LIBRARY_PATH و کاربرد wrapper script صحبت می‌ شود. 
 
-```
-main.c  ---> main.o
-aux.c   ---> aux.o
-```
+بخش بعدی به header files و C preprocessor اختصاص دارد و نقش directive هایی مانند #include،   #define و conditional های ifdef# و if# را توضیح می‌ دهد. سپس make به‌ عنوان ابزار مدیریت build معرفی می‌ شود که با استفاده از target ، dependency و rule و با بررسی timestamp ها ، فقط بخش‌ های مورد نیاز را دوباره build می‌ کند. در این بخش variable هایی مانند CC ، CFLAGS ، CPPFLAGS ، LDFLAGS ، LDLIBS و CXXFLAGS و همچنین automatic variable ها معرفی می‌ شوند. 
 
-سپس object fileها با linker ترکیب می‌شوند:
+در ادامه ، ابزارهای Lex/Yacc و مفهوم shebang برای اجرای script ها بررسی می‌ شوند. سپس زبان‌ هایی مانند Python و Perl و چند scripting language دیگر معرفی شده و در پایان مدل اجرای Java ، bytecode ، JVM ، JAR ، JAVA_HOME و CLASSPATH بررسی می‌ شود. 
 
-```
-main.o + aux.o
-        |
-        v
-      linker
-        |
-        v
-      myprog
-```
-
-بعد libraryها وارد بحث شدند. در static linking، code موردنیاز library در executable قرار می‌گیرد؛ در shared linking، executable dependency خود را ثبت می‌کند و dynamic linker/loader در زمان اجرا library مناسب را پیدا و load می‌کند.
-
-برای مشاهده‌ی dependencyهای runtime از:
-
-```
-ldd program
-```
-
-استفاده می‌شود و برای مدیریت search pathها باید مفاهیمی مانند:
-
-- rpath
-- /etc/ld.so.conf
-- /etc/ld.so.cache
-- ldconfig
-- LD_LIBRARY_PATH
-
-را بشناسیم.
-
-یکی از مهم‌ترین هشدارهای فصل درباره‌ی LD_LIBRARY_PATH است. این variable می‌تواند برای یک program خاص مفید باشد، اما قرار دادن آن در shell startup fileها می‌تواند باعث library conflict، mismatch و حتی افت performance در برنامه‌های دیگر شود. برای چنین مواردی، wrapper script راه کنترل‌شده‌تری است.
-
-در بخش headerها دیدیم که #include فقط یک directive ساده نیست، بلکه بخشی از کار C preprocessor است. #define و conditionalهایی مانند #ifdef نیز قبل از مرحله‌ی اصلی compilation پردازش می‌شوند:
-
-```
-C Source
-    |
-    v
-Preprocessor
-    |
-    +--> #include
-    +--> #define
-    +--> #ifdef / #if
-    |
-    v
-Compiler
-```
-
-بعد از آن سراغ make رفتیم.
-
-make build process را بر اساس:
-
-- Target
-- Dependency
-- Rule
-
-سازمان‌دهی می‌کند و مهم‌تر از همه، با بررسی dependencyها فقط targetهایی را rebuild می‌کند که واقعاً outdated شده‌اند.
-
-در ادامه با variableها و macroهای مهمی مانند:
-
-- CC
-- CFLAGS
-- CPPFLAGS
-- LDFLAGS
-- LDLIBS
-- CXXFLAGS
-
-و automatic variableهایی مانند:
-
-- $@
-- $<
-- $*
-
-آشنا شدیم.
-
-بعد فصل ابزارهای Lex و Yacc را معرفی کرد:
-
-```
-Lex / flex
-    |
-    v
-Tokens
-    |
-    v
-Yacc / bison
-    |
-    v
-Parsed Structure
-```
-
-در بخش scripting languageها نیز فهمیدیم که shebang:
-
-```
-#!
-```
-
-مشخص می‌کند سیستم برای اجرای یک script باید چه interpreter یا executableای را فراخوانی کند. Python و Perl بررسی شدند و بعد languageهایی مانند PHP، Ruby، JavaScript/Node.js، Emacs Lisp، MATLAB/Octave، R، Mathematica، m4 و Tcl معرفی شدند.
-
-در نهایت Java را دیدیم که در مدل رایج خود source code را ابتدا به bytecode تبدیل می‌کند:
-
-```
-.java
-  |
-  v
-javac
-  |
-  v
-.class
-  |
-  v
-JVM
-  |
-  v
-Execution
-```
-
-و JAR امکان بسته‌بندی مجموعه‌ای از classها و resourceها را فراهم می‌کند:
-
-```
-java -jar application.jar
-```
-
-در پایان فصل، کتاب به compilerهای جدیدتری مانند Go و Rust و infrastructure مهم LLVM اشاره می‌کند و مسیر را برای فصل بعد آماده می‌کند.
-
-بنابراین اگر بخواهیم کل فصل پانزدهم را در یک جریان واحد ببینیم:
-
-```
-            Source Code
-                  |
-                  v
-             Preprocessor
-                  |
-                  v
-               Compiler
-                  |
-                  v
-              Object Files
-                  |
-                  v
-                Linker
-             /          \
-            /            \
-           v              v
-      Static Libs     Shared Libs
-           |              |
-           v              v
-      Executable     Runtime Dependency
-                           |
-                           v
-                    Dynamic Loader
-                           |
-                           v
-                    Loaded Libraries
-                           |
-                           v
-                       Process
-```
-
-و make در کنار این مسیر قرار می‌گیرد و مدیریت build را بر عهده می‌گیرد:
-
-```
-Source Files
-     |
-     v
-Makefile
-     |
-     v
-Dependency Graph
-     |
-     v
-Compiler / Preprocessor / Linker
-     |
-     v
-Executable
-```
-
-درک این مسیر باعث می‌شود یک executable Linux را دیگر فقط یک فایل قابل اجرا نبینیم. پشت آن مجموعه‌ای از source fileها، headerها، object fileها، libraryها، symbolها، linkerها و runtime dependencyها قرار دارد.
-
-وقتی برنامه‌ای build نمی‌شود، باید بدانیم مشکل در کدام مرحله است:
-
-```
-Header Problem
-      |
-      v
-Preprocessor / Include Path
-
-
-Compilation Problem
-      |
-      v
-Compiler
-
-
-Undefined Reference
-      |
-      v
-Linker / Object Files / Libraries
-
-
-Shared Library Error
-      |
-      v
-Dynamic Loader / Search Path / Library Compatibility
-
-
-Incremental Build Problem
-      |
-      v
-make / Dependencies / Timestamps
-```
-
-و این دقیقاً همان دیدی است که فصل پانزدهم می‌خواهد ایجاد کند: فهمیدن اینکه یک program از source code تا executable و سپس از executable تا process در حال اجرا، چه مراحلی را پشت سر می‌گذارد و هر ابزار در کدام مرحله مسئول چه کاری است.
-
-فصل بعدی از همین نقطه جلو می‌رود و به‌جای برنامه‌های ساده‌ی چندفایلی، وارد دنیای واقعی‌تر software packages می‌شود؛ یعنی اینکه source packageهای واقعی را چگونه unpack، configure، compile، test و install کنیم.
+در بخش پایانی نیز به ابزارها و فناوری‌ های جدید تری مانند Go ، Rust و LLVM اشاره می‌ شود و زمینه برای بحث درباره‌ ی ساخت و مدیریت package ها در فصل بعد فراهم می‌ شود.
+در مجموع ، این فصل دیدی عملی از ارتباط source code ، preprocessor ، compiler ، object file ، linker ، library ، build system و runtime loader ارائه می‌ دهد و نشان می‌ دهد هر ابزار در کدام مرحله از فرایند توسعه و اجرای software در Linux نقش دارد.
