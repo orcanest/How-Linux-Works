@@ -25,5 +25,5 @@
 - 13 [User Environments](https://github.com/orcanest/How-Linux-Works/tree/main/13-user-environments)
 - 14 [A brief survey of the linux desktop and printing](https://github.com/orcanest/How-Linux-Works/tree/main/14-a-brief-survey-of-the-linux-desktop-and-printing)
 - 15 [Development tools](https://github.com/orcanest/How-Linux-Works/tree/main/15-development-tools)
-- 16
-- 17
+- 16 [Introduction to compiling software from c source code](https://github.com/orcanest/How-Linux-Works/tree/main/16-introduction-to-compiling-software-from-c-source-code)
+- 17 [Virtualization](https://github.com/orcanest/How-Linux-Works/tree/main/17-virtualization)
