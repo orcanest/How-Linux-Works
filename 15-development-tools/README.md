@@ -39,7 +39,7 @@ Executable        Runtime Loader
 - [The C Compiler](#the-c-compiler)
 - [make](#make)
 - [Lex and Yacc](#lex-and-yacc)
-- [Scripting Languages](#154-scripting-languages)
+- [Scripting Languages](#scripting-languages)
 - [Java](#java)
 - [Looking Forward: Compiling Packages](#looking-forward-compiling-packages)
 - [Summary](#summary)
