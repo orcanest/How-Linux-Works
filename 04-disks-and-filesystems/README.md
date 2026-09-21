@@ -52,7 +52,7 @@
 - [Inode and Link Count Details](#inode-and-link-count-details)
 - [Block allocation](#block-allocation)
 - [Working with file systems from a user space perspective](#working-with-file-systems-from-a-user-space-perspective)
-- [Tips](#tips)
+- [Summery](#summery)
 
 
 ---
@@ -1149,7 +1149,7 @@ Filesystem Metadata
 
 ---
 
-### Tips
+### Summery
 
 در این فصل مسیر کامل مدیریت Storage در لینوکس را از **دیسک خام تا فایل و دایرکتوری** دنبال کردیم. ابتدا دیدیم یک دیسک چگونه با **Partition Table** به partition های مختلف تقسیم می‌شود و تفاوت ساختارهای **MBR** و **GPT** چیست. بعد با ابزارهایی مثل fdisk و parted برای مشاهده و تغییر partition ها آشنا شدیم و دیدیم که partition ها در kernel به‌ صورت block device های جداگانه در دسترس قرار می‌ گیرند.
 
@@ -1256,25 +1256,3 @@ Physical Disk / Partition
 ```Directory Entry → Inode → Data Blocks```
 
 این همان تصویری است که کمک می‌کند وقتی با دستورهایی مثل fdisk، mount، df، fsck، swapon، lvs یا حتی ls -i کار می‌ کنیم ، بدانیم پشت آن دستور دقیقاً کدام لایه از سیستم Storage در حال کار است.
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
