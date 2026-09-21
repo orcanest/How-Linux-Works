@@ -29,7 +29,7 @@ Browser → HTTP → TCP → IP → Ethernet / Wi-Fi → Network
 - [Looking Forward](#looking-forward)
 - [Network Sockets](#network-sockets)
 - [Unix Domain Sockets](#unix-domain-sockets)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -514,7 +514,7 @@ Unix domain socket
 
 ---
 
-### Tips 
+### Summery 
 
 در این فصل وارد لایه‌ ی Application شدیم و دیدیم سرویس‌ هایی مثل HTTP و SSH چگونه روی زیرساخت شبکه کار می‌کنند. سپس ابزارهایی مثل curl، lsof، tcpdump، netcat و nmap را برای بررسی و عیب‌ یابی سرویس‌ های شبکه دیدیم.
 
