@@ -53,7 +53,7 @@ Physical / Wireless
 - [Firewalls](#firewalls)
 - [Ethernet and IP and ARP and NDP](#ethernet-and-ip-and-arp-and-ndp)
 - [Wireless Ethernet](#wireless-ethernet)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -677,7 +677,7 @@ ACCEPT       DROP
 
 ---
 
-### Tips
+### Summery
 
 در این بخش با پایه‌های شبکه در لینوکس آشنا شدیم. از packet ها ، لایه‌های شبکه ، IPv4 و IPv6 گرفته تا routing ، default gateway ، Ethernet ، network interface ، DNS و TCP/UDP. این بخش نشان داد که شبکه هم مثل بیشتر بخش‌ های لینوکس، بین kernel و user space تقسیم شده :
 
