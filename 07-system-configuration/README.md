@@ -40,7 +40,7 @@
 - [PAM Configuration](#pam-configuration)
 - [Tips on PAM Configuration Syntax](#tips-on-pam-configuration-syntax)
 - [PAM and Passwords](#pam-and-passwords)
-- [Tips](#tips)
+- [Summery](#summery)
 
 --- 
 
@@ -934,7 +934,7 @@ auth sufficient pam_unix.so
 
 ---
 
-### Tips
+### Summery
 
 در این فصل بخش‌ هایی از user space را دیدیم که مستقیماً با مدیریت روزمره Linux ارتباط دارند. تا اینجا دیدیم که چگونه به هم متصل می‌ شوند :
 
