@@ -1,4 +1,4 @@
-## وقتی Kernel کارش تموم میشه ، User Space شروع میشه
+## شروع User Space ، از init تا اجرای سیستم
 ### 🐧 فصل ششم کتاب How Linux Works
 
 فصل پنجم توضیح داد که Linux Kernel چگونه از طریق firmware و boot loader وارد حافظه می‌ شود، سخت‌ افزار و driver ها را آماده می‌ کند ، filesystem هم ``/`` را در دسترس قرار می‌ دهد و در نهایت اولین process مربوط به user space را اجرا می‌ کند. نقطه‌ ای که Kernel اولین process را اجرا می‌ کند، یکی از مهم‌ ترین نقاط در فرآیند boot است. تا قبل از آن، مسیر اجرای سیستم عمدتاً درون Kernel و تحت کنترل مستقیم آن قرار دارد. اما از اینجا به بعد ، بخش بزرگی از رفتار سیستم توسط برنامه‌ های user space ، سرویس‌ ها ، daemon ها ، configuration ها و ابزارهای مدیریتی تعیین می‌ شود.
@@ -37,7 +37,7 @@
 - [shutting down your system](#shutting-down-your-system)
 - [initial RAM filesystem](#initial-ram-filesystem)
 - [emergency booting and single user mode](#emergency-booting-and-single-user-mode)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -666,7 +666,7 @@ To mount the filesystem, we must have a driver initramfs solves this problem
 محیط Single-user mode برای تعمیر سریع مفید است ، اما محیط کاملی در اختیار شما قرار نمی‌ دهد. ممکن است network آماده نباشد یا GUI وجود نداشته باشد یا terminal محدود باشد یا سرویس‌ های معمول سیستم اجرا نشده باشند. به همین دلیل برای بسیاری از عملیات recovery ، Live/Rescue Image گزینه مناسب‌ تری است.
 
 ---
-### Tips
+### Summery
 
 تا اینجا دو مرحله بزرگ از زندگی یک Linux system را دیدیم :
 
