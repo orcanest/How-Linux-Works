@@ -21,7 +21,7 @@
 - [The State of Network File Sharing](#the-state-of-network-file-sharing)
 - [Choosing the Right Tool for File Transfer and File Sharing](#choosing-the-right-tool-for-file-transfer-and-file-sharing)
 - [Practical Tips](#practical-tips)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -891,6 +891,6 @@ dir → directory itself
 
 ---
 
-### Tips
+### Summery
 
 فصل دوازدهم نشان می‌ دهد برای انتقال یا اشتراک‌ گذاری فایل روی شبکه یک راه‌ حل واحد وجود ندارد. rsync برای synchronization و backup بسیار مناسب است ، Samba/CIFS برای ارتباط Linux و Windows کاربرد دارد ، SSHFS راهی ساده برای دسترسی به فایل‌ های remote از طریق SSH است و NFS برای shared filesystem های Unix/Linux و NAS ها اهمیت دارد. در طرف دیگر ، FUSE امکان می‌ دهد storage هایی مانند cloud object storage از دید برنامه‌ ها شبیه file system به نظر برسند.  مفهوم اصلی فصل این است که **هنگام انتخاب راهکار باید نوع workload ، performance ، امنیت ، سادگی و رفتار سیستم هنگام قطع شبکه را هم‌ زمان در نظر گرفت**.
