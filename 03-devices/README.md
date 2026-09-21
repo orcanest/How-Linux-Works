@@ -23,7 +23,7 @@
 - [SCSI and ATA](#scsi-and-ata)
 - [Generic SCSI Devices](#generic-scsi-devices)
 - [Multiple access paths for a device](#multiple-access-paths-for-a-device)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -286,7 +286,7 @@
 
 ---
 
-### 💡 Tips
+### Summery
 
 این بخش نشون داد که فلسفه‌ی «**کرنل رو ساده نگه دار**» که فصل اول ازش گفت ، دقیقاً همین‌ جا خودش رو نشون میده.لینوکس تلاش می‌کنه تا جایی که ممکنه پیچیدگی‌ های مدیریتی و غیرضروری رو داخل kernel قرار نده و udevd نمونه‌ی واضح این فلسفه‌ ست. kernel وظیفه‌ ی شناسایی device و فراهم کردن مکانیزم‌ های پایه برای دسترسی به اون رو انجام میده ، اما بخش زیادی از مدیریت device و تنظیم permission ها و ساخت symbolic link ها و اجرای rule های پیچیده در user space و توسط udev انجام میشه.
 
