@@ -24,7 +24,7 @@
 - [Including Other Files in Scripts](#including-other-files-in-scripts)
 - [Reading User Input](#reading-user-input)
 - [When Not to Use Shell Scripts](#when-not-to-use-shell-scripts)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -893,7 +893,7 @@ Python → Complex logic and data structures
 
 ---
 
-### Tips
+### Summery
 
 فصل یازدهم Shell را از یک محیط اجرای command به یک ابزار واقعی برای automation و scripting تبدیل می‌ کند. در این فصل ساختار script ، shebang ، quoting ، پارامترها ، exit code ها ، شرط‌ ها ، case، loop ها، command substitution ، فایل‌ های موقت ، here document ، ابزارهایی مثل awk و sed ، exec ، subshell ، sourcing و read را بررسی کردیم.
 مهم‌ تر از syntax ، فصل تأکید می‌کند که باید مرز استفاده از Shell را بشناسیم: **برای ترکیب command ها و automation عالی است ، اما برای منطق پیچیده بهتر است سراغ زبان مناسب‌ تری برویم**.
