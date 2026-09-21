@@ -1,7 +1,9 @@
-## دستورات پایه‌ ی لینوکس چطور واقعاً کار می‌کنند؟ 
+## دستورات پایه‌ ی لینوکس چطور واقعاً کار می‌ کنند ؟ 
 ### 🐧 فصل دوم کتاب How Linux Works
 
-فصل اول کتاب معماری کلی یک سیستم لینوکس را معرفی کرد:  ``` Hardware → Kernel → User Space ```
+فصل اول کتاب معماری کلی یک سیستم لینوکس را معرفی کرد :
+ 
+  ``` Hardware → Kernel → User Space```
 
 در فصل دوم یک قدم جلوتر می‌ رویم و سراغ ابزارهایی میرویم که تقریباً هر روز هنگام کار با لینوکس از آن‌ها استفاده می‌کنیم. اما هدف این فصل فقط یاد گرفتن چند دستور نیست. هدف این است که بفهمیم **این دستورات در پشت صحنه چگونه با Shell و Process ها و Kernel و Filesystem ارتباط برقرار می‌کنند**. وقتی این ارتباط را درک کنیم ، بسیاری از رفتارهایی که در ابتدا عجیب به نظر می‌رسند ، کاملاً منطقی می‌ شوند.
 
@@ -46,7 +48,7 @@
 - [Big picture](#big-picture)
 - [From Commands to Understanding Linux](#from-commands-to-understanding-linux)
 - [Key points of the second season](#key-points-of-the-second-season)
-- [Tips](#tips)
+- [Summery](#summery)
   
 ---
 
@@ -997,7 +999,7 @@ gzip compression
 
 ---
 
-### 🧠 Big picture
+### Big picture
 
 قدرت خط فرمان فقط به تعداد Command هایی که بلدیم محدود نمی‌شود. قدرت واقعی زمانی ظاهر می‌شود که بفهمیم این ابزارهای کوچک چگونه با یکدیگر ارتباط برقرار می‌کنند. برای مثال:
 
@@ -1013,7 +1015,7 @@ Globbing → File arguments → grep → stdout → Pipe → sort → stdout →
 
 ---
 
-### 🚀 From Commands to Understanding Linux
+### From Commands to Understanding Linux
 
 بعد از این فصل، دیگر فقط چند Command جدید یاد نگرفته‌ایم. با مفاهیمی آشنا شده‌ ایم که در فصل‌ های بعدی بارها به آن‌ ها برمی‌گردیم :
 
@@ -1044,7 +1046,7 @@ Globbing → File arguments → grep → stdout → Pipe → sort → stdout →
 
 ---
 
-### 💡 Tips
+### Summery
 
 نکته‌ی اصلی فصل دوم این است که Command های پایه‌ ی Unix/Linux را نباید به‌ عنوان مجموعه‌ ای از دستورات جداگانه و برای حفظ کردن ببینیم.پشت این دستورات، مجموعه‌ ای از مفاهیم به یکدیگر متصل هستند:
 
