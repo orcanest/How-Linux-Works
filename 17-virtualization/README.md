@@ -75,16 +75,15 @@ AMD   → AMD-V
 #### 🔹 Drawbacks of Virtual Machines
 
 معمولاً VM ها isolation بسیار مفیدی ایجاد می‌ کنند ، اما هزینه‌ هایی نیز دارند :
+اولین مسئله **setup و configuration** است. آماده کردن یک operating system کامل و application environment زمان می‌ برد. حتی اگر این کار با automation tools ساده‌ تر شود ، راه‌ اندازی یک سیستم از صفر همچنان نسبت به یک environment سبک‌ تر زمان‌ بر است.
 
-- اولین مسئله **setup و configuration** است. آماده کردن یک operating system کامل و application environment زمان می‌ برد. حتی اگر این کار با automation tools ساده‌ تر شود ، راه‌ اندازی یک سیستم از صفر همچنان نسبت به یک environment سبک‌ تر زمان‌ بر است.
+دومین مشکل **boot و reboot** است. یک VM باید یک Linux system کامل را بالا بیاورد و بنابراین startup آن نسبت به چیزی مثل یک process یا container کند تر است.
 
-- دومین مشکل **boot و reboot** است. یک VM باید یک Linux system کامل را بالا بیاورد و بنابراین startup آن نسبت به چیزی مثل یک process یا container کند تر است.
+سومین هزینه ، **maintenance** است. هر VM یک operating system کامل دارد و باید update و security patch شود. ابزارهایی مانند `systemd` و `sshd` و library ها و package های مورد نیاز application نیز بخشی از همین maintenance هستند.
 
-- سومین هزینه ، **maintenance** است. هر VM یک operating system کامل دارد و باید update و security patch شود. ابزارهایی مانند `systemd` و `sshd` و library ها و package های مورد نیاز application نیز بخشی از همین maintenance هستند.
+مشکل دیگر dependency ها هستند. ممکن است application شما با software های استانداردی که روی VM نصب شده‌ اند ناسازگار باشد. حتی library هایی که با یک system upgrade تغییر می‌ کنند ، می‌ توانند باعث شوند application که قبلاً کار می‌ کرد دیگر درست اجرا نشود.
 
-- مشکل دیگر dependency ها هستند. ممکن است application شما با software های استانداردی که روی VM نصب شده‌ اند ناسازگار باشد. حتی library هایی که با یک system upgrade تغییر می‌ کنند ، می‌ توانند باعث شوند application که قبلاً کار می‌ کرد دیگر درست اجرا نشود.
-
-- موضوع بعدی هزینه‌ ی **resource isolation** است. جدا کردن هر service در یک VM می‌ تواند از نظر مدیریت خوب باشد ، اما اگر تعداد service ها زیاد باشد مصرف resource و هزینه‌ ی cloud نیز افزایش پیدا می‌ کند.
+موضوع بعدی هزینه‌ ی **resource isolation** است. جدا کردن هر service در یک VM می‌ تواند از نظر مدیریت خوب باشد ، اما اگر تعداد service ها زیاد باشد مصرف resource و هزینه‌ ی cloud نیز افزایش پیدا می‌ کند.
 
 این مشکلات برای سیستم‌ های کوچک الزاماً جدی نیستند ، اما هرچه تعداد service ها بیشتر شود ، زمان و هزینه‌ ی نگهداری بیشتر نمایان می‌ شود. اینجا است که container ها به‌ عنوان یک alternative سبک‌ تر اهمیت پیدا می‌ کنند.
 
