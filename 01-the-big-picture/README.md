@@ -10,18 +10,18 @@
 ### 📚 Table of Contents
 
 
-- [Abstraction](#️-abstraction)
-- [Kernel Mode vs User Mode](#️-kernel-mode-vs-user-mode)
-- [The Four Main Responsibilities of the Kernel](#️-the-four-main-responsibilities-of-the-kernel)
-- [System Call](#️-system-call)
-- [Context Switch](#️-context-switch)
-- [Memory Management](#️-memory-management)
-- [User & Root](#️-user--root)
-- [Tips](#-tips)
+- [Abstraction](#abstraction)
+- [Kernel Mode vs User Mode](#kernel-mode-vs-user-mode)
+- [The Four Main Responsibilities of the Kernel](#the-four-main-responsibilities-of-the-kernel)
+- [System Call](#system-call)
+- [Context Switch](#context-switch)
+- [Memory Management](#memory-management)
+- [User & Root](#user--root)
+- [Summery](#Summery)
 
 ---
 
-### ⚙️ **Abstraction**
+### Abstraction
 
 مهم‌ترین مفهومی که این فصل روی آن تأکید می‌کند **Abstraction** است. 
 Abstraction یعنی برای فهم یک سیستم پیچیده ، لازم نیست تمام جزئیات آن را بدانیم. کافی است ابتدا نقش هر بخش را بشناسیم و بعد در صورت نیاز به لایه‌های عمیق‌تر برویم.
@@ -32,29 +32,29 @@ Abstraction یعنی برای فهم یک سیستم پیچیده ، لازم ن
 
 <img width="100%" height="504" alt="Screenshot from 2026-08-28 18-04-53" src="https://github.com/user-attachments/assets/80dbc93a-8396-4da8-a6ef-511864513614" />
 
-🔹 **User Space** :
+🔹 **User Space**
 
 تمام برنامه‌هایی که ما روزانه با آن‌ها کار می‌کنیم مانند browser , Database , web server , Terminal  و صدها برنامه دیگر.
 
-🔹 **Kernel** :
+🔹 **Kernel**
 
 هسته سیستم‌ عامل که منابع سیستم را مدیریت می‌کند و بین برنامه‌ها و سخت‌افزار یک لایه Abstraction ایجاد می‌کند. Kernel مدیریت پردازنده، حافظه، دستگاه‌ ها، فایل‌ سیستم  و ارتباط برنامه‌ها با منابع سیستم را بر عهده دارد.
 
-🔹 **Hardware** :
+🔹 **Hardware**
 
  تمام سخت‌افزار سیستم از CPU و حافظه اصلی (RAM) گرفته تا دیسک و کارت شبکه.
 
 
 ---
 
-### ⚙️ **Kernel mode vs User mode**
+### Kernel mode vs User mode
 
 یکی از مهم‌ترین نکات این فصل، تفاوت بین **Kernel Mode** و **User Mode** است. سیستم برای جلوگیری از دسترسی کنترل‌نشده برنامه‌ها به منابع حساس، اجرای کد را به سطوح مختلف دسترسی تقسیم می‌کند.
-- **Kernel Mode**
+🔹 **Kernel Mode**
 
 کدی که در Kernel Mode اجرا می‌ شود، می‌ تواند از دستور ها و منابع سخت‌افزاری privileged استفاده کند و به بخش‌ های مهم سیستم دسترسی داشته باشد. به همین دلیل اگر در Kernel خطای جدی رخ دهد، ممکن است کل سیستم از کار بیفتد.
 
-- **User Mode**
+🔹 **User Mode**
 
 برنامه‌ های عادی در User Mode اجرا می‌شوند. هر Process معمولاً فضای آدرس مجازی مستقل خود را دارد. بنابراین اگر یک برنامه دچار Crash شود، معمولاً سایر برنامه‌ ها و بخش‌ های سیستم تحت تأثیر قرار نمی‌گیرند.
 
@@ -87,7 +87,7 @@ Abstraction یعنی برای فهم یک سیستم پیچیده ، لازم ن
 
 ---
 
-### ⚙️ **The four main responsibilities of the kernel**
+### The four main responsibilities of the kernel
 
 کرنل وظایف بسیار زیادی دارد، اما در تصویر کلی می‌توان چهار مسئولیت اصلی برای آن در نظر گرفت : 
 
@@ -110,11 +110,11 @@ Hardware
 ```
 
 ---
-### ⚙️ **System Call**
+### System Call
 
 دوتا از مهمترین System Call ها ، **()fork** و **()exec** هستند. 
 
-- #### fork()
+#### 🔹 fork()
 
 یک Process جدید ایجاد می‌ کند که در ابتدا وضعیت و فضای آدرس آن تقریباً مشابه Parent Process است. Process اصلی معمولاً Parent Process و Process جدید Child Process نامیده می‌شود.
 
@@ -129,7 +129,7 @@ Parent Process
       └──────────────► Child
 ```
 
-- #### exec() 
+#### 🔹 exec() 
 
 یک برنامه جدید را بارگذاری کرده و جایگزین برنامه‌ای می‌کند که در Process در حال اجرا بوده است. 
 ```
@@ -148,7 +148,7 @@ New Program
 
 ---
 
-### ⚙️ **Context Switch**
+### Context Switch
 
 نکته جالب دیگر، نحوه اجرای چندین برنامه روی CPU است. وقتی چندین برنامه را هم‌ زمان باز می‌کنید، به نظر می‌ رسد همه آن‌ ها هم‌ زمان در حال اجرا هستند. اما روی یک پردازنده تک‌ هسته‌ای، در هر لحظه فقط **یک Process** واقعاً از CPU استفاده می‌کند. 
 کرنل در بازه‌ های زمانی بسیار کوتاه، CPU را بین Process ها جابه‌ جا می‌ کند این فرآیند **Context Switch** نام دارد. این جا به‌ جایی آن‌ قدر سریع انجام می‌شود که برای کاربر، اجرای هم‌ زمان برنامه‌ ها کاملاً طبیعی به نظر می‌ رسد.
@@ -170,7 +170,7 @@ CPU
 > 💡 در یک CPU تک‌ هسته‌ای، برنامه‌ ها به‌ صورت هم‌ زمان روی همان هسته اجرا نمی‌ شوند ، CPU به‌ سرعت بین آن‌ها جابه‌جا می‌ شود. در سیستم‌ های چند‌ هسته‌ای، چند Task می‌ توانند به‌ صورت هم‌ زمان روی هسته‌ های مختلف اجرا شوند.
 ---
 
-### ⚙️ **Memory Management**
+### Memory Management
 
 مدیریت حافظه نیز یکی از مهم‌ترین وظایف kernel است. هر Process معمولاً تصور می‌کند که فضای حافظه مخصوص خودش را در اختیار دارد، در حالی که Kernel با استفاده از Virtual Memory و امکانات سخت‌ افزاری مانند Memory Management Unit (MMU) دسترسی Process ها به حافظه را مدیریت می‌کند. Kernel ساختارهایی مانند Page Table را مدیریت می‌کند و MMU هنگام دسترسی به حافظه، آدرس‌های مجازی (Virtual Address) را به آدرس‌های فیزیکی (Physical Address) ترجمه می‌کند. این مکانیزم باعث می‌شود Process ها معمولاً نتوانند مستقیماً به حافظه یکدیگر دسترسی پیدا کنند و در نتیجه Isolation و پایداری بیشتری ایجاد می‌شود.  
 ```
@@ -192,7 +192,7 @@ Process A                 Process B
 
 ---
 
-### ⚙️ **User & Root**
+### User & Root
 
 در پایان، کتاب به مفهوم **User** و **Root** اشاره می‌کند. کاربر Root که دارای UID 0 است، سطح دسترسی بسیار بالایی دارد و معمولاً می‌تواند عملیاتی را انجام دهد که کاربران عادی اجازه انجام آن‌ها را ندارند. به همین دلیل، استفاده از Root باید با احتیاط انجام شود، چون یک اشتباه کوچک می‌تواند بخش بزرگی از سیستم را تحت تأثیر قرار دهد. 
 ```
@@ -212,7 +212,7 @@ Root
 
 ---
 
-### 🧩 Putting Everything Together
+### Putting Everything Together
 
 حالا می‌توانیم تمام مفاهیم این فصل را کنار هم قرار دهیم: 
 ```
@@ -247,11 +247,8 @@ Root
 
 ---
 
-### ✨ **Tips**
+### Summery
 
 **قبل از حفظ کردن دستورات لینوکس، باید معماری آن را درک کنیم.**   وقتی بدانیم هر بخش چه مسئولیتی دارد و اجزای سیستم چگونه با هم تعامل می‌کنند، یادگیری مفاهیم پیشرفته‌تر مثل Process ها، Memory، FileSystem و Networking بسیار ساده‌تر و منطقی‌تر خواهد شد.
 
 🎯 در واقع هدف این فصل این است که به‌جای حفظ کردن مجموعه‌ای از دستورات، ابتدا یک تصویر ذهنی درست از Linux بسازیم.
-
-
-
