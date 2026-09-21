@@ -25,7 +25,7 @@
 - [MBR Boot](#mbr-boot)
 - [UEFI Boot](#ufei-boot)
 - [How GRUB Works](#how-grub-works)
-- [Tips](#tips)
+- [Summery](#summery)
 
 ---
 
@@ -855,7 +855,7 @@ Linux kernel
 
 ---
 
-### Tips
+### Summery
 
 فصل پنجم در اصل یک زنجیره‌ ی انتقال کنترل را توضیح می‌ دهد :
 
